@@ -13,4 +13,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="monument_list">Monument List</string>
     <string name="m1">Torre de Belém</string>
+    <string name="btnDownloadQuiz">Download Quiz</string>
+    <string name="loremIpsumMonument">Lorem ipsum dolor sit amet, nam ne percipit legendos interesset, est consequat comprehensam eu. Consul persequeris eloquentiam pro in, consequat abhorreant quo ea, sea illum velit legimus ut.</string>
+    <string name="title_activity_quiz">QuizActivity</string>
 </resources>

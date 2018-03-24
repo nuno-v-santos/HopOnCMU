@@ -20,7 +20,8 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppBaseTheme.NoActionBar" />
-        <activity android:name=".MonumentListActivity"></activity>
+        <activity android:name=".MonumentListActivity" />
+        <activity android:name=".MonumentScreenActivity" />
     </application>
 
 </manifest>
