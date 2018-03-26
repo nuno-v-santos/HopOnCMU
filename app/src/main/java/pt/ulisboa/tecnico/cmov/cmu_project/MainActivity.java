@@ -2,12 +2,9 @@ package pt.ulisboa.tecnico.cmov.cmu_project;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MainFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.RankingFragment;
@@ -112,5 +110,12 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void testBtnOnClick(MenuItem item) {
+        Intent intent = new Intent(this,MonumentScreenActivity.class);
+        MonumentData monData = new MonumentData(R.drawable.ic_launcher_background,"TORRE DE CMU", "Este Monumento é Bue Fixe");
+        intent.putExtra(MonumentScreenActivity.MONUMENT_DATA,monData);
+        startActivity(intent);
     }
 }

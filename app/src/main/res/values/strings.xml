@@ -16,4 +16,7 @@
     <string name="btnDownloadQuiz">Download Quiz</string>
     <string name="loremIpsumMonument">Lorem ipsum dolor sit amet, nam ne percipit legendos interesset, est consequat comprehensam eu. Consul persequeris eloquentiam pro in, consequat abhorreant quo ea, sea illum velit legimus ut.</string>
     <string name="title_activity_quiz">QuizActivity</string>
+    <string name="btnNext">Next</string>
+    <string name="answer_question">Responde primeiro à questão</string>
+    <string name="a">A</string>
 </resources>

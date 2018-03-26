@@ -1,18 +1,20 @@
 package pt.ulisboa.tecnico.cmov.cmu_project;
 
+import java.io.Serializable;
+
 /**
  * Created by espada on 23-03-2018.
  */
 
-public class MonumentData {
+public class MonumentData implements Serializable {
 
+    private static final long serialVersionUID = 834457624276534179L;
     private int imID;
     private String monumentName;
     private String monumentDescription;
 
 
     public MonumentData(int imID, String monumentName, String monumentDescription) {
-
         this.imID = imID;
         this.monumentName = monumentName;
         this.monumentDescription = monumentDescription;
@@ -29,6 +31,13 @@ public class MonumentData {
     public String getMonumentDescription() {
         return this.monumentDescription;
     }
+
+    @Override
+    public String toString() {
+
+        return this.imID + "\n" + this.monumentName + "\n" + this.getMonumentDescription();
+    }
+
 
     @Override
     public boolean equals(Object o) {

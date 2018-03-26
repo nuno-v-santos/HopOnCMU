@@ -22,6 +22,7 @@
             android:theme="@style/AppBaseTheme.NoActionBar" />
         <activity android:name=".MonumentListActivity" />
         <activity android:name=".MonumentScreenActivity" />
+        <activity android:name=".QuizActivity"></activity>
     </application>
 
 </manifest>

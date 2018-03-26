@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="pt.ulisboa.tecnico.cmov.cmu_project.QuizActivity"
+    tools:layout_editor_absoluteY="81dp">
+
+    <RelativeLayout
+        android:id="@+id/relativeLayoutQuiz"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="@drawable/login_background"
+        app:layout_constraintBottom_toTopOf="@+id/lstViewQuiz"
+        app:layout_constraintVertical_chainStyle="spread_inside">
+
+        <TextView
+            android:id="@+id/txtViewQuestion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="43dp"
+            android:textAlignment="center"
+            android:textColor="@color/colorWhite"
+            android:textSize="20dp" />
+
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/lstViewQuiz"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/btnNextQuestion"
+        app:layout_constraintTop_toBottomOf="@+id/relativeLayoutQuiz"
+        tools:ignore="MissingConstraints" />
+
+
+    <Button
+        android:id="@+id/btnNextQuestion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="4dp"
+        android:background="@color/colorPrimary"
+        android:onClick="btnNextQuestionOnClick"
+        android:text="@string/btnNext"
+        android:textColor="@color/colorWhite"
+        app:layout_constraintTop_toBottomOf="@+id/lstViewQuiz"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="270dp" />
+
+
+</android.support.constraint.ConstraintLayout>
