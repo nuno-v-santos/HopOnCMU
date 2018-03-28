@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmu_project;
+package pt.ulisboa.tecnico.cmov.cmu_project.Quiz;
 
 import java.io.Serializable;
 

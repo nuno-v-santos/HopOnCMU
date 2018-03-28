@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmu_project;
+package pt.ulisboa.tecnico.cmov.cmu_project.Quiz;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -13,6 +13,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import pt.ulisboa.tecnico.cmov.cmu_project.R;
+
 public class QuizActivity extends AppCompatActivity {
 
     /* atributos relacionados com a passagem de informação */
@@ -25,7 +27,7 @@ public class QuizActivity extends AppCompatActivity {
 
 
     private ArrayList<QuizQuestion> quizQuestions; // lista com as questões a apresentar ao utilizador
-    private CustomListAdapter itemsAdapter; // list adapter que extende o ArrayAdapter<String>
+    private QuizListAdapter itemsAdapter; // list adapter que extende o ArrayAdapter<String>
     private ArrayList<String> adapterItens = new ArrayList<>(); // lista de strings que ira conter as respostas possiveis
     private String[] alphabet = new String[4]; //array de strings contendo A,B,C,D para efeitos gráficos
     private ListView listView; // atributo list view
@@ -76,7 +78,7 @@ public class QuizActivity extends AppCompatActivity {
 
             this.adapterItens = new ArrayList<>();
             this.currentQuestion = this.quizQuestions.get(this.questionNumber);
-            this.itemsAdapter = new CustomListAdapter(this, this.adapterItens, this.alphabet);
+            this.itemsAdapter = new QuizListAdapter(this, this.adapterItens, this.alphabet);
 
             this.listView = findViewById(R.id.lstViewQuiz);
             this.updateItemsAdapterView();

@@ -12,10 +12,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MainFragment;
+import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.MonumentListFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.RankingFragment;
+import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
+import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentScreenActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity
 
         //configurations of the drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -92,9 +95,12 @@ public class MainActivity extends AppCompatActivity
             fragment = new MainFragment();
         } else if (id == R.id.nav_ranking) {
             fragment = new RankingFragment();
+        } else if (id == R.id.nav_monuments) {
+            fragment = new MonumentListFragment();
         } else if (id == R.id.nav_share_results) {
             //todo: wi-fi direct
-        } else if (id == R.id.nav_logout) {
+        }
+        if (id == R.id.nav_logout) {
             startActivity(new Intent(this, LoginActivity.class));
             //todo: clear the nvigation stack
             return true;
@@ -113,9 +119,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void testBtnOnClick(MenuItem item) {
-        Intent intent = new Intent(this,MonumentScreenActivity.class);
-        MonumentData monData = new MonumentData(R.drawable.ic_launcher_background,"TORRE DE CMU", "Este Monumento é Bue Fixe");
-        intent.putExtra(MonumentScreenActivity.MONUMENT_DATA,monData);
+        Intent intent = new Intent(this, MonumentScreenActivity.class);
+        MonumentData monData = new MonumentData(R.drawable.ic_launcher_background, "TORRE DE CMU", "Este Monumento é Bue Fixe");
+        intent.putExtra(MonumentScreenActivity.MONUMENT_DATA, monData);
         startActivity(intent);
     }
 }

@@ -4,6 +4,11 @@
     <color name="colorPrimaryDark">#006e64</color>
     <color name="colorAccent">#009688</color>
     <color name="colorGray">#4f4f4f</color>
+    <color name="colorGrayOpacity">#bf4f4f4f</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorLightGray">#bcbcbc</color>
+    <color name="colorVisited">#565454</color>
+    <color name="colorNotVisited">#a11b1b</color>
+    <color name="colorQuiz">#006e64</color>
+    <color name="colorQuizPath">#18a5e7</color>
 </resources>

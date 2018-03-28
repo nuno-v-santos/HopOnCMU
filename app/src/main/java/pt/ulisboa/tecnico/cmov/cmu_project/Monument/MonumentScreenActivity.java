@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmu_project;
+package pt.ulisboa.tecnico.cmov.cmu_project.Monument;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +8,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizActivity;
+import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizQuestion;
+import pt.ulisboa.tecnico.cmov.cmu_project.R;
 
 public class MonumentScreenActivity extends AppCompatActivity {
 

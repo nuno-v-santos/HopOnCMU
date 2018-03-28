@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmu_project;
+package pt.ulisboa.tecnico.cmov.cmu_project.Quiz;
 
 import android.app.Activity;
 
@@ -14,13 +14,15 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class CustomListAdapter extends ArrayAdapter<String> {
+import pt.ulisboa.tecnico.cmov.cmu_project.R;
+
+public class QuizListAdapter extends ArrayAdapter<String> {
 
     private final Activity context;
     private final ArrayList<String> itemNames;
     private final String[] itemAlpha;
 
-    public CustomListAdapter(Activity context, ArrayList<String> itemNames, String[] itemAlpha) {
+    public QuizListAdapter(Activity context, ArrayList<String> itemNames, String[] itemAlpha) {
         super(context, R.layout.question_btn_layout, itemNames);
         // TODO Auto-generated constructor stub
         this.context = context;
