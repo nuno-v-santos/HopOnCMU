@@ -15,7 +15,7 @@ import android.view.MenuItem;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MainFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.MonumentListFragment;
-import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.RankingFragment;
+import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.Ranking.RankingFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentScreenActivity;
 

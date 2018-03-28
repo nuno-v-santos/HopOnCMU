@@ -42,11 +42,15 @@ public class MonumentListAdapter extends ArrayAdapter<Monument> {
         View viewBefore = convertView.findViewById(R.id.viewBefore);
         if (monument.getStatus().equals(Monument.VISITED) || monument.getStatus().equals(Monument.QUIZ)) {
             viewBefore.setBackgroundColor(getContext().getResources().getColor(R.color.colorQuizPath));
+        }else {
+            viewBefore.setBackgroundColor(getContext().getResources().getColor(R.color.colorLightGray));
         }
 
         View viewAfter = convertView.findViewById(R.id.viewAfter);
         if (monument.getStatus().equals(Monument.VISITED)) {
             viewAfter.setBackgroundColor(getContext().getResources().getColor(R.color.colorQuizPath));
+        }else {
+            viewAfter.setBackgroundColor(getContext().getResources().getColor(R.color.colorLightGray));
         }
 
         CardView statusCardView = convertView.findViewById(R.id.statusCardView);
