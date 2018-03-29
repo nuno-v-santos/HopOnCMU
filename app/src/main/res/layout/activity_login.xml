@@ -7,7 +7,7 @@
     android:id="@+id/relativeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login_background">
+    android:background="@drawable/side_nav_bar">
 
     <TextView
         android:id="@+id/textView2"
@@ -26,10 +26,10 @@
     <EditText
         android:id="@+id/editText2"
         style="@android:style/Widget.DeviceDefault.AutoCompleteTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="65dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="110dp"
         android:background="@drawable/login_input"
         android:ems="10"
@@ -44,10 +44,10 @@
 
     <EditText
         android:id="@+id/editText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/login_input"
         android:ems="10"
@@ -62,10 +62,10 @@
 
     <Button
         android:id="@+id/button"
-        android:layout_width="340dp"
+        android:layout_width="0dp"
         android:layout_height="53dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:background="@android:color/white"
         android:onClick="login"
@@ -79,11 +79,11 @@
 
     <Button
         android:id="@+id/button3"
-        android:layout_width="340dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
         android:background="@color/colorGray"
         android:onClick="register"
         android:text="Register"
