@@ -17,7 +17,7 @@
             android:layout_below="@+id/user_pic"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="34dp"
-            android:text="User4879"
+            android:text="@string/default_username"
             android:textSize="24sp" />
 
         <TextView
@@ -27,7 +27,7 @@
             android:layout_below="@+id/username"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="42dp"
-            android:text="Quizzes completed: 5/10" />
+            android:text="@string/default_quiz_completion" />
 
         <ImageView
             android:id="@+id/user_pic"
