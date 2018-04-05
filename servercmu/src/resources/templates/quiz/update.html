@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update </title>
+<#include "../imports.html">
+</head>
+<body>
+
+<div class="main-panel" style="width : 100%; float : none ; height: 100%">
+<#include "../menu.html">
+
+
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 ">
+                    <div class="card">
+                        <div class="header">
+                            <h4>Edit</h4>
+                        </div>
+
+                        <div class="content">
+
+                            <form id="myForm" action="update" method="post">
+                                <input name="id" type="hidden" value="${quiz.id}"/>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="name">Name</label>
+                                        <input class="form-control" id="name" name="name"
+                                               type="text" value="${quiz.name}"
+                                               
+                                               
+                                               
+                                               
+                                               
+                                               type="text"/>
+                                    </div>
+                                </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>monument</label>
+                                                    <select class="form-control"
+                                                            name="monumentId">
+                                                        <option value="-1">none</option>
+                                                    <#list monument as p>
+                                                        <option <#if p.id == quizMonument.id >selected="selected"
+                                                                </#if>value="${p.id}"> ${p}</option>
+                                                    </#list>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+
+                                <br>
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-success btn-fill pull-right">Update</button>
+                                    <a href="list" class="btn btn-fill ">
+                                        <i class="pe-7s-back"></i>
+                                    </a>
+                                </div>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="header">
+                            <h4>Relations</h4>
+                        </div>
+
+
+                                <div class="content table-responsive table-full-width">
+                                    <div class="header"
+                                    <p class="category">Question</p></div>
+                                <table class="table table-hover table-striped">
+                                    <thead>
+                                    <th>Id</th>
+                                        <th>question</th>
+                                    <th>actions</th>
+                                    </thead>
+                                <#list question as a>
+                                <#assign tem=false>
+                                <#list quizQuestion as aa>
+                                <#if aa.id == a.id><#assign tem=true></#if>
+                                </#list>
+                                    <tr <#if tem> class="success"<#else>class="danger"</#if>>
+                                        <td>${a.id}</td>
+                                            <td> ${a.question}</td>
+                                        <td>
+
+                                         <#if tem>
+                                            <a href="removeQuestion?id=${quiz.id}&rmv=${a.id}">
+                                                <button class="btn btn-danger btn-fill ">remove</button>
+                                            </a>
+                                        <#else>
+                                            <form method="post" action="addQuestion">
+                                                <input name="id"
+                                                       value="${quiz.id}"
+                                                       type="hidden">
+                                                <input name="add" value="${a.id}" type="hidden">
+                                                <button class="btn btn-success btn-fill ">add</button>
+                                            </form>
+
+                                         </#if>
+                                        </td>
+                                    </tr>
+                                </#list>
+                                </table>
+                                <div class="content table-responsive table-full-width">
+                                    <div class="header"
+                                    <p class="category">QuizResponse</p></div>
+                                <table class="table table-hover table-striped">
+                                    <thead>
+                                    <th>Id</th>
+                                        <th>score</th>
+                                        <th>date</th>
+                                    <th>actions</th>
+                                    </thead>
+                                <#list quizresponse as a>
+                                <#assign tem=false>
+                                <#list quizQuizResponse as aa>
+                                <#if aa.id == a.id><#assign tem=true></#if>
+                                </#list>
+                                    <tr <#if tem> class="success"<#else>class="danger"</#if>>
+                                        <td>${a.id}</td>
+                                            <td> ${a.score}</td>
+                                            <td> ${a.date}</td>
+                                        <td>
+
+                                         <#if tem>
+                                            <a href="removeQuizResponse?id=${quiz.id}&rmv=${a.id}">
+                                                <button class="btn btn-danger btn-fill ">remove</button>
+                                            </a>
+                                        <#else>
+                                            <form method="post" action="addQuizResponse">
+                                                <input name="id"
+                                                       value="${quiz.id}"
+                                                       type="hidden">
+                                                <input name="add" value="${a.id}" type="hidden">
+                                                <button class="btn btn-success btn-fill ">add</button>
+                                            </form>
+
+                                         </#if>
+                                        </td>
+                                    </tr>
+                                </#list>
+                                </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>
+
+<script>
+    $('#myForm').validator({
+        custom: {
+            'maxlength': function ($el) {
+                var maxlength = $el.data('maxlength')
+                return !$el.val() || $el.val().length <= maxlength
+            }
+        },
+        errors: {
+            'maxlength': "Too long"
+        }
+    });
+</script>

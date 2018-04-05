@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List all Question's instances</title>
+<#include "../imports.html">
+</head>
+<body>
+<div class="main-panel" style="width : 100%; float : none ; height: 100%">
+<#include "../menu.html">
+
+
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="header">
+                            <h4 class="title">Question List</h4>
+                            <a href="create">Create a question</a>
+                        </div>
+
+                        <div class="content table-responsive table-full-width">
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                <th>Id</th>
+                                <th>question</th>
+                                            <th>quizId</th>
+                                <th>actions</th>
+                                </thead>
+                                <tbody>
+                                <#list list as question>
+                                <tr>
+                                    <td>${question.id}</td>
+                                    <td>${question.question}</td>
+                                            <td> <#if question.quiz??>${question.quiz.id}</#if></td>
+                                    <td>
+                                        <a href="update?id=${question.id}">
+                                            <button type="submit" class="btn btn-warning btn-fill ">Update</button>
+                                        </a>
+                                        <a href="delete?id=${question.id}">
+                                            <button type="submit" class="btn btn-danger btn-fill ">Remove</button>
+                                        </a>
+                                    </td>
+                                </tr>
+                                </#list>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

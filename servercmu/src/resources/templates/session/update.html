@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update  </title>
+<#include "../imports.html">
+</head>
+<body>
+
+<div class="main-panel" style="width : 100%; float : none ; height: 100%">
+<#include "../menu.html">
+
+
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 ">
+                    <div class="card">
+                        <div class="header">
+                            <h4>Edit</h4>
+                        </div>
+
+                        <div class="content">
+
+                            <form id="myForm" action="update" method="post">
+                                <input name="id" type="hidden" value="${session.id}"/>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="token">Token</label>
+                                        <input class="form-control" id="token" name="token"
+                                               type="text" value="${session.token}"
+                                               
+                                               
+                                               
+                                               
+                                               
+                                               type="text"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="random">Random</label>
+                                        <input class="form-control" id="random" name="random"
+                                               type="text" value="${session.random}"
+                                               
+                                               
+                                               
+                                               
+                                               
+                                               type="number"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="sharedToken">SharedToken</label>
+                                        <input class="form-control" id="sharedToken" name="sharedToken"
+                                               type="text" value="${session.sharedToken}"
+                                               
+                                               
+                                               
+                                               
+                                               
+                                               type="text"/>
+                                    </div>
+                                </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>user</label>
+                                                    <select class="form-control"
+                                                            name="userId">
+                                                        <option value="-1">none</option>
+                                                    <#list user as p>
+                                                        <option <#if p.id == sessionUser.id >selected="selected"
+                                                                </#if>value="${p.id}"> ${p}</option>
+                                                    </#list>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+
+                                <br>
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-success btn-fill pull-right">Update</button>
+                                    <a href="list" class="btn btn-fill ">
+                                        <i class="pe-7s-back"></i>
+                                    </a>
+                                </div>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="header">
+                            <h4>Relations</h4>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>
+
+<script>
+    $('#myForm').validator({
+        custom: {
+            'maxlength': function ($el) {
+                var maxlength = $el.data('maxlength')
+                return !$el.val() || $el.val().length <= maxlength
+            }
+        },
+        errors: {
+            'maxlength': "Too long"
+        }
+    });
+</script>

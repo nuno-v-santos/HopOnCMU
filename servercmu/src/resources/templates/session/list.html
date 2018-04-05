@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List all Session's instances</title>
+<#include "../imports.html">
+</head>
+<body>
+<div class="main-panel" style="width : 100%; float : none ; height: 100%">
+<#include "../menu.html">
+
+
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="header">
+                            <h4 class="title">Session List</h4>
+                            <a href="create">Create a session</a>
+                        </div>
+
+                        <div class="content table-responsive table-full-width">
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                <th>Id</th>
+                                <th>token</th>
+                                <th>random</th>
+                                <th>sharedToken</th>
+                                            <th>userId</th>
+                                <th>actions</th>
+                                </thead>
+                                <tbody>
+                                <#list list as session>
+                                <tr>
+                                    <td>${session.id}</td>
+                                    <td>${session.token}</td>
+                                    <td>${session.random}</td>
+                                    <td>${session.sharedToken}</td>
+                                                <td><#if session.user??>${session.user.id}</#if></td>
+                                    <td>
+                                        <a href="update?id=${session.id}">
+                                            <button type="submit" class="btn btn-warning btn-fill ">Update</button>
+                                        </a>
+                                        <a href="delete?id=${session.id}">
+                                            <button type="submit" class="btn btn-danger btn-fill ">Remove</button>
+                                        </a>
+                                    </td>
+                                </tr>
+                                </#list>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

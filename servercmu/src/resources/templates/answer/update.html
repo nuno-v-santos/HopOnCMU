@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update</title>
+<#include "../imports.html">
+</head>
+<body>
+
+<div class="main-panel" style="width : 100%; float : none ; height: 100%">
+<#include "../menu.html">
+
+
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 ">
+                    <div class="card">
+                        <div class="header">
+                            <h4>Edit</h4>
+                        </div>
+
+                        <div class="content">
+
+                            <form id="myForm" action="update" method="post">
+                                <input name="id" type="hidden" value="${answer.id}"/>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="answer">Answer</label>
+                                        <input class="form-control" id="answer" name="answer"
+                                               type="text" value="${answer.answer}"
+                                               
+                                               
+                                               
+                                               
+                                               
+                                               type="text"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="correct">Correct</label>
+                                        <input class="form-control" id="correct" name="correct"
+                                               type="text" value="${answer.correct}"
+                                               
+                                               
+                                               
+                                               
+                                               
+                                               type="number"/>
+                                    </div>
+                                </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>question</label>
+                                                <select class="form-control"
+                                                        name="questionId">
+                                                    <option value="-1">none</option>
+                                                <#list question as p>
+                                                    <option <#if p.id == answerQuestion.id >selected="selected"
+                                                            </#if>value="${p.id}"> ${p}</option>
+                                                </#list>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                <br>
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-success btn-fill pull-right">Update</button>
+                                    <a href="list" class="btn btn-fill ">
+                                        <i class="pe-7s-back"></i>
+                                    </a>
+                                </div>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="header">
+                            <h4>Relations</h4>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>
+
+<script>
+    $('#myForm').validator({
+        custom: {
+            'maxlength': function ($el) {
+                var maxlength = $el.data('maxlength')
+                return !$el.val() || $el.val().length <= maxlength
+            }
+        },
+        errors: {
+            'maxlength': "Too long"
+        }
+    });
+</script>

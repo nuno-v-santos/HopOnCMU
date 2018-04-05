@@ -10,3 +10,6 @@ AndroidApp.externalNativeBuild
 AndroidApp.idea/
 AndroidApp/app/build/
 AndroidApp/app/.gitignore
+servercmu/.idea/
+MyApplication/.idea/modules.xml
+MyApplication/.idea/

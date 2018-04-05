@@ -1,0 +1,32 @@
+<?xml encoding="UTF-8"?>
+
+        <!ELEMENT model (class*,relation*)>
+        <!ATTLIST model
+                name CDATA #REQUIRED>
+
+        <!ELEMENT class (attribute)*>
+        <!ATTLIST class
+                name CDATA #REQUIRED
+                extends CDATA #IMPLIED>
+
+        <!ELEMENT relation EMPTY>
+        <!ATTLIST relation
+                base CDATA #REQUIRED
+                target CDATA #REQUIRED
+                type (ManyToMany|OneToMany|ManyToOne|OneToOne) #REQUIRED>
+
+        <!ELEMENT attribute EMPTY>
+        <!ATTLIST attribute
+                name CDATA #REQUIRED
+                type CDATA #REQUIRED
+                required (true|false) #IMPLIED
+                max CDATA #IMPLIED
+                min CDATA #IMPLIED
+                isAfter CDATA #IMPLIED
+                isBefore CDATA #IMPLIED
+                contains CDATA #IMPLIED
+                notEmpty (true|false) #IMPLIED
+                maxLength CDATA #IMPLIED
+                minLength CDATA #IMPLIED>
+
+

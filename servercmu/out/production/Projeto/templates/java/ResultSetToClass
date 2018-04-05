@@ -1,0 +1,23 @@
+<#macro resultSetToClass att name>
+        int id = result.getInt("id");
+        <#list att as attribute>
+        <#if attribute.type == "String">
+        String ${attribute.name} = result.getString("${attribute.name}");
+        </#if>
+        <#if attribute.type?starts_with("Date")>
+        Date ${attribute.name} = result.getDate("${attribute.name}");
+        </#if>
+        <#if attribute.type?starts_with("double")>
+        double ${attribute.name} = result.getDouble("${attribute.name}");
+        </#if>
+        <#if attribute.type?starts_with("int")>
+        int ${attribute.name} = result.getInt("${attribute.name}");
+        </#if></#list>
+
+        //Manel p = new Manel(Person.get(id));
+        <#if extend??>${name} p = new ${name}((${extend.name})${extend.name}.get(id));<#else> ${name} p = new ${name}();</#if>
+        p.setId(id);
+        <#list att as attribute>
+        p.set${attribute.name?cap_first}(${attribute.name});
+        </#list>
+</#macro>
