@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="freemarker-2.3.26-incubating">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/freemarker-2.3.26-incubating.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
