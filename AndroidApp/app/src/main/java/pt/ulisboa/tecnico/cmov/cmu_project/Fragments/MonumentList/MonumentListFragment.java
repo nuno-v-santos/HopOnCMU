@@ -26,12 +26,12 @@ public class MonumentListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_monument_list, container, false);
 
         ArrayList<Monument> arrayOfUsers = new ArrayList<Monument>();
-        arrayOfUsers.add(null);
+
         arrayOfUsers.add(new Monument(Monument.VISITED));
-       arrayOfUsers.add(new Monument(Monument.QUIZ));
+        arrayOfUsers.add(new Monument(Monument.QUIZ));
         arrayOfUsers.add(new Monument(Monument.NOT_VISITED));
         arrayOfUsers.add(new Monument(Monument.NOT_VISITED));
-        arrayOfUsers.add(null);
+
 // Create the adapter to convert the array to views
         MonumentListAdapter adapter = new MonumentListAdapter(getContext(), arrayOfUsers);
 // Attach the adapter to a ListView

@@ -37,44 +37,13 @@ public class MonumentListAdapter extends ArrayAdapter<Monument> {
     }
 
     @Override
-    public int getItemViewType(int pos) {
-
-        return monuments.get(pos) == null ? 1 : 0;
-    }
-
-    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
 
         Monument monument = monuments.get(position);
 
-
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(getItemViewType(position) == 1 ?
-                    R.layout.monument_list_start : R.layout.monument_list_item, parent, false);
-        }
-
-        if (monument == null) {
-
-            TextView textView = convertView.findViewById(R.id.startMonumentListText);
-            LinearLayout linearLayout = convertView.findViewById(R.id.startLinear);
-
-            if (position == 0) {
-                textView.setText("START");
-                linearLayout.setPadding(convertDpToPixel(5), convertDpToPixel(5), 0, 0);
-                textView.setBackgroundColor(getContext().getResources().getColor(R.color.colorQuizPath));
-            } else {
-                textView.setText("END");
-                Monument prevMonument = monuments.get(position - 1);
-                linearLayout.setPadding(convertDpToPixel(5), 0, 0, convertDpToPixel(5));
-                Log.i("COLOR", (prevMonument != null && !prevMonument.getStatus().equals(Monument.VISITED)) + "");
-                Log.i("COLOR", (prevMonument != null) + "");
-                Log.i("COLOR", (!(prevMonument.getStatus().equals(Monument.VISITED))) + "");
-                textView.setBackgroundColor(getContext().getResources().getColor(prevMonument != null && !prevMonument.getStatus().equals(Monument.VISITED) ?
-                        R.color.colorGray : R.color.colorQuizPath));
-            }
-
-            return convertView;
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.monument_list_item, parent, false);
         }
 
 
@@ -83,28 +52,6 @@ public class MonumentListAdapter extends ArrayAdapter<Monument> {
         status.setText(monument.getStatus().toUpperCase());
         status.setBackgroundColor(getContext().getResources().getColor(getColor(monument.getStatus())));
 
-        View viewBefore = convertView.findViewById(R.id.viewBefore);
-        if (monument.getStatus().equals(Monument.VISITED) || monument.getStatus().equals(Monument.QUIZ)) {
-            viewBefore.setBackgroundColor(getContext().getResources().getColor(R.color.colorQuizPath));
-        } else {
-            viewBefore.setBackgroundColor(getContext().getResources().getColor(R.color.colorLightGray));
-        }
-
-        View viewAfter = convertView.findViewById(R.id.viewAfter);
-        if (monument.getStatus().equals(Monument.VISITED)) {
-            viewAfter.setBackgroundColor(getContext().getResources().getColor(R.color.colorQuizPath));
-        } else {
-            viewAfter.setBackgroundColor(getContext().getResources().getColor(R.color.colorLightGray));
-        }
-
-        CardView statusCardView = convertView.findViewById(R.id.statusCardView);
-        if (monument.getStatus().equals(Monument.VISITED)) {
-            statusCardView.setCardBackgroundColor(getContext().getResources().getColor(R.color.colorQuizPath));
-        } else if (monument.getStatus().equals(Monument.QUIZ)) {
-            statusCardView.setCardBackgroundColor(getContext().getResources().getColor(R.color.colorQuiz));
-        } else {
-            statusCardView.setCardBackgroundColor(getContext().getResources().getColor(R.color.colorGray));
-        }
 
         return convertView;
     }
