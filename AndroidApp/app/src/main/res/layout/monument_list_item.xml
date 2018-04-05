@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="9"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/viewBefore"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:background="@color/colorLightGray"
+            android:visibility="visible" />
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/statusCardView"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:cardBackgroundColor="@color/colorPrimary"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="5dp"
+            app:contentPadding="5dp">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/inside_card_timline"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:cardBackgroundColor="@color/cardview_light_background"
+                app:cardCornerRadius="5dp"
+                app:cardElevation="2dp" />
+        </android.support.v7.widget.CardView>
+
+        <View
+            android:id="@+id/viewAfter"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:background="@color/colorLightGray" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_marginTop="0dp"
+            android:layout_weight="15"
+            android:elevation="10dp"
+            app:cardCornerRadius="1dp"
+            app:cardElevation="5dp">
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="0dp"
+                    android:background="@color/colorWhite"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/belem" />
+
+                <TextView
+                    android:id="@+id/status"
+                    android:layout_width="130dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/colorPrimary"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:text="Visited"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorWhite" />
+
+                <TextView
+                    android:id="@+id/label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorGrayOpacity"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:text="Torre de Belém"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="20dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/image" />
+            </android.support.constraint.ConstraintLayout>
+
+        </android.support.v7.widget.CardView>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+
+

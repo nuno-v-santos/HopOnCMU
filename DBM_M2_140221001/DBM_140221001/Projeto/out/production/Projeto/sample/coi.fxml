@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="ap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="410.0" prefWidth="1014.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <top>
+      <MenuBar prefHeight="23.0" prefWidth="591.0" BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+                  <Menu mnemonicParsing="false" text="XML">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#loadXML" text="Import" />
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="XMI">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#loadXMI" text="Import" />
+                    </items>
+                  </Menu>
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <right>
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <Region prefHeight="88.0" prefWidth="100.0" />
+            <Label text="Linguagem" />
+            <ComboBox id="comboBoxLinguagem" fx:id="linguagem" prefWidth="150.0">
+               <opaqueInsets>
+                  <Insets right="10.0" />
+               </opaqueInsets>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+            </ComboBox>
+            <Region prefHeight="33.0" prefWidth="100.0" />
+            <Label text="Base de dados" />
+            <ComboBox id="comboBoxBd" fx:id="basedados" prefWidth="150.0" />
+            <Region prefHeight="59.0" prefWidth="80.0" />
+            <Button id="buttonBuild" mnemonicParsing="false" onAction="#build" prefHeight="69.0" prefWidth="71.0" text="Build">
+               <font>
+                  <Font size="15.0" />
+               </font></Button>
+            <Region prefHeight="108.0" prefWidth="80.0" />
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <padding>
+            <Insets left="10.0" right="10.0" />
+         </padding>
+      </VBox>
+   </right>
+   <left>
+      <VBox alignment="CENTER" prefHeight="375.0" prefWidth="438.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Relações">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <VBox prefHeight="377.0" prefWidth="100.0">
+               <children>
+                  <ListView fx:id="relationList" prefHeight="200.0" prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                     </VBox.margin>
+                  </ListView>
+                  <HBox alignment="CENTER" prefHeight="27.0" prefWidth="438.0">
+                     <children>
+                        <TextField fx:id="rClass1" promptText="nome classe base" />
+                        <TextField fx:id="rClass2" promptText="nome classe target" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="34.0" prefWidth="438.0">
+                     <children>
+                        <ComboBox fx:id="rType" prefHeight="22.0" prefWidth="141.0">
+                           <HBox.margin>
+                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                           </HBox.margin>
+                        </ComboBox>
+                        <Button mnemonicParsing="false" onAction="#addRelation" text="Adicionar">
+                           <HBox.margin>
+                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#removeRelation" text="Remover">
+                           <HBox.margin>
+                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children></VBox>
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <BorderPane.margin>
+            <Insets left="20.0" />
+         </BorderPane.margin>
+      </VBox>
+   </left>
+   <center>
+      <VBox alignment="CENTER" prefHeight="375.0" prefWidth="476.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="CENTER" text="Classes">
+               <font>
+                  <Font size="16.0" />
+               </font></Label>
+            <HBox alignment="CENTER" prefHeight="163.0" prefWidth="400.0">
+               <children>
+                  <ListView fx:id="listViewClasses" prefHeight="148.0" prefWidth="252.0" />
+                  <VBox prefHeight="163.0" prefWidth="148.0">
+                     <children>
+                        <TextField fx:id="classAdName" prefHeight="25.0" prefWidth="142.0" promptText="nome">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="10.0" right="5.0" top="10.0" />
+                           </VBox.margin></TextField>
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#adicionarClass" text="Adicionar" />
+                              <Button mnemonicParsing="false" onAction="#removerClass" text="Remover">
+                                 <HBox.margin>
+                                    <Insets left="2.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                           <VBox.margin>
+                              <Insets left="9.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <TextField fx:id="superName" promptText="nome superclass">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="10.0" right="10.0" top="10.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Button mnemonicParsing="false" onAction="#addSuper" text="Adicionar superclass">
+                           <VBox.margin>
+                              <Insets left="10.0" right="10.0" />
+                           </VBox.margin>
+                        </Button>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <Label text="Atributos">
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+               <font>
+                  <Font size="16.0" />
+               </font></Label>
+            <HBox alignment="CENTER" prefHeight="185.0" prefWidth="476.0">
+               <children>
+                  <ListView id="listViewAtributos" fx:id="listViewAtributos" prefHeight="170.0" prefWidth="125.0" />
+                  <VBox prefHeight="188.0" prefWidth="276.0">
+                     <children>
+                        <HBox prefHeight="31.0" prefWidth="269.0">
+                           <children>
+                              <TextField fx:id="atributoNome" promptText="nome" />
+                              <TextField fx:id="atributoTipo" promptText="tipo">
+                                 <HBox.margin>
+                                    <Insets left="2.0" />
+                                 </HBox.margin></TextField>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="34.0" prefWidth="269.0">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#adicionarAtributo" text="Adicionar">
+                                 <HBox.margin>
+                                    <Insets right="2.0" />
+                                 </HBox.margin></Button>
+                              <Button mnemonicParsing="false" onAction="#removerAtributo" text="Remover">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin></Button>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="15.0" left="2.0" right="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox prefHeight="29.0" prefWidth="269.0">
+                           <children>
+                              <CheckBox fx:id="aRequired" mnemonicParsing="false" text="Required" />
+                              <CheckBox fx:id="aEmpty" mnemonicParsing="false" text="notEmpty">
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin></CheckBox>
+                           </children>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <VBox.margin>
+                              <Insets left="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox prefHeight="66.0" prefWidth="269.0">
+                           <children>
+                              <VBox alignment="CENTER" prefHeight="99.0" prefWidth="41.0">
+                                 <children>
+                                    <Label text="min" />
+                                    <TextField fx:id="aMin" prefHeight="25.0" prefWidth="54.0">
+                                       <VBox.margin>
+                                          <Insets right="2.0" />
+                                       </VBox.margin></TextField>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="CENTER" prefHeight="99.0" prefWidth="44.0">
+                                 <children>
+                                    <Label text="max" />
+                                    <TextField fx:id="aMax">
+                                       <VBox.margin>
+                                          <Insets right="2.0" />
+                                       </VBox.margin></TextField>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="CENTER" prefHeight="99.0" prefWidth="70.0">
+                                 <children>
+                                    <Label text="contains" />
+                                    <TextField fx:id="aContains">
+                                       <VBox.margin>
+                                          <Insets right="2.0" />
+                                       </VBox.margin></TextField>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="CENTER" prefHeight="42.0" prefWidth="68.0">
+                                 <children>
+                                    <Label text="minLength" />
+                                    <TextField fx:id="aMinLength" prefHeight="25.0" prefWidth="61.0">
+                                       <VBox.margin>
+                                          <Insets right="2.0" />
+                                       </VBox.margin></TextField>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="CENTER" prefHeight="42.0" prefWidth="69.0">
+                                 <children>
+                                    <Label text="maxLength" VBox.vgrow="ALWAYS" />
+                                    <TextField fx:id="aMaxLength" />
+                                 </children>
+                              </VBox>
+                           </children>
+                           <VBox.margin>
+                              <Insets left="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <Button alignment="CENTER" mnemonicParsing="false" onAction="#updateAtribute" text="Update">
+                           <VBox.margin>
+                              <Insets left="5.0" top="5.0" />
+                           </VBox.margin></Button>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <Region prefHeight="26.0" prefWidth="476.0" />
+         </children>
+      </VBox>
+   </center>
+</BorderPane>

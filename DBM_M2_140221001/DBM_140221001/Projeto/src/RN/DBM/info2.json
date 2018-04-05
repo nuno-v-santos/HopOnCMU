@@ -1,0 +1,31 @@
+{
+  "url": "http://192.168.1.68:1234",
+  "classes": [
+    {
+      "name": "Person",
+      "Attributes": [
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "age",
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "name": "Animal",
+      "Attributes": [
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "type",
+          "type": "String"
+        }
+      ]
+    }
+  ]
+}
