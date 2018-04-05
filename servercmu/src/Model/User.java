@@ -94,6 +94,7 @@ public class User {
     public static List<User> where(String clause) {
 
         String query = String.format("SELECT * FROM User where " + clause + ";");
+        System.out.println(query);
         ResultSet result = con.executeQuery(query);
         List<User> lista = new ArrayList<>();
 

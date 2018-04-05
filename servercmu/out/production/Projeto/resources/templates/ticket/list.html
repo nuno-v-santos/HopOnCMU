@@ -36,7 +36,7 @@
                                     <td>${ticket.id}</td>
                                     <td>${ticket.number}</td>
                                     <td>${ticket.taken}</td>
-                                                <td>${ticket.user.id}</td>
+                                                <td><#if ticket.user??>${ticket.user.id}</#if></td>
                                             <td> <#if ticket.tour??>${ticket.tour.id}</#if></td>
                                     <td>
                                         <a href="update?id=${ticket.id}">

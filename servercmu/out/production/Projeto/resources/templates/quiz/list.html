@@ -33,7 +33,7 @@
                                 <tr>
                                     <td>${quiz.id}</td>
                                     <td>${quiz.name}</td>
-                                                <td>${quiz.monument.id}</td>
+                                                <td><#if quiz.monument??>${quiz.monument.id}</#if></td>
                                     <td>
                                         <a href="update?id=${quiz.id}">
                                             <button type="submit" class="btn btn-warning btn-fill ">Update</button>

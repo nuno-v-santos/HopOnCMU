@@ -37,7 +37,7 @@
                                     <td>${session.token}</td>
                                     <td>${session.random}</td>
                                     <td>${session.sharedToken}</td>
-                                                <td>${session.user.id}</td>
+                                                <td><#if session.user??>${session.user.id}</#if></td>
                                     <td>
                                         <a href="update?id=${session.id}">
                                             <button type="submit" class="btn btn-warning btn-fill ">Update</button>
