@@ -160,8 +160,6 @@ public class User {
    }
 
 
-
-
     public Session getSession() {
     // select * from Session as a inner join User as b on a.id = b.session_id where b.id = this.id;
 
