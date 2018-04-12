@@ -11,3 +11,4 @@ AndroidApp/app/.gitignore
 servercmu/.idea/
 servercmu/out/
 servercmu/src/ORM.db
+*.class
