@@ -169,7 +169,6 @@ public class AuthEndPoints {
                     "\"Quiz\" : " + quizJson + "," +
                     "\"QuizQuestions\" : " + quizQuestions.toString() +
                     "}";
-
         })));
 
     }
