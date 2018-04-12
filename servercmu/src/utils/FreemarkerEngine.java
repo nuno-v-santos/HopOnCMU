@@ -20,7 +20,7 @@ public class FreemarkerEngine {
 
     public FreemarkerEngine(String pathname) {
         try {
-            cfg = new Configuration(Configuration.VERSION_2_3_26);
+            cfg = new Configuration(Configuration.VERSION_2_3_21);
             cfg.setDirectoryForTemplateLoading(new File(pathname));
             cfg.setDefaultEncoding("UTF-8");
         } catch (IOException e) {

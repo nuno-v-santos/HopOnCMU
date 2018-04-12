@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Session {
+
     private int id;
     private static BdConnection con = SQLiteConn.getInstace("src/ORM.db");
     private String token;
