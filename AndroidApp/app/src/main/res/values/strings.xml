@@ -23,4 +23,5 @@
     <string name="answer_question">Responde primeiro à questão</string>
     <string name="a">A</string>
     <string name="invalid_login">The username and busticket must not be empty</string>
+    <string name="invalid_register">The username and busticket must not be empty</string>
 </resources>
