@@ -43,6 +43,7 @@ public class Application {
         AnswerEndPoints.mount(engine);
         QuizresponseEndPoints.mount(engine);
         AuthEndPoints.mount();
+        AndroidEndPoints.mount();
 
 
     }
