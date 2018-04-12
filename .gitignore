@@ -6,8 +6,8 @@ AndroidApp/.idea/libraries
 AndroidApp.DS_Store
 AndroidApp/build
 AndroidApp/captures
-AndroidApp.externalNativeBuild
-AndroidApp.idea/
+AndroidApp/.externalNativeBuild
+AndroidApp/.idea/
 AndroidApp/app/build/
 AndroidApp/app/.gitignore
 servercmu/.idea/
