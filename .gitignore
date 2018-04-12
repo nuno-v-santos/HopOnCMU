@@ -13,4 +13,5 @@ AndroidApp/app/.gitignore
 servercmu/.idea/
 MyApplication/.idea/modules.xml
 MyApplication/.idea/
-servercmu/out/production/servercmu/ORM.db
+servercmu/out/*
+servercmu/ORM.db
