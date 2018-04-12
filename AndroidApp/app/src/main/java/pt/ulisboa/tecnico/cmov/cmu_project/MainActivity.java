@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity
             //todo: wi-fi direct
         }
         if (id == R.id.nav_logout) {
+            postLogout();
             startActivity(new Intent(this, LoginActivity.class));
             //todo: clear the nvigation stack
             return true;
@@ -116,6 +117,11 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void postLogout() {
+
+
     }
 
     public void testBtnOnClick(MenuItem item) {
