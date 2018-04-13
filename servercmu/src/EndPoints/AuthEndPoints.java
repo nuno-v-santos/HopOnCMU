@@ -128,7 +128,7 @@ public class AuthEndPoints {
                 session.save();
 
                 user.setSession(session);
-
+                System.out.println("All ok");
                 return "{" +
                         "\"token\" : \"" + token + "\"," +
                         "\"sharedToken\" : \"" + sharedToken + "\"" +

@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmov.cmu_project.Fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -55,6 +56,9 @@ public class MainFragment extends Fragment {
     private void getInfo() throws JSONException {
 
         JSONObject postParams = new JSONObject();
+        final SharedPreferences sharedPref = getActivity().getPreferences(getActivity().MODE_PRIVATE);
+        final String token = sharedPref.getString(LoginActivity.SESSION_TOKEN, "");
+
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
                 URLS.URL_GET_INFO, null,
@@ -80,7 +84,7 @@ public class MainFragment extends Fragment {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap();
                 headers.put("Content-Type", "application/json");
-                headers.put("token", LoginActivity.SESSION_TOKEN);
+                headers.put("token", token);
                 return headers;
             }
         };

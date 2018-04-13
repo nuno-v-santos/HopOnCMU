@@ -31,39 +31,53 @@ public class AndroidEndPoints {
 
         get("/android/monuments/", ((request, response) -> {
 
-            //obter o token
-            String token = request.headers("token");
-            User user = validateUser(token);
+            System.out.println("ok");
+            try {
+                //obter o token
+                String token = request.headers("token");
+                User user = validateUser(token);
 
-            if (user == null) return false;
+                if (user == null) return false;
 
-            Gson gson = new Gson();
+                Gson gson = new Gson();
 
-            String result = gson.toJson(user.getTicket().getTour().getMonuments());
-            return result;
+                String result = gson.toJson(user.getTicket().getTour().getMonuments());
+                return result;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
 
         }));
 
 
         get("/android/userInfo/", ((request, response) -> {
 
-            //obter o token
-            String token = request.headers("token");
-            User user = validateUser(token);
+            try {
+                //obter o token
+                String token = request.headers("token");
+                User user = validateUser(token);
 
-            if (user == null) return false;
+                System.out.println(token);
 
-            Gson gson = new Gson();
+                if (user == null) return false;
 
-            String ticket = gson.toJson(user.getTicket());
-            String tour = gson.toJson(user.getTicket().getTour());
+                Gson gson = new Gson();
 
-            JsonObject responsePrams = new JsonObject();
+                String ticket = gson.toJson(user.getTicket());
+                String tour = gson.toJson(user.getTicket().getTour());
 
-            return "" + '{' +
-                    '"' + "tiket" + '"' + ':' + ticket + ',' +
-                    '"' + "tour" + '"' + ':' + tour +
-                    '}';
+                JsonObject responsePrams = new JsonObject();
+
+                return "" + '{' +
+                        '"' + "tiket" + '"' + ':' + ticket + ',' +
+                        '"' + "tour" + '"' + ':' + tour +
+                        '}';
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
 
         }));
 

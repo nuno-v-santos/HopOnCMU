@@ -23,7 +23,7 @@ import java.util.Random;
 public class LoginActivity extends AppCompatActivity {
 
     private Random rand = new Random();
-    private String SESSION_TOKEN = "token";
+    public static String SESSION_TOKEN = "token";
 
     final private static String RANDOM = "random";
     final private static String USERNAME = "username";
@@ -55,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
         EditText ticketNum = findViewById(R.id.txtTicketNum);
         final String ticketNumber = ticketNum.getText().toString();
 
-        if (ticketNum.length() > 1 && userName.length() > 1) {
+        if (ticketNum.length() > 0 && userName.length() > 0) {
             int randInt = this.rand.nextInt();
             loginPost(userName, ticketNumber, randInt);
             SharedPreferences sharedPref = this.getPreferences(this.MODE_PRIVATE);
@@ -87,8 +87,8 @@ public class LoginActivity extends AppCompatActivity {
 
         JSONObject postParams = new JSONObject();
 
-        postParams.put(LoginActivity.USERNAME, userName);
-        postParams.put(LoginActivity.TICKET, Integer.parseInt(ticketNumber));
+        postParams.put(LoginActivity.USERNAME, "nfsnkdfdskfdkj");
+        postParams.put(LoginActivity.TICKET, 9876789);
         postParams.put(LoginActivity.RANDOM, randInt);
 
         final SharedPreferences sharedPref = getPreferences(this.MODE_PRIVATE);
@@ -99,7 +99,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 try {
                     editor.putString(LoginActivity.this.SESSION_TOKEN, response.getString(LoginActivity.this.SESSION_TOKEN));
-                    editor.commit();
+                    editor.apply();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
