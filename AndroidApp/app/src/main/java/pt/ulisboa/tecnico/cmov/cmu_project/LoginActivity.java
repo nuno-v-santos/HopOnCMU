@@ -97,11 +97,9 @@ public class LoginActivity extends AppCompatActivity {
 
             String sessionToken = sharedPref.getString(LoginActivity.this.SESSION_TOKEN, null);
             if (sessionToken != null) {
-
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
             }
-
         } else {
             Toast.makeText(this, R.string.short_login, Toast.LENGTH_LONG).show();
         }
@@ -124,9 +122,6 @@ public class LoginActivity extends AppCompatActivity {
         postParams.put(LoginActivity.USERNAME, userName);
         postParams.put(LoginActivity.TICKET, ticketNumber);
         postParams.put(LoginActivity.RANDOM, randInt);
-        postParams.put(LoginActivity.USERNAME, userName);
-        postParams.put(LoginActivity.TICKET, Integer.parseInt(ticketNumber));
-        postParams.put(LoginActivity.RANDOM, randInt);
 
         final SharedPreferences sharedPref = getPreferences(this.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sharedPref.edit();
@@ -135,19 +130,10 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    String token = response.getString(LoginActivity.SESSION_TOKEN);
-                    editor.putString(LoginActivity.SESSION_TOKEN, token);
-                    editor.commit();
-
                     SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_TOKEN, LoginActivity.this.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(LoginActivity.this.SESSION_TOKEN, response.getString(LoginActivity.this.SESSION_TOKEN));
                     editor.commit();
-
-
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-
                 } catch (JSONException e) {
                     Toast.makeText(getBaseContext(), R.string.server_connection_error, Toast.LENGTH_LONG).show();
                     e.printStackTrace();
