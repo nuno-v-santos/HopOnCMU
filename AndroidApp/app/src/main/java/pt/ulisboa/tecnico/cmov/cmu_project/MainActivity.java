@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -105,7 +106,7 @@ public class MainActivity extends AppCompatActivity
         final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
 
         if (!sessionToken.equals("")) {
-
+            Toast.makeText(this,"HEllo",Toast.LENGTH_SHORT).show();
             JSONObject jsonParams = new JSONObject();
             JsonObjectRequest myRequest = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGOUT, jsonParams,
 

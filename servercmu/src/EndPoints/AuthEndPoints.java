@@ -157,24 +157,7 @@ public class AuthEndPoints {
 
             return false;
         })));
-
-
-        post("/logout", (((request, response) -> {
-
-            String token = request.headers("token");
-            String id = token.split("\\|")[1];
-
-            User user = User.get(Integer.parseInt(id));
-            if (user != null) {
-                Session session = user.getSession();
-                session.delete();
-                return true;
-            }
-
-
-            return false;
-        })));
-
+        
 
         get("test", (((request, response) -> {
 

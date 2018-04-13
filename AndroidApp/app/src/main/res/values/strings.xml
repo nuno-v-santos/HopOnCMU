@@ -27,4 +27,5 @@
     <string name="pref_key_login">login</string>
     <string name="short_login">The username and busticket must not be empty</string>
     <string name="invalid_comb_login">Ticket Number and Username combination does not exists</string>
+    <string name="server_connection_error">server connection error</string>
 </resources>
