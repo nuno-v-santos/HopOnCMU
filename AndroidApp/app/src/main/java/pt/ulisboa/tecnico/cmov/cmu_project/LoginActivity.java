@@ -23,7 +23,10 @@ import java.util.Random;
 public class LoginActivity extends AppCompatActivity {
 
     private Random rand = new Random();
-    private String SESSION_TOKEN = "token";
+    public final static String SHARED_PREF_TOKEN = "SHARED_PREF_TOKEN";
+    public final static String SESSION_TOKEN = "token";
+
+    private SharedPreferences.Editor editor ;
 
     final private static String RANDOM = "random";
     final private static String USERNAME = "username";
@@ -34,6 +37,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide(); //<< this
         setContentView(R.layout.activity_login);
+
+        this.editor =  getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE).edit();
+        editor.remove(SESSION_TOKEN);
+        editor.commit();
+
     }
 
     public void register(View v) {
@@ -58,18 +66,10 @@ public class LoginActivity extends AppCompatActivity {
         if (ticketNum.length() > 1 && userName.length() > 1) {
             int randInt = this.rand.nextInt();
             loginPost(userName, ticketNumber, randInt);
-            SharedPreferences sharedPref = this.getPreferences(this.MODE_PRIVATE);
-
-            String sessionToken = sharedPref.getString(LoginActivity.this.SESSION_TOKEN, null);
-            if (sessionToken != null) {
-
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-            }
 
         } else {
 
-            Toast.makeText(this, R.string.invalid_login, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.short_login, Toast.LENGTH_LONG).show();
         }
 
     }
@@ -91,29 +91,33 @@ public class LoginActivity extends AppCompatActivity {
         postParams.put(LoginActivity.TICKET, Integer.parseInt(ticketNumber));
         postParams.put(LoginActivity.RANDOM, randInt);
 
-        final SharedPreferences sharedPref = getPreferences(this.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = sharedPref.edit();
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGIN, postParams, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
+
+                    SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_TOKEN, LoginActivity.this.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(LoginActivity.this.SESSION_TOKEN, response.getString(LoginActivity.this.SESSION_TOKEN));
                     editor.commit();
+
+
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
             }
-        },
+        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
 
-        new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-
-            }
-        });
+                    }
+                });
 
         Volley.newRequestQueue(this).add(jsonObjReq);
     }
