@@ -63,9 +63,17 @@ public class LoginActivity extends AppCompatActivity {
         EditText ticketNum = findViewById(R.id.txtTicketNum);
         final String ticketNumber = ticketNum.getText().toString();
 
-        if (ticketNum.length() > 1 && userName.length() > 1) {
+        if (ticketNum.length() > 0 && userName.length() > 0) {
             int randInt = this.rand.nextInt();
             loginPost(userName, ticketNumber, randInt);
+            SharedPreferences sharedPref = this.getPreferences(this.MODE_PRIVATE);
+
+            String sessionToken = sharedPref.getString(LoginActivity.this.SESSION_TOKEN, null);
+            if (sessionToken != null) {
+
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+            }
 
         } else {
 
@@ -87,15 +95,24 @@ public class LoginActivity extends AppCompatActivity {
 
         JSONObject postParams = new JSONObject();
 
+        postParams.put(LoginActivity.USERNAME, "nfsnkdfdskfdkj");
+        postParams.put(LoginActivity.TICKET, 9876789);
+        postParams.put(LoginActivity.RANDOM, randInt);
         postParams.put(LoginActivity.USERNAME, userName);
         postParams.put(LoginActivity.TICKET, Integer.parseInt(ticketNumber));
         postParams.put(LoginActivity.RANDOM, randInt);
+
+        final SharedPreferences sharedPref = getPreferences(this.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPref.edit();
 
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGIN, postParams, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
+                    String token = response.getString(LoginActivity.SESSION_TOKEN);
+                    editor.putString(LoginActivity.SESSION_TOKEN, token);
+                    editor.commit();
 
                     SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_TOKEN, LoginActivity.this.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
@@ -111,10 +128,18 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
             }
+        },
         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
+
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                });
 
                     }
                 });
@@ -122,6 +147,8 @@ public class LoginActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(jsonObjReq);
     }
 }
+
+
 
 
 
