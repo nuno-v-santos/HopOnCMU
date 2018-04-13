@@ -12,3 +12,4 @@ servercmu/.idea/
 servercmu/out/
 servercmu/src/ORM.db
 *.class
+*.db

@@ -1,10 +1,14 @@
 package pt.ulisboa.tecnico.cmov.cmu_project;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -37,11 +41,34 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide(); //<< this
         setContentView(R.layout.activity_login);
-
         this.editor =  getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE).edit();
         editor.remove(SESSION_TOKEN);
         editor.commit();
+        setupParent(findViewById(R.id.relativeLayout));
+    }
 
+    protected void setupParent(View view) {
+        //Set up touch listener for non-text box views to hide keyboard.
+        if(!(view instanceof EditText)) {
+            view.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    hideSoftKeyboard();
+                    return false;
+                }
+            });
+        }
+        //If a layout container, iterate over children
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                View innerView = ((ViewGroup) view).getChildAt(i);
+                setupParent(innerView);
+            }
+        }
+    }
+
+    private void hideSoftKeyboard() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 
     public void register(View v) {
@@ -71,12 +98,14 @@ public class LoginActivity extends AppCompatActivity {
             String sessionToken = sharedPref.getString(LoginActivity.this.SESSION_TOKEN, null);
             if (sessionToken != null) {
 
+<<<<<<<<< Temporary merge branch 1
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
             }
 
+=========
+>>>>>>>>> Temporary merge branch 2
         } else {
-
             Toast.makeText(this, R.string.short_login, Toast.LENGTH_LONG).show();
         }
 
@@ -95,55 +124,30 @@ public class LoginActivity extends AppCompatActivity {
 
         JSONObject postParams = new JSONObject();
 
-        postParams.put(LoginActivity.USERNAME, "nfsnkdfdskfdkj");
-        postParams.put(LoginActivity.TICKET, 9876789);
-        postParams.put(LoginActivity.RANDOM, randInt);
         postParams.put(LoginActivity.USERNAME, userName);
         postParams.put(LoginActivity.TICKET, Integer.parseInt(ticketNumber));
         postParams.put(LoginActivity.RANDOM, randInt);
-
-        final SharedPreferences sharedPref = getPreferences(this.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = sharedPref.edit();
-
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGIN, postParams, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    String token = response.getString(LoginActivity.SESSION_TOKEN);
-                    editor.putString(LoginActivity.SESSION_TOKEN, token);
-                    editor.commit();
-
                     SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_TOKEN, LoginActivity.this.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(LoginActivity.this.SESSION_TOKEN, response.getString(LoginActivity.this.SESSION_TOKEN));
                     editor.commit();
-
-
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-
                 } catch (JSONException e) {
+                    Toast.makeText(getBaseContext(), R.string.server_connection_error, Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
-
             }
-        },
         }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                    }
-                });
-
-                    }
-                });
-
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getBaseContext(), R.string.server_connection_error, Toast.LENGTH_LONG).show();
+                    error.printStackTrace();
+                }
+            });
         Volley.newRequestQueue(this).add(jsonObjReq);
     }
 }
