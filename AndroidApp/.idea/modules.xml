@@ -2,9 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file:///mnt/2EACC881ACC844D5/MEGA/Mestrado/2ºSemestre/computação movel/project/HopOnCMU/AndroidApp/AndroidApp.iml" filepath="/mnt/2EACC881ACC844D5/MEGA/Mestrado/2ºSemestre/computação movel/project/HopOnCMU/AndroidApp/AndroidApp.iml" />
-      <module fileurl="file:///mnt/2EACC881ACC844D5/MEGA/Mestrado/2ºSemestre/computação movel/project/HopOnCMU/AndroidApp/app/app.iml" filepath="/mnt/2EACC881ACC844D5/MEGA/Mestrado/2ºSemestre/computação movel/project/HopOnCMU/AndroidApp/app/app.iml" />
-      <module fileurl="file:///mnt/2EACC881ACC844D5/MEGA/Mestrado/2ºSemestre/computação movel/project/HopOnCMU/AndroidApp/volley/volley.iml" filepath="/mnt/2EACC881ACC844D5/MEGA/Mestrado/2ºSemestre/computação movel/project/HopOnCMU/AndroidApp/volley/volley.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AndroidApp.iml" filepath="$PROJECT_DIR$/AndroidApp.iml" />
+      <module fileurl="file://\mnt\2EACC881ACC844D5\MEGA\Mestrado\2ºSemestre\computação movel\project\HopOnCMU\AndroidApp\AndroidApp.iml" filepath="\mnt\2EACC881ACC844D5\MEGA\Mestrado\2ºSemestre\computação movel\project\HopOnCMU\AndroidApp\AndroidApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://\mnt\2EACC881ACC844D5\MEGA\Mestrado\2ºSemestre\computação movel\project\HopOnCMU\AndroidApp\app\app.iml" filepath="\mnt\2EACC881ACC844D5\MEGA\Mestrado\2ºSemestre\computação movel\project\HopOnCMU\AndroidApp\app\app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/volley/volley.iml" filepath="$PROJECT_DIR$/volley/volley.iml" />
+      <module fileurl="file://\mnt\2EACC881ACC844D5\MEGA\Mestrado\2ºSemestre\computação movel\project\HopOnCMU\AndroidApp\volley\volley.iml" filepath="\mnt\2EACC881ACC844D5\MEGA\Mestrado\2ºSemestre\computação movel\project\HopOnCMU\AndroidApp\volley\volley.iml" />
     </modules>
   </component>
 </project>

@@ -22,12 +22,31 @@ public class Application {
 
     public static void main(String[] args) {
 
+
+
         // Configure Spark
         port(1234);
         staticFiles.externalLocation("src/resources/public/");
 
         // Configure freemarker engine
         FreemarkerEngine engine = new FreemarkerEngine("src/resources/templates");
+
+
+        options("/*", (request,response)->{
+
+            String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
+            if (accessControlRequestHeaders != null) {
+                response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
+            }
+
+            String accessControlRequestMethod = request.headers("Access-Control-Request-Method");
+            if(accessControlRequestMethod != null){
+                response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
+            }
+
+            return "OK";
+        });
+
 
         // Set up endpoints
         get("/", (request, response) -> {
@@ -43,6 +62,7 @@ public class Application {
         AnswerEndPoints.mount(engine);
         QuizresponseEndPoints.mount(engine);
         AuthEndPoints.mount();
+        AndroidEndPoints.mount();
 
 
     }
