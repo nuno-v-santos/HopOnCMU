@@ -9,6 +9,10 @@ import static spark.Spark.*;
 public class AndroidEndPoints {
 
     private static User validateUser(String token) {
+
+        System.out.println("TOKEN");
+        System.out.println(token);
+
         if (token == null) {
             return null;
         }

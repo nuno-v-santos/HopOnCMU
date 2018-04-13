@@ -98,8 +98,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    editor.putString(LoginActivity.this.SESSION_TOKEN, response.getString(LoginActivity.this.SESSION_TOKEN));
-                    editor.apply();
+                    String token = response.getString(LoginActivity.SESSION_TOKEN);
+                    editor.putString(LoginActivity.SESSION_TOKEN, token);
+                    editor.commit();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
