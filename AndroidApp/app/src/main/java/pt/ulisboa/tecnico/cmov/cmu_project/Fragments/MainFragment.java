@@ -56,7 +56,7 @@ public class MainFragment extends Fragment {
     private void getInfo() throws JSONException {
 
         JSONObject postParams = new JSONObject();
-        final SharedPreferences sharedPref = getActivity().getPreferences(getActivity().MODE_PRIVATE);
+        final SharedPreferences sharedPref = getActivity().getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN,Context.MODE_PRIVATE);
         final String token = sharedPref.getString(LoginActivity.SESSION_TOKEN, "");
 
 

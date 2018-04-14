@@ -123,11 +123,17 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 try {
 
-                    String token = response.getString(LoginActivity.SESSION_TOKEN);
-                    LoginActivity.this.editor.putString(LoginActivity.SESSION_TOKEN, token);
-                    LoginActivity.this.editor.commit();
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
+                    if (response.getString("error").equals("")) {
+                        String token = response.getString(LoginActivity.SESSION_TOKEN);
+                        LoginActivity.this.editor.putString(LoginActivity.SESSION_TOKEN, token);
+                        LoginActivity.this.editor.commit();
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(LoginActivity.this, response.getString("error"),
+                                Toast.LENGTH_SHORT).show();
+                    }
+
 
                 } catch (JSONException e) {
                     Toast.makeText(getBaseContext(), R.string.server_connection_error, Toast.LENGTH_LONG).show();

@@ -52,7 +52,7 @@ public class TicketEndPoints{
             System.out.println(request.raw()); // What's the raw data sent?
 
             Ticket ticket = Ticket.get(Integer.parseInt(request.queryParams("id")));
-                ticket.setNumber(Integer.parseInt(!request.queryParams("number").isEmpty() ? request.queryParams("number") : "0"));
+                ticket.setNumber(Integer.parseInt(!request.queryParams("number").isEmpty() ? request.queryParams("number").replaceAll(",","") : "0"));
                 ticket.setTaken(Integer.parseInt(!request.queryParams("taken").isEmpty() ? request.queryParams("taken") : "0"));
             ticket.save();
                         if(Integer.parseInt(request.queryParams("userId")) != -1){

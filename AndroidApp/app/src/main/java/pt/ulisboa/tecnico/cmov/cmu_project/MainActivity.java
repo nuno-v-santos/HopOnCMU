@@ -21,23 +21,26 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MainFragment;
+import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.Monument;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.MonumentListFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.Ranking.RankingFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentScreenActivity;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,13 +103,14 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Function that logs out the user.
+     */
     private void logOutUser() {
-
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
         final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
 
         if (!sessionToken.equals("")) {
-            Toast.makeText(this,"HEllo",Toast.LENGTH_SHORT).show();
             JSONObject jsonParams = new JSONObject();
             JsonObjectRequest myRequest = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGOUT, jsonParams,
 
@@ -124,7 +128,7 @@ public class MainActivity extends AppCompatActivity
                     }) {
 
                 @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
+                public Map<String, String> getHeaders() {
                     HashMap<String, String> headers = new HashMap<String, String>();
                     headers.put("token", sessionToken);
                     return headers;
@@ -133,9 +137,54 @@ public class MainActivity extends AppCompatActivity
 
             Volley.newRequestQueue(this).add(myRequest);
         }
-
     }
 
+    /**
+     * Method that asks the server for the monuments
+     *
+     * @return
+     */
+    private List<Monument> getMonuments() {
+
+        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
+        final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
+        Toast.makeText(this,sessionToken,Toast.LENGTH_SHORT).show();
+        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(
+                Request.Method.GET, URLS.URL_GET_MONUMENTS, null, new Response.Listener<JSONArray>() {
+
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        System.out.println("RESP");
+                        System.out.println(response.toString());
+                        Toast.makeText(MainActivity.this, "Response: " + response.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println("err");
+                        System.out.println(error);
+                        Toast.makeText(MainActivity.this, R.string.server_connection_error, Toast.LENGTH_SHORT).show();
+
+                    }
+
+
+                }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("token", sessionToken);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+
+        };
+
+
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
+        return null;
+    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -150,12 +199,13 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_ranking) {
             fragment = new RankingFragment();
         } else if (id == R.id.nav_monuments) {
+            getMonuments();
             fragment = new MonumentListFragment();
         } else if (id == R.id.nav_share_results) {
             //todo: wi-fi direct
         }
         if (id == R.id.nav_logout) {
-            postLogout();
+            logOutUser();
             startActivity(new Intent(this, LoginActivity.class));
             //todo: clear the nvigation stack
             return true;
@@ -173,10 +223,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void postLogout() {
-
-
-    }
 
     public void testBtnOnClick(MenuItem item) {
         Intent intent = new Intent(this, MonumentScreenActivity.class);

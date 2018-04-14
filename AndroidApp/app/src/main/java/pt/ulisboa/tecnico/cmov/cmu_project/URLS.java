@@ -12,4 +12,5 @@ public class URLS {
     public static final String URL_LOGIN = ROOT_URL + "login";
     public static final String URL_LOGOUT = ROOT_URL + "logout";
     public static final String URL_GET_INFO = ROOT_URL + "android/userInfo/";
+    public static final String URL_GET_MONUMENTS = ROOT_URL+ "android/monuments/";
 }

@@ -33,7 +33,7 @@ public class AndroidEndPoints {
     public static void mount() {
 
 
-        get("/android/monuments/", ((request, response) -> {
+            get("/android/monuments/", ((request, response) -> {
 
             System.out.println("ok");
             try {
@@ -41,11 +41,13 @@ public class AndroidEndPoints {
                 String token = request.headers("token");
                 User user = validateUser(token);
 
-                if (user == null) return false;
+                if (user == null)
+                    return false;
 
                 Gson gson = new Gson();
 
                 String result = gson.toJson(user.getTicket().getTour().getMonuments());
+                System.out.println("Monuments =======> ok");
                 return result;
 
             } catch (Exception e) {

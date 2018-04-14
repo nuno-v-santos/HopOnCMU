@@ -92,47 +92,55 @@ public class AuthEndPoints {
 
             try {
 
-
                 JsonElement body = new JsonParser().parse(request.body());
                 String ticket = body.getAsJsonObject().get("ticket").getAsString();
                 String username = body.getAsJsonObject().get("username").getAsString();
                 String random = body.getAsJsonObject().get("random").getAsString();
+                System.out.println(username + " " + ticket);
+                List<User> userList = User.where("username ='" + username + "'");
 
-                User user = User.where("username ='" + username + "'").get(0);
+                if (!userList.isEmpty()) {
+                    User user = userList.get(0);
 
-                if (user == null) {
-                    return false;
+                    if (user.getSession() != null) {
+                        return false;
+                    }
+
+                    if (user.getTicket().getNumber() != Integer.parseInt(ticket)) {
+                        return "{" +
+                                "\"token\" : \"" + "\"," +
+                                "\"error\" : \"" + "Bus ticket and Username does not match" + "\"" +
+                                "}";
+                    }
+
+                    String token = UUID.randomUUID().toString().toUpperCase()
+                            + "|" + user.getId() + "|"
+                            + System.currentTimeMillis() + "|" + Integer.parseInt(random);
+
+                    String sharedToken = UUID.randomUUID().toString().toUpperCase()
+                            + "|" + user.getId() + "|"
+                            + System.currentTimeMillis() + "|" + Integer.parseInt(random);
+
+
+                    Session session = new Session();
+                    session.setToken(token);
+                    session.setRandom(Integer.parseInt(random));
+                    session.setSharedToken(sharedToken);
+                    session.save();
+
+                    user.setSession(session);
+                    return "{" +
+                            "\"token\" : \"" + token + "\"," +
+                            "\"error\" : \"" + "\"" +
+                            "}";
+
+                } else {
+
+                    return "{" +
+                            "\"token\" : \"" + "\"," +
+                            "\"error\" : \"" + "User does not exist" + "\"" +
+                            "}";
                 }
-
-                if (user.getTicket().getNumber() != Integer.parseInt(ticket)) {
-                    return false;
-                }
-
-                if (user.getSession() != null) {
-                    return false;
-                }
-
-                String token = UUID.randomUUID().toString().toUpperCase()
-                        + "|" + user.getId() + "|"
-                        + System.currentTimeMillis() + "|" + Integer.parseInt(random);
-
-                String sharedToken = UUID.randomUUID().toString().toUpperCase()
-                        + "|" + user.getId() + "|"
-                        + System.currentTimeMillis() + "|" + Integer.parseInt(random);
-
-
-                Session session = new Session();
-                session.setToken(token);
-                session.setRandom(Integer.parseInt(random));
-                session.setSharedToken(sharedToken);
-                session.save();
-
-                user.setSession(session);
-                System.out.println("All ok");
-                return "{" +
-                        "\"token\" : \"" + token + "\"," +
-                        "\"sharedToken\" : \"" + sharedToken + "\"" +
-                        "}";
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -157,7 +165,7 @@ public class AuthEndPoints {
 
             return false;
         })));
-        
+
 
         get("test", (((request, response) -> {
 
