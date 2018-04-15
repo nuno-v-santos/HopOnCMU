@@ -10,23 +10,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
 
 /**
  * Created by tiago on 28-Mar-18.
  */
 
-public class MonumentListAdapter extends ArrayAdapter<Monument> {
+public class MonumentListAdapter extends ArrayAdapter<MonumentData> {
 
 
-    private ArrayList<Monument> monuments;
+    private ArrayList<MonumentData> monuments;
 
-    public MonumentListAdapter(Context context, ArrayList<Monument> monuments) {
+    public MonumentListAdapter(Context context, ArrayList<MonumentData> monuments) {
         super(context, 0, monuments);
         this.monuments = monuments;
     }
@@ -40,7 +42,7 @@ public class MonumentListAdapter extends ArrayAdapter<Monument> {
     public View getView(int position, View convertView, ViewGroup parent) {
 
 
-        Monument monument = monuments.get(position);
+        MonumentData monument = monuments.get(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.monument_list_item, parent, false);
@@ -48,9 +50,16 @@ public class MonumentListAdapter extends ArrayAdapter<Monument> {
 
 
         TextView status = convertView.findViewById(R.id.status);
+        ImageView imageView = convertView.findViewById(R.id.imageViewMonumentListAdapter);
+        TextView monumentName = convertView.findViewById(R.id.monumentNameListAdapter);
 
         status.setText(monument.getStatus().toUpperCase());
         status.setBackgroundColor(getContext().getResources().getColor(getColor(monument.getStatus())));
+
+        // todo colocar imagem correct
+        imageView.setImageDrawable(convertView.getResources().getDrawable(R.drawable.belem));
+
+        monumentName.setText(monument.getMonumentName());
 
 
         return convertView;
@@ -66,7 +75,6 @@ public class MonumentListAdapter extends ArrayAdapter<Monument> {
                 return R.color.colorNotVisited;
             case Monument.QUIZ:
                 return R.color.colorQuiz;
-
             default:
                 return R.color.colorVisited;
         }

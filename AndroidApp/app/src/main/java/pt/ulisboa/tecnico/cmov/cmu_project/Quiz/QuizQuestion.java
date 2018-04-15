@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmov.cmu_project.Quiz;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by espada on 25-03-2018.
@@ -13,6 +14,7 @@ public class QuizQuestion implements Serializable {
     private String invalidAnswer1;
     private String invalidAnswer2;
     private String invalidAnswer3;
+    private ArrayList<String> questions;
 
     public QuizQuestion(String question, String correctAnswer, String invalidAnswer1, String invalidAnswer2, String invalidAnswer3) {
         this.question = question;
@@ -20,6 +22,12 @@ public class QuizQuestion implements Serializable {
         this.invalidAnswer1 = invalidAnswer1;
         this.invalidAnswer2 = invalidAnswer2;
         this.invalidAnswer3 = invalidAnswer3;
+    }
+
+    public QuizQuestion(String question, String correctAnswer, ArrayList<String> questions){
+        this.question = question;
+        this.correctAnswer = correctAnswer;
+        this.questions = questions;
     }
 
 

@@ -33,7 +33,7 @@ public class QuizActivity extends AppCompatActivity {
     private ListView listView; // atributo list view
 
     private QuizQuestion currentQuestion; // questão que o utilizador se encontra a responder
-    private boolean questionsAnswered = false; // atriduto que verifica se o utilizador já respondeu à questão
+    private boolean questionsAnswered = false; // atributo que verifica se o utilizador já respondeu à questão
 
 
     @Override
@@ -43,20 +43,21 @@ public class QuizActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_quiz);
 
-
         int j = 0;
         for (char c = 'A'; c <= 'D'; c++) {
             this.alphabet[j] = "" + c;
             j++;
         }
 
-
         /*Obter dados da actividade anterior*/
         Intent intent = getIntent();
         this.imgID = intent.getIntExtra(QuizActivity.MONUMENT_IMG, 0);
         this.quizQuestions = (ArrayList<QuizQuestion>) intent.getSerializableExtra(QuizActivity.QUIZ_QUESTIONS);
 
-        this.setInitialState();// carregar a primeira questão do quiz para a interface
+        for (QuizQuestion q: quizQuestions) {
+            System.out.println(q.getQuestion());
+        }
+        //this.setInitialState();// carregar a primeira questão do quiz para a interface
 
     }
 

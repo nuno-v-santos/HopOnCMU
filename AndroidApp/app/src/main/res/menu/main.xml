@@ -8,9 +8,4 @@
         app:showAsAction="never" />
 
 
-    <item
-        android:id="@+id/testBtn"
-        android:title="Monument"
-        android:onClick="testBtnOnClick"/>
-
 </menu>

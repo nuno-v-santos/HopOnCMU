@@ -11,36 +11,37 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MainFragment;
-import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.Monument;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.MonumentListFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.Ranking.RankingFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentScreenActivity;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static final String SEND_MONUMENT_LIST = "MONUMENT_LIST";
+    private LinkedList<MonumentData> monumentDataLinkedList = new LinkedList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //navigation configurations
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        this.monumentDataLinkedList = getMonuments();
     }
 
     @Override
@@ -118,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void onResponse(JSONObject response) {
                             System.out.println(response.toString());
+
                         }
                     },
                     new Response.ErrorListener() {
@@ -140,36 +144,55 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**
+     * Simple function that builds MonumentData object from JSONObject
+     *
+     * @param jObject
+     * @return MonumentData object
+     * @throws JSONException
+     */
+    private MonumentData buildMonument(JSONObject jObject) throws JSONException {
+
+        String imURL = jObject.getString("imageURL");
+        String name = jObject.getString("name");
+        String wifiId = jObject.getString("wifiId");
+        int id = jObject.getInt("id");
+        String sampleDesc = getResources().getString(R.string.sample_desc);
+        return new MonumentData(imURL, name, sampleDesc, wifiId, id);
+    }
+
+
+    /**
      * Method that asks the server for the monuments
      *
      * @return
      */
-    private List<Monument> getMonuments() {
+    private LinkedList<MonumentData> getMonuments() {
 
+        final LinkedList<MonumentData> monumentsList = new LinkedList<>();
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
         final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
-        Toast.makeText(this,sessionToken,Toast.LENGTH_SHORT).show();
-        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(
-                Request.Method.GET, URLS.URL_GET_MONUMENTS, null, new Response.Listener<JSONArray>() {
+        Toast.makeText(this, sessionToken, Toast.LENGTH_SHORT).show();
 
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        System.out.println("RESP");
-                        System.out.println(response.toString());
-                        Toast.makeText(MainActivity.this, "Response: " + response.toString(), Toast.LENGTH_SHORT).show();
+        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, URLS.URL_GET_MONUMENTS, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for (int i = 0; i < response.length(); i++) {
+                    try {
+                        monumentsList.add(buildMonument(response.getJSONObject(i)));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                }, new Response.ErrorListener() {
+                }
+            }
+        }, new Response.ErrorListener() {
 
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        System.out.println("err");
-                        System.out.println(error);
-                        Toast.makeText(MainActivity.this, R.string.server_connection_error, Toast.LENGTH_SHORT).show();
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, R.string.server_connection_error, Toast.LENGTH_SHORT).show();
 
-                    }
+            }
 
-
-                }) {
+        }) {
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<String, String>();
@@ -181,9 +204,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         };
 
-
         Volley.newRequestQueue(this).add(jsonObjectRequest);
-        return null;
+        return monumentsList;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -199,15 +221,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_ranking) {
             fragment = new RankingFragment();
         } else if (id == R.id.nav_monuments) {
-            getMonuments();
+
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(MainActivity.SEND_MONUMENT_LIST, monumentDataLinkedList);
+            bundle.putString("STR", "HOLA MUNDO");
             fragment = new MonumentListFragment();
+            fragment.setArguments(bundle);
+
         } else if (id == R.id.nav_share_results) {
             //todo: wi-fi direct
         }
         if (id == R.id.nav_logout) {
             logOutUser();
-            startActivity(new Intent(this, LoginActivity.class));
-            //todo: clear the nvigation stack
+            finish();
             return true;
         }
 
@@ -223,11 +249,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-
-    public void testBtnOnClick(MenuItem item) {
-        Intent intent = new Intent(this, MonumentScreenActivity.class);
-        MonumentData monData = new MonumentData(R.drawable.ic_launcher_background, "TORRE DE CMU", "Este Monumento é Bue Fixe");
-        intent.putExtra(MonumentScreenActivity.MONUMENT_DATA, monData);
-        startActivity(intent);
-    }
 }

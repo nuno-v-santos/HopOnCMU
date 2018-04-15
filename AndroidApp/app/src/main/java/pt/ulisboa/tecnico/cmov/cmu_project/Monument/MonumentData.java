@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmov.cmu_project.Monument;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by espada on 23-03-2018.
@@ -8,20 +9,30 @@ import java.io.Serializable;
 
 public class MonumentData implements Serializable {
 
+    public static final String VISITED = "Visited";
+    public static final String NOT_VISITED = "Not Visited";
+    public static final String QUIZ = "Quiz";
+
+
+    private String status = NOT_VISITED;
     private static final long serialVersionUID = 834457624276534179L;
-    private int imID;
+    private String imURL;
     private String monumentName;
     private String monumentDescription;
+    private String wifiId;
 
+    private int monumentID;
 
-    public MonumentData(int imID, String monumentName, String monumentDescription) {
-        this.imID = imID;
+    public MonumentData(String imURL, String monumentName, String monumentDescription, String wifiId, int monumentID) {
+        this.imURL = imURL;
         this.monumentName = monumentName;
         this.monumentDescription = monumentDescription;
+        this.wifiId = wifiId;
+        this.monumentID = monumentID;
     }
 
-    public int getImID() {
-        return this.imID;
+    public String getImURL() {
+        return this.imURL;
     }
 
     public String getMonumentName() {
@@ -32,31 +43,49 @@ public class MonumentData implements Serializable {
         return this.monumentDescription;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+
+    public int getMonumentID() {
+        return monumentID;
+    }
+
+
     @Override
     public String toString() {
 
-        return this.imID + "\n" + this.monumentName + "\n" + this.getMonumentDescription();
+        return this.imURL + "\n" + this.monumentName + "\n" + this.getMonumentDescription();
     }
 
+
+    public String getWifiId() {
+        return wifiId;
+    }
+
+    public void setWifiId(String wifiId) {
+        this.wifiId = wifiId;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         MonumentData that = (MonumentData) o;
-
-        if (imID != that.imID) return false;
-        if (monumentName != null ? !monumentName.equals(that.monumentName) : that.monumentName != null)
-            return false;
-        return monumentDescription != null ? monumentDescription.equals(that.monumentDescription) : that.monumentDescription == null;
+        return imURL == that.imURL &&
+                Objects.equals(monumentName, that.monumentName) &&
+                Objects.equals(monumentDescription, that.monumentDescription) &&
+                Objects.equals(wifiId, that.wifiId);
     }
 
     @Override
     public int hashCode() {
-        int result = imID;
-        result = 31 * result + (monumentName != null ? monumentName.hashCode() : 0);
-        result = 31 * result + (monumentDescription != null ? monumentDescription.hashCode() : 0);
-        return result;
+
+        return Objects.hash(imURL, monumentName, monumentDescription, wifiId);
     }
 }
