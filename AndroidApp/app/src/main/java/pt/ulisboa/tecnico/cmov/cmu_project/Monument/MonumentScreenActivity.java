@@ -16,7 +16,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,13 +26,16 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.LoginActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizQuestion;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
 import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
+import pt.ulisboa.tecnico.cmov.cmu_project.VolleySingleton;
 
 public class MonumentScreenActivity extends AppCompatActivity {
 
@@ -47,10 +51,12 @@ public class MonumentScreenActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_monument_screen);
         Intent intent = getIntent();
+        this.monData = (MonumentData) intent.getSerializableExtra(MONUMENT_DATA);
 
         this.quizQuestions = new ArrayList<>();
-        this.monData = (MonumentData) intent.getSerializableExtra(MONUMENT_DATA);
+        this.downloadQuestions();
         this.updateUIWithMonumentInfo();
+
 
     }
 
@@ -73,19 +79,20 @@ public class MonumentScreenActivity extends AppCompatActivity {
      *
      * @param view
      */
-    public void btnDownloadQuizOnClick(View view) throws InterruptedException {
+    public void btnDownloadQuizOnClick(View view) throws InterruptedException, TimeoutException, JSONException {
 
         String monDataWifiId = this.monData.getWifiId();
         this.downloadQuestions();
 
         Intent intent = new Intent(this, QuizActivity.class);
-        intent.putExtra(QuizActivity.QUIZ_QUESTIONS,this.quizQuestions);
-        intent.putExtra(QuizActivity.MONUMENT_IMG,this.monData.getImURL());
+        intent.putExtra(QuizActivity.QUIZ_QUESTIONS, this.quizQuestions);
+        intent.putExtra(QuizActivity.MONUMENT_IMG, this.monData.getImURL());
         startActivity(intent);
     }
 
     /**
      * Function that given JSONArray and String buils object QuizQuestion
+     *
      * @param answers
      * @param question
      * @return
@@ -132,7 +139,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
                             JSONObject tmpObj = response.getJSONObject(i);
                             String question = tmpObj.getString("question");
                             JSONArray answers = tmpObj.getJSONArray("answers");
-                            quizQuestions.add(buildQuizQuestion(answers,question));
+                            quizQuestions.add(buildQuizQuestion(answers, question));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -162,10 +169,9 @@ public class MonumentScreenActivity extends AppCompatActivity {
                 }
             };
 
-            Volley.newRequestQueue(this).add(jsonObjectRequest);
+            VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(jsonObjectRequest);
         }
     }
-
 
     /**
      * Function that verifies the network SSDI that the device is connected and compares it with

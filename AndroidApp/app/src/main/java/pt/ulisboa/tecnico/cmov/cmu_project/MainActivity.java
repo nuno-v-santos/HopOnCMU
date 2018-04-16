@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -70,6 +72,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //navigation configurations
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        Intent intent = getIntent();
+        String userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
+
 
         this.monumentDataLinkedList = getMonuments();
     }
@@ -138,8 +144,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     return headers;
                 }
             };
-
-            Volley.newRequestQueue(this).add(myRequest);
+            VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(myRequest);
         }
     }
 
@@ -150,13 +155,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * @return MonumentData object
      * @throws JSONException
      */
-    private MonumentData buildMonument(JSONObject jObject) throws JSONException {
+    private MonumentData buildMonument(JSONObject jObject, DatabaseHelper databaseHelper) throws JSONException {
 
         String imURL = jObject.getString("imageURL");
         String name = jObject.getString("name");
         String wifiId = jObject.getString("wifiId");
         int id = jObject.getInt("id");
         String sampleDesc = getResources().getString(R.string.sample_desc);
+        databaseHelper.insertMonument(id, MonumentData.NOT_VISITED, imURL, name, sampleDesc, wifiId);
         return new MonumentData(imURL, name, sampleDesc, wifiId, id);
     }
 
@@ -172,13 +178,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
         final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
         Toast.makeText(this, sessionToken, Toast.LENGTH_SHORT).show();
-
+        final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getBaseContext());
         JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, URLS.URL_GET_MONUMENTS, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 for (int i = 0; i < response.length(); i++) {
                     try {
-                        monumentsList.add(buildMonument(response.getJSONObject(i)));
+                        monumentsList.add(buildMonument(response.getJSONObject(i), databaseHelper));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -204,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         };
 
-        Volley.newRequestQueue(this).add(jsonObjectRequest);
+        VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(jsonObjectRequest);
         return monumentsList;
     }
 
@@ -224,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             Bundle bundle = new Bundle();
             bundle.putSerializable(MainActivity.SEND_MONUMENT_LIST, monumentDataLinkedList);
-            bundle.putString("STR", "HOLA MUNDO");
+
             fragment = new MonumentListFragment();
             fragment.setArguments(bundle);
 

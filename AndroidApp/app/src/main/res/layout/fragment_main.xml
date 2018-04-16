@@ -11,7 +11,7 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/username"
+            android:id="@+id/usernameFragmentMain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/user_pic"
@@ -24,7 +24,7 @@
             android:id="@+id/quiz_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/username"
+            android:layout_below="@+id/usernameFragmentMain"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="42dp"
             android:text="@string/default_quiz_completion" />

@@ -109,7 +109,6 @@ public class RegisterActivity extends AppCompatActivity {
 
                     }
                 });
-
-        Volley.newRequestQueue(this).add(jsonObjReq);
+        VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(jsonObjReq);
     }
 }

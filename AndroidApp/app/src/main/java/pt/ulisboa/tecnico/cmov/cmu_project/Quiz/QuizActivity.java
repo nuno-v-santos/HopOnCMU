@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -43,21 +44,21 @@ public class QuizActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_quiz);
 
-        int j = 0;
-        for (char c = 'A'; c <= 'D'; c++) {
-            this.alphabet[j] = "" + c;
-            j++;
-        }
-
         /*Obter dados da actividade anterior*/
         Intent intent = getIntent();
         this.imgID = intent.getIntExtra(QuizActivity.MONUMENT_IMG, 0);
         this.quizQuestions = (ArrayList<QuizQuestion>) intent.getSerializableExtra(QuizActivity.QUIZ_QUESTIONS);
 
-        for (QuizQuestion q: quizQuestions) {
-            System.out.println(q.getQuestion());
+
+        int j = 0;
+        for (char c = 'A'; c <= 'Z'; c++) {
+            if (j == quizQuestions.size() + 1) break;
+            this.alphabet[j] = "" + c;
+            j++;
         }
-        //this.setInitialState();// carregar a primeira questão do quiz para a interface
+
+
+        this.setInitialState();// carregar a primeira questão do quiz para a interface
 
     }
 
@@ -121,30 +122,20 @@ public class QuizActivity extends AppCompatActivity {
         this.listView.setAdapter(null);
         this.listView.setEnabled(true);
 
-
         String question = this.currentQuestion.getQuestion();
         TextView txtViewQuestion = findViewById(R.id.txtViewQuestion);
         txtViewQuestion.setText(question);
 
-        String correctAnswer = this.currentQuestion.getCorrectAnswer();
-        String answer1 = this.currentQuestion.getInvalidAnswer1();
-        String answer2 = this.currentQuestion.getInvalidAnswer2();
-        String answer3 = this.currentQuestion.getInvalidAnswer3();
-
         ArrayList<String> tempStrLst = new ArrayList<>();
-        tempStrLst.add(correctAnswer);
-        tempStrLst.add(answer1);
-        tempStrLst.add(answer2);
-        tempStrLst.add(answer3);
+        tempStrLst.addAll(this.currentQuestion.getAnswersList());
         Collections.shuffle(tempStrLst);
-
         this.adapterItens.addAll(tempStrLst);
         this.listView.setAdapter(this.itemsAdapter);
-
     }
 
     /**
      * Função que avalia
+     *
      * @param selectedOption
      * @return
      */
@@ -158,6 +149,7 @@ public class QuizActivity extends AppCompatActivity {
     /**
      * Função que responde ao evento onClick quando o utilizador pressiona o botão Next para carregar
      * a proxima questão do quiz
+     *
      * @param view
      */
     public void btnNextQuestionOnClick(View view) {

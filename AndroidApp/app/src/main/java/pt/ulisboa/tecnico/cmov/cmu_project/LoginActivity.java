@@ -29,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     private Random rand = new Random();
     public final static String SHARED_PREF_TOKEN = "SHARED_PREF_TOKEN";
     public final static String SESSION_TOKEN = "token";
+    public final static String SEND_USERNAME = "SEND_USERNAME";
 
     private SharedPreferences.Editor editor;
 
@@ -127,7 +128,10 @@ public class LoginActivity extends AppCompatActivity {
                         String token = response.getString(LoginActivity.SESSION_TOKEN);
                         LoginActivity.this.editor.putString(LoginActivity.SESSION_TOKEN, token);
                         LoginActivity.this.editor.commit();
+
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.putExtra(SEND_USERNAME,userName);
+
                         startActivity(intent);
                     } else {
                         Toast.makeText(LoginActivity.this, response.getString("error"),
@@ -147,7 +151,8 @@ public class LoginActivity extends AppCompatActivity {
                 error.printStackTrace();
             }
         });
-        Volley.newRequestQueue(this).add(jsonObjReq);
+        VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(jsonObjReq);
+        //Volley.newRequestQueue(this).add(jsonObjReq);
     }
 }
 
