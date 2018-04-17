@@ -26,11 +26,10 @@ public class QuizActivity extends AppCompatActivity {
     private int imgID = 0; // resource ID para a imagem do monumento
     private int questionNumber = 0; // numero da questão a apresentar ao utilizador
 
-
     private ArrayList<QuizQuestion> quizQuestions; // lista com as questões a apresentar ao utilizador
     private QuizListAdapter itemsAdapter; // list adapter que extende o ArrayAdapter<String>
     private ArrayList<String> adapterItens = new ArrayList<>(); // lista de strings que ira conter as respostas possiveis
-    private String[] alphabet = new String[4]; //array de strings contendo A,B,C,D para efeitos gráficos
+    private String[] alphabet;//array de strings contendo A,B,C,D para efeitos gráficos
     private ListView listView; // atributo list view
 
     private QuizQuestion currentQuestion; // questão que o utilizador se encontra a responder
@@ -49,10 +48,13 @@ public class QuizActivity extends AppCompatActivity {
         this.imgID = intent.getIntExtra(QuizActivity.MONUMENT_IMG, 0);
         this.quizQuestions = (ArrayList<QuizQuestion>) intent.getSerializableExtra(QuizActivity.QUIZ_QUESTIONS);
 
+        this.alphabet = new String[getMaxNumberAnswers()];
 
         int j = 0;
         for (char c = 'A'; c <= 'Z'; c++) {
-            if (j == quizQuestions.size() + 1) break;
+            if (j == quizQuestions.size() + 1)
+                break;
+
             this.alphabet[j] = "" + c;
             j++;
         }
@@ -60,6 +62,21 @@ public class QuizActivity extends AppCompatActivity {
 
         this.setInitialState();// carregar a primeira questão do quiz para a interface
 
+    }
+
+    /**
+     * Function that return the max number of answers
+     * @return the max number of responses of all questions
+     */
+    private int getMaxNumberAnswers() {
+        int v = -1;
+        for (QuizQuestion q : this.quizQuestions) {
+
+            if (v < q.getAnswersList().size())
+                v = q.getAnswersList().size();
+        }
+
+        return v;
     }
 
     /**
@@ -103,6 +120,7 @@ public class QuizActivity extends AppCompatActivity {
                                 listView.getChildAt(i).setBackgroundColor(Color.GREEN);
                             }
                         }
+
                         QuizActivity.this.listView.setEnabled(false);
                         QuizActivity.this.questionsAnswered = true;
                     }
@@ -134,8 +152,7 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     /**
-     * Função que avalia
-     *
+     * Função que avalia se a questão foi correctamente respondida
      * @param selectedOption
      * @return
      */
@@ -149,7 +166,6 @@ public class QuizActivity extends AppCompatActivity {
     /**
      * Função que responde ao evento onClick quando o utilizador pressiona o botão Next para carregar
      * a proxima questão do quiz
-     *
      * @param view
      */
     public void btnNextQuestionOnClick(View view) {

@@ -46,6 +46,9 @@ public class LoginActivity extends AppCompatActivity {
         this.editor.remove(SESSION_TOKEN);
         this.editor.commit();
         setupParent(findViewById(R.id.relativeLayout));
+
+        DatabaseHelper.getInstance(getBaseContext()).deleteDataBase(getBaseContext());
+        Toast.makeText(this, "apagado", Toast.LENGTH_LONG).show();
     }
 
     protected void setupParent(View view) {

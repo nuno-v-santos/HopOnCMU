@@ -56,8 +56,6 @@ public class MonumentScreenActivity extends AppCompatActivity {
         this.quizQuestions = new ArrayList<>();
         this.downloadQuestions();
         this.updateUIWithMonumentInfo();
-
-
     }
 
 
@@ -91,7 +89,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
     }
 
     /**
-     * Function that given JSONArray and String buils object QuizQuestion
+     * Function that given JSONArray and String builds object QuizQuestion
      *
      * @param answers
      * @param question

@@ -12,14 +12,10 @@ public class QuizQuestion implements Serializable {
 
     private String question;
     private String correctAnswer;
-
-
+    private ArrayList<String> answersList;
     public ArrayList<String> getAnswersList() {
         return answersList;
     }
-
-    private ArrayList<String> answersList;
-
 
     public QuizQuestion(String question, String correctAnswer, ArrayList<String> questions) {
         this.question = question;

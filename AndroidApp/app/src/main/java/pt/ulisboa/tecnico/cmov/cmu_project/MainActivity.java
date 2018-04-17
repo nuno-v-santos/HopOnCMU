@@ -76,8 +76,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent = getIntent();
         String userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
 
+        if(DatabaseHelper.getInstance(getBaseContext()).tableIsEmpty(DatabaseHelper.TABLE_MONUMENTS))
+            this.monumentDataLinkedList = getMonuments();
+        else {
 
-        this.monumentDataLinkedList = getMonuments();
+            this.monumentDataLinkedList = DatabaseHelper.getInstance(getBaseContext()).buildMonumentsFromDB();
+        }
     }
 
     @Override
