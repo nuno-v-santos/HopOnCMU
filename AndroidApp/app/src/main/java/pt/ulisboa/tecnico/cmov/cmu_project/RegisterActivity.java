@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmov.cmu_project;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -27,12 +28,23 @@ import java.util.Random;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    public final static String SHARED_PREF_TOKEN = "SHARED_PREF_TOKEN";
+    public final static String SESSION_TOKEN = "token";
+    public final static String SEND_USERNAME = "SEND_USERNAME";
+
+    private SharedPreferences.Editor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide(); //<< this
         setContentView(R.layout.activity_register);
+        this.editor = getSharedPreferences(RegisterActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE).edit();
+        this.editor.remove(SESSION_TOKEN);
+        this.editor.commit();
         setupParent(findViewById(R.id.relativeLayout));
+
+        DatabaseHelper.getInstance(getBaseContext()).deleteDataBase(getBaseContext());
     }
 
     protected void setupParent(View view) {
@@ -75,7 +87,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-    private void registerPost(String userName, String ticketNumber, int randInt) throws IOException, JSONException {
+    private void registerPost(final String userName, final String ticketNumber, int randInt) throws IOException, JSONException {
 
         JSONObject postParams = new JSONObject();
 
@@ -91,7 +103,10 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(getBaseContext(), response.getString("error"), Toast.LENGTH_LONG).show();
                     else {
                         String token = response.getString("token");
+                        RegisterActivity.this.editor.putString(RegisterActivity.SESSION_TOKEN, token);
+                        RegisterActivity.this.editor.commit();
                         Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                        intent.putExtra(SEND_USERNAME,userName);
                         startActivity(intent);
                     }
                 } catch (JSONException e) {
