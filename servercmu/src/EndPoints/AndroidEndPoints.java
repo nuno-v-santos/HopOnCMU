@@ -1,13 +1,10 @@
 package EndPoints;
 
-import Model.Monument;
-import Model.Question;
-import Model.Quiz;
-import Model.User;
+import Model.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import java.util.List;
+import java.util.*;
 
 import static spark.Spark.*;
 
@@ -136,6 +133,42 @@ public class AndroidEndPoints {
                 return false;
             }
         }));
-    }
 
+
+        get("/android/ranking/", (req, res) -> {
+
+            //obter o token
+            String token = req.headers("token");
+            User user = validateUser(token);
+            if (user == null)
+                return false;
+
+            List<QuizResponse> quizResponses = QuizResponse.all();
+
+
+            Object[] result = quizResponses.stream().filter(quizResponse -> {
+                return (new Date().getDate() == quizResponse.getDate().getDate()) &&
+                        (new Date().getMonth() == quizResponse.getDate().getMonth()) &&
+                        (new Date().getYear() == quizResponse.getDate().getYear());
+
+            }).toArray();
+
+
+            HashMap<String, Integer> score = new HashMap<>();
+
+            for (Object quizResponsee : result) {
+                QuizResponse quizResponse = (QuizResponse) quizResponsee;
+                if (score.containsKey(quizResponse.getUser().getUsername())) {
+                    score.put(quizResponse.getUser().getUsername(), score.get(quizResponse.getUser().getUsername()) + quizResponse.getScore());
+                } else {
+                    score.put(quizResponse.getUser().getUsername(), quizResponse.getScore());
+                }
+            }
+
+            Gson gson = new Gson();
+            return gson.toJson(score);
+
+        });
+
+    }
 }
