@@ -27,7 +27,7 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:id="@+id/image"
+                    android:id="@+id/imageViewMonumentListAdapter"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="0dp"
@@ -48,7 +48,7 @@
                     android:textColor="@color/colorWhite" />
 
                 <TextView
-                    android:id="@+id/label"
+                    android:id="@+id/monumentNameListAdapter"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/colorGrayOpacity"
@@ -58,7 +58,7 @@
                     android:textAlignment="center"
                     android:textColor="@color/colorWhite"
                     android:textSize="20dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/image" />
+                    app:layout_constraintBottom_toBottomOf="@+id/imageViewMonumentListAdapter" />
             </android.support.constraint.ConstraintLayout>
 
         </android.support.v7.widget.CardView>

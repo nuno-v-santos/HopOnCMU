@@ -1,9 +1,11 @@
 package pt.ulisboa.tecnico.cmov.cmu_project;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -12,6 +14,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MainFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.MonumentListFragment;
@@ -19,8 +40,10 @@ import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.Ranking.RankingFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentScreenActivity;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static final String SEND_MONUMENT_LIST = "MONUMENT_LIST";
+    private LinkedList<MonumentData> monumentDataLinkedList = new LinkedList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +72,16 @@ public class MainActivity extends AppCompatActivity
         //navigation configurations
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        Intent intent = getIntent();
+        String userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
+
+        if(DatabaseHelper.getInstance(getBaseContext()).tableIsEmpty(DatabaseHelper.TABLE_MONUMENTS))
+            this.monumentDataLinkedList = getMonuments();
+        else {
+
+            this.monumentDataLinkedList = DatabaseHelper.getInstance(getBaseContext()).buildMonumentsFromDB();
+        }
     }
 
     @Override
@@ -83,6 +116,108 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Function that logs out the user.
+     */
+    private void logOutUser() {
+        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
+        final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
+
+        if (!sessionToken.equals("")) {
+            JSONObject jsonParams = new JSONObject();
+            JsonObjectRequest myRequest = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGOUT, jsonParams,
+
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            System.out.println(response.toString());
+
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            error.printStackTrace();
+                        }
+                    }) {
+
+                @Override
+                public Map<String, String> getHeaders() {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("token", sessionToken);
+                    return headers;
+                }
+            };
+            VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(myRequest);
+        }
+    }
+
+    /**
+     * Simple function that builds MonumentData object from JSONObject
+     *
+     * @param jObject
+     * @return MonumentData object
+     * @throws JSONException
+     */
+    private MonumentData buildMonument(JSONObject jObject, DatabaseHelper databaseHelper) throws JSONException {
+
+        String imURL = jObject.getString("imageURL");
+        String name = jObject.getString("name");
+        String wifiId = jObject.getString("wifiId");
+        int id = jObject.getInt("id");
+        String sampleDesc = getResources().getString(R.string.sample_desc);
+        databaseHelper.insertMonument(id, MonumentData.NOT_VISITED, imURL, name, sampleDesc, wifiId);
+        return new MonumentData(imURL, name, sampleDesc, wifiId, id);
+    }
+
+
+    /**
+     * Method that asks the server for the monuments
+     *
+     * @return
+     */
+    private LinkedList<MonumentData> getMonuments() {
+
+        final LinkedList<MonumentData> monumentsList = new LinkedList<>();
+        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
+        final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
+        Toast.makeText(this, sessionToken, Toast.LENGTH_SHORT).show();
+        final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getBaseContext());
+        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, URLS.URL_GET_MONUMENTS, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for (int i = 0; i < response.length(); i++) {
+                    try {
+                        monumentsList.add(buildMonument(response.getJSONObject(i), databaseHelper));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, R.string.server_connection_error, Toast.LENGTH_SHORT).show();
+
+            }
+
+        }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("token", sessionToken);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+
+        };
+
+        VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(jsonObjectRequest);
+        return monumentsList;
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -96,14 +231,19 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_ranking) {
             fragment = new RankingFragment();
         } else if (id == R.id.nav_monuments) {
+
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(MainActivity.SEND_MONUMENT_LIST, monumentDataLinkedList);
+
             fragment = new MonumentListFragment();
+            fragment.setArguments(bundle);
+
         } else if (id == R.id.nav_share_results) {
             //todo: wi-fi direct
         }
         if (id == R.id.nav_logout) {
-            postLogout();
-            startActivity(new Intent(this, LoginActivity.class));
-            //todo: clear the nvigation stack
+            logOutUser();
+            finish();
             return true;
         }
 
@@ -119,15 +259,4 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void postLogout() {
-
-
-    }
-
-    public void testBtnOnClick(MenuItem item) {
-        Intent intent = new Intent(this, MonumentScreenActivity.class);
-        MonumentData monData = new MonumentData(R.drawable.ic_launcher_background, "TORRE DE CMU", "Este Monumento é Bue Fixe");
-        intent.putExtra(MonumentScreenActivity.MONUMENT_DATA, monData);
-        startActivity(intent);
-    }
 }

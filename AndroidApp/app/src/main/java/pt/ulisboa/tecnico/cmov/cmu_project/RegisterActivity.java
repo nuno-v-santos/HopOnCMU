@@ -1,10 +1,14 @@
 package pt.ulisboa.tecnico.cmov.cmu_project;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -28,6 +32,31 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide(); //<< this
         setContentView(R.layout.activity_register);
+        setupParent(findViewById(R.id.relativeLayout));
+    }
+
+    protected void setupParent(View view) {
+        //Set up touch listener for non-text box views to hide keyboard.
+        if(!(view instanceof EditText)) {
+            view.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    hideSoftKeyboard();
+                    return false;
+                }
+            });
+        }
+        //If a layout container, iterate over children
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                View innerView = ((ViewGroup) view).getChildAt(i);
+                setupParent(innerView);
+            }
+        }
+    }
+
+    private void hideSoftKeyboard() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 
     public void registerOnClick(View v) throws IOException, JSONException {
@@ -37,7 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
         EditText ticketNum = findViewById(R.id.txtTicketNum);
         String ticketNumber = ticketNum.getText().toString();
 
-        if (ticketNum.length() > 1 && userName.length() > 1) {
+        if (ticketNum.length() > 0 && userName.length() > 0) {
             int randInt = (new Random()).nextInt();
             registerPost(userName, ticketNumber, randInt);
         } else {
@@ -66,6 +95,7 @@ public class RegisterActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 } catch (JSONException e) {
+                    Toast.makeText(getBaseContext(), R.string.server_connection_error, Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
             }
@@ -74,12 +104,11 @@ public class RegisterActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        System.out.println("wqq");
+                        Toast.makeText(getBaseContext(), R.string.server_connection_error, Toast.LENGTH_LONG).show();
                         error.printStackTrace();
 
                     }
                 });
-
-        Volley.newRequestQueue(this).add(jsonObjReq);
+        VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(jsonObjReq);
     }
 }

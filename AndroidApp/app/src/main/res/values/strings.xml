@@ -25,4 +25,8 @@
     <string name="invalid_login">The username and busticket must not be empty</string>
     <string name="invalid_register">The username and busticket must not be empty</string>
     <string name="pref_key_login">login</string>
+    <string name="short_login">The username and busticket must not be empty</string>
+    <string name="invalid_comb_login">Ticket Number and Username combination does not exists</string>
+    <string name="server_connection_error">server connection error</string>
+    <string name="sample_desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget risus vitae massa semper aliquam quis mattis quam. Morbi vitae tortor tempus, placerat leo et, suscipit lectus. Phasellus ut euismod massa, eu eleifend ipsum.</string>
 </resources>

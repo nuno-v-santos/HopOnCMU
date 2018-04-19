@@ -1,0 +1,320 @@
+package pt.ulisboa.tecnico.cmov.cmu_project;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+
+import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
+import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizQuestion;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+
+    private static final String DATABASE_NAME = "MOBILE_DATABASE";
+    private static final int DATABASE_VERSION = 2;
+    private static DatabaseHelper sInstance;
+
+
+    // Table Names
+    public static final String TABLE_MONUMENTS = "monuments";
+    public static final String TABLE_QUESTIONS = "questions";
+    public static final String TABLE_ANSWERS = "ansers";
+
+
+    // Monument Table Columns
+    private static final String KEY_MON_ID = "monumentId";
+    private static final String KEY_STATUS = "status";
+    private static final String KEY_IMG_URL = "imgURL";
+    private static final String KEY_MON_NAME = "monumentName";
+    private static final String KEY_MON_DESC = "monumentDesc";
+    private static final String KEY_WIFI_ID = "wifiID";
+
+    // Question table Columns
+    private static final String KEY_QUESTION_ID = "questionId";
+    private static final String KEY_MON_ID_FK = "monIdFk";
+    private static String KEY_QUESTION = "question";
+    private static String KEY_QUESTION_ANSWERED = "questionAnswered";
+
+
+    // Answer table Columns
+    private static final String KEY_ANSWER_ID = "answerId";
+    private static final String KEY_ANSWER = "answer";
+    private static final String KEY_QUESTION_ID_FK = "questionIdFk";
+    private static final String KEY_CORRECT = "correct";
+
+
+    /**
+     * Class constructor is private to prevent direct instantiation.
+     *
+     * @param context
+     */
+    private DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    /**
+     * GetInstace method
+     *
+     * @param context
+     * @return
+     */
+    public static synchronized DatabaseHelper getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new DatabaseHelper(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+
+    @Override
+    public void onCreate(SQLiteDatabase sqLiteDatabase) {
+
+        String CREATE_MONUMENT_TABLE = "CREATE TABLE " + TABLE_MONUMENTS + "(" +
+                KEY_MON_ID + " INTEGER PRIMARY KEY," + KEY_STATUS + " TEXT," + KEY_IMG_URL + " TEXT," +
+                KEY_MON_NAME + " TEXT," + KEY_MON_DESC + " TEXT," + KEY_WIFI_ID + " TEXT" + ")";
+
+        String CREATE_QUESTION_TABLE = "CREATE TABLE " + TABLE_QUESTIONS + "(" +
+                KEY_QUESTION_ID + " INTEGER PRIMARY KEY," +
+                KEY_MON_ID_FK + " INTEGER REFERENCES " + TABLE_MONUMENTS + "," +
+                KEY_QUESTION + " TEXT," + KEY_QUESTION_ANSWERED + " INTEGER" + ")";
+
+        String CREATE_ANSWER_TABLE = "CREATE TABLE " + TABLE_ANSWERS + "(" + KEY_ANSWER_ID + " INTEGER PRIMARY KEY," +
+                KEY_QUESTION_ID_FK + " INTEGER REFERENCES " + TABLE_QUESTIONS + "," + KEY_ANSWER + " TEXT," + KEY_CORRECT + " INTEGER" + ")";
+
+        sqLiteDatabase.execSQL(CREATE_MONUMENT_TABLE);
+        sqLiteDatabase.execSQL(CREATE_QUESTION_TABLE);
+        sqLiteDatabase.execSQL(CREATE_ANSWER_TABLE);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+
+        if (oldVersion != newVersion) {
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_MONUMENTS);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_QUESTIONS);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ANSWERS);
+            onCreate(sqLiteDatabase);
+        }
+    }
+
+    /**
+     * Sqlite disable foreign key constrain by default, so is necessary to enable it by simply override onOpen method
+     *
+     * @param db
+     */
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        db.execSQL("PRAGMA foreign_keys=ON");
+    }
+
+
+    public void insertQuestion(int questionID, int monumentID, String question, int qAnswered) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_QUESTION_ID, questionID);
+        contentValues.put(KEY_MON_ID_FK, monumentID);
+        contentValues.put(KEY_QUESTION, question);
+        contentValues.put(KEY_QUESTION_ANSWERED, qAnswered);
+
+        db.insert(TABLE_QUESTIONS, null, contentValues);
+    }
+
+    /**
+     * Function that allows a monument to be inserted in the Database
+     *
+     * @param monumentID
+     * @param status
+     * @param imgURL
+     * @param monName
+     * @param monDesc
+     * @param wifiID
+     */
+    public void insertMonument(int monumentID, String status, String imgURL, String monName,
+                               String monDesc, String wifiID) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_MON_ID, monumentID);
+        contentValues.put(KEY_STATUS, status);
+        contentValues.put(KEY_IMG_URL, imgURL);
+        contentValues.put(KEY_MON_NAME, monName);
+        contentValues.put(KEY_MON_DESC, monDesc);
+        contentValues.put(KEY_WIFI_ID, wifiID);
+
+        db.insert(TABLE_MONUMENTS, null, contentValues);
+    }
+
+    /**
+     * Function that allows a new answer to be inserted
+     *
+     * @param answerID
+     * @param questionID
+     * @param answer
+     * @param correct
+     */
+    public void insertAnswer(int answerID, int questionID, String answer, int correct) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_ANSWER_ID, answerID);
+        contentValues.put(KEY_QUESTION_ID_FK, questionID);
+        contentValues.put(KEY_ANSWER, answer);
+        contentValues.put(KEY_CORRECT, correct);
+        db.insert(TABLE_ANSWERS, null, contentValues);
+    }
+
+    /**
+     * Function that updates the monument status
+     *
+     * @param monumentID
+     * @param status
+     */
+    public void updateMonumentStatus(int monumentID, String status) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String strFilter = KEY_MON_ID + "=" + monumentID;
+        ContentValues args = new ContentValues();
+        args.put(KEY_STATUS, status);
+        db.update(TABLE_MONUMENTS, args, strFilter, null);
+    }
+
+    /**
+     * Function that updates a entry in table Question
+     *
+     * @param questionID
+     * @param qAnsweredID
+     */
+    public void updateQuestion(int questionID, int qAnsweredID) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        String strFilter = KEY_QUESTION_ID + "=" + questionID;
+        ContentValues args = new ContentValues();
+        args.put(KEY_QUESTION_ANSWERED, qAnsweredID);
+
+        db.update(TABLE_QUESTIONS, args, strFilter, null);
+    }
+
+    /**
+     * Function that verifies if a given table has data or not
+     *
+     * @param tableName Name of the table
+     * @return true if empty, false otherwise
+     */
+    public boolean tableIsEmpty(String tableName) {
+        Cursor mCursor = getReadableDatabase().rawQuery("SELECT * FROM " + tableName, null);
+
+        if (mCursor.getCount() == 0) {
+            mCursor.close();
+            return true;
+        } else {
+            mCursor.close();
+            return false;
+        }
+
+    }
+
+
+    public int[] getTotalQuestionAndAnswertedQuestions() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor mCursor = db.rawQuery("SELECT * FROM " + TABLE_QUESTIONS, null);
+        int totalNumber = mCursor.getCount();
+        mCursor = db.rawQuery("SELECT * FROM " + TABLE_QUESTIONS + " WHERE " + KEY_QUESTION_ANSWERED + " = 1", null);
+        int answered = mCursor.getCount();
+        mCursor.close();
+        return new int[]{totalNumber, answered};
+    }
+
+
+    /**
+     * Simple function that deletes the database
+     *
+     * @param context
+     */
+    public void deleteDataBase(Context context) {
+
+        context.getApplicationContext().deleteDatabase(DATABASE_NAME);
+        System.out.println("Database has been deleted");
+    }
+
+    /**
+     * Function that builds an ArrayList of Monument Data Objects from data base
+     *
+     * @return ArrayList<MonumentData> e
+     */
+    public LinkedList<MonumentData> buildMonumentsFromDB() {
+        LinkedList<MonumentData> monumentDataList = new LinkedList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor mCursor = db.rawQuery("SELECT * FROM " + TABLE_MONUMENTS, null);
+
+        while (mCursor.moveToNext()) {
+            int monID = mCursor.getInt(0);
+            String status = mCursor.getString(1);
+            String imURL = mCursor.getString(2);
+            String monName = mCursor.getString(3);
+            String monDesc = mCursor.getString(4);
+            String wifiID = mCursor.getString(2);
+            MonumentData monumentData = new MonumentData(imURL, monName, monDesc, wifiID, monID);
+            monumentDataList.add(monumentData);
+        }
+
+        mCursor.close();
+        return monumentDataList;
+    }
+
+    public ArrayList<QuizQuestion> buildQuizQuestionFromDB(int monumentID) {
+
+        ArrayList<QuizQuestion> quizQuestions = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor mCursor = db.rawQuery("SELECT " + KEY_QUESTION_ID + "," + KEY_QUESTION + " FROM" + TABLE_QUESTIONS +
+                " WHERE" + KEY_MON_ID_FK + " = " + Integer.toString(monumentID), null);
+
+        while (mCursor.moveToNext()) {
+            int questionID = mCursor.getInt(0);
+            String question = mCursor.getString(1);
+            Object[] res = this.getAnswer(questionID, db);
+            ArrayList<String> answers = (ArrayList<String>) res[0];
+            String correctAnswer = (String) res[1];
+            quizQuestions.add(new QuizQuestion(question, correctAnswer, answers));
+        }
+
+        mCursor.close();
+        return quizQuestions;
+    }
+
+    private Object[] getAnswer(int questionID, SQLiteDatabase db) {
+
+        Object[] toReturn = new Object[2];
+        ArrayList<String> answersList = new ArrayList<>();
+        String correctAnswer = null;
+        Cursor cursor = db.rawQuery("SELECT " + KEY_ANSWER + "," + KEY_CORRECT + " FROM "
+                + TABLE_ANSWERS + " WHERE " + KEY_QUESTION_ID_FK + " = "
+                + Integer.toString(questionID), null);
+
+        while (cursor.moveToNext()) {
+
+            String answer = cursor.getString(0);
+            answersList.add(answer);
+            int correct = cursor.getInt(1);
+            if (correct == 1) {
+                correctAnswer = answer;
+
+            }
+
+            answersList.add(cursor.getString(0));
+        }
+
+        cursor.close();
+        toReturn[0] = answersList;
+        toReturn[1] = correctAnswer;
+        return toReturn;
+    }
+
+
+}

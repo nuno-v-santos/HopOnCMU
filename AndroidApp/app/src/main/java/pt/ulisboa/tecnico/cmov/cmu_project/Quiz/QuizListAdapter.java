@@ -33,7 +33,7 @@ public class QuizListAdapter extends ArrayAdapter<String> {
     public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
         View rowView = inflater.inflate(R.layout.question_btn_layout, null, true);
-        TextView label = rowView.findViewById(R.id.label);
+        TextView label = rowView.findViewById(R.id.monumentNameListAdapter);
         TextView a = rowView.findViewById(R.id.a);
         label.setText(itemNames.get(position));
         a.setText(this.itemAlpha[position]);

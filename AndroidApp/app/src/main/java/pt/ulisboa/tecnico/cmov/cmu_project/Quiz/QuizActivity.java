@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -25,15 +26,14 @@ public class QuizActivity extends AppCompatActivity {
     private int imgID = 0; // resource ID para a imagem do monumento
     private int questionNumber = 0; // numero da questão a apresentar ao utilizador
 
-
     private ArrayList<QuizQuestion> quizQuestions; // lista com as questões a apresentar ao utilizador
     private QuizListAdapter itemsAdapter; // list adapter que extende o ArrayAdapter<String>
     private ArrayList<String> adapterItens = new ArrayList<>(); // lista de strings que ira conter as respostas possiveis
-    private String[] alphabet = new String[4]; //array de strings contendo A,B,C,D para efeitos gráficos
+    private String[] alphabet;//array de strings contendo A,B,C,D para efeitos gráficos
     private ListView listView; // atributo list view
 
     private QuizQuestion currentQuestion; // questão que o utilizador se encontra a responder
-    private boolean questionsAnswered = false; // atriduto que verifica se o utilizador já respondeu à questão
+    private boolean questionsAnswered = false; // atributo que verifica se o utilizador já respondeu à questão
 
 
     @Override
@@ -43,21 +43,40 @@ public class QuizActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_quiz);
 
-
-        int j = 0;
-        for (char c = 'A'; c <= 'D'; c++) {
-            this.alphabet[j] = "" + c;
-            j++;
-        }
-
-
         /*Obter dados da actividade anterior*/
         Intent intent = getIntent();
         this.imgID = intent.getIntExtra(QuizActivity.MONUMENT_IMG, 0);
         this.quizQuestions = (ArrayList<QuizQuestion>) intent.getSerializableExtra(QuizActivity.QUIZ_QUESTIONS);
 
+        this.alphabet = new String[getMaxNumberAnswers()];
+
+        int j = 0;
+        for (char c = 'A'; c <= 'Z'; c++) {
+            if (j == quizQuestions.size() + 1)
+                break;
+
+            this.alphabet[j] = "" + c;
+            j++;
+        }
+
+
         this.setInitialState();// carregar a primeira questão do quiz para a interface
 
+    }
+
+    /**
+     * Function that return the max number of answers
+     * @return the max number of responses of all questions
+     */
+    private int getMaxNumberAnswers() {
+        int v = -1;
+        for (QuizQuestion q : this.quizQuestions) {
+
+            if (v < q.getAnswersList().size())
+                v = q.getAnswersList().size();
+        }
+
+        return v;
     }
 
     /**
@@ -101,6 +120,7 @@ public class QuizActivity extends AppCompatActivity {
                                 listView.getChildAt(i).setBackgroundColor(Color.GREEN);
                             }
                         }
+
                         QuizActivity.this.listView.setEnabled(false);
                         QuizActivity.this.questionsAnswered = true;
                     }
@@ -120,30 +140,19 @@ public class QuizActivity extends AppCompatActivity {
         this.listView.setAdapter(null);
         this.listView.setEnabled(true);
 
-
         String question = this.currentQuestion.getQuestion();
         TextView txtViewQuestion = findViewById(R.id.txtViewQuestion);
         txtViewQuestion.setText(question);
 
-        String correctAnswer = this.currentQuestion.getCorrectAnswer();
-        String answer1 = this.currentQuestion.getInvalidAnswer1();
-        String answer2 = this.currentQuestion.getInvalidAnswer2();
-        String answer3 = this.currentQuestion.getInvalidAnswer3();
-
         ArrayList<String> tempStrLst = new ArrayList<>();
-        tempStrLst.add(correctAnswer);
-        tempStrLst.add(answer1);
-        tempStrLst.add(answer2);
-        tempStrLst.add(answer3);
+        tempStrLst.addAll(this.currentQuestion.getAnswersList());
         Collections.shuffle(tempStrLst);
-
         this.adapterItens.addAll(tempStrLst);
         this.listView.setAdapter(this.itemsAdapter);
-
     }
 
     /**
-     * Função que avalia
+     * Função que avalia se a questão foi correctamente respondida
      * @param selectedOption
      * @return
      */
