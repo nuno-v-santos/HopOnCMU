@@ -16,8 +16,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.RequestFuture;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,10 +24,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import pt.ulisboa.tecnico.cmov.cmu_project.DatabaseHelper;
 import pt.ulisboa.tecnico.cmov.cmu_project.LoginActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizQuestion;
@@ -41,7 +38,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
 
     private MonumentData monData;
     public static final String MONUMENT_DATA = "MONUMENT_DATA";
-    private ArrayList<QuizQuestion> quizQuestions;
+    private ArrayList<QuizQuestion> quizQuestions = new ArrayList<>();
     private int nClick = 0;
     private boolean validSSID = false;
 
@@ -51,11 +48,11 @@ public class MonumentScreenActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_monument_screen);
         Intent intent = getIntent();
-        this.monData = (MonumentData) intent.getSerializableExtra(MONUMENT_DATA);
 
-        this.quizQuestions = new ArrayList<>();
-        this.downloadQuestions();
+        this.monData = (MonumentData) intent.getSerializableExtra(MONUMENT_DATA);
         this.updateUIWithMonumentInfo();
+
+        this.downloadQuestions();
     }
 
 
@@ -63,11 +60,12 @@ public class MonumentScreenActivity extends AppCompatActivity {
      * Função que actualiza a interface de acordo com o objecto MonumentData
      */
     private void updateUIWithMonumentInfo() {
+
         ImageView imageView = findViewById(R.id.imgViewMonument);
+        VolleySingleton.getInstance(getBaseContext()).requestImage(monData.getImURL(), imageView, getBaseContext());
         TextView monumentNameTxtView = findViewById(R.id.txtMonumentName);
         TextView monumentInfoTxtView = findViewById(R.id.txtMonumentInfo);
 
-        //imageView.setBackground(getResources().getDrawable(this.monData.getImURL()));
         monumentNameTxtView.setText(this.monData.getMonumentName());
         monumentInfoTxtView.setText(this.monData.getMonumentDescription());
     }
@@ -80,73 +78,62 @@ public class MonumentScreenActivity extends AppCompatActivity {
     public void btnDownloadQuizOnClick(View view) throws InterruptedException, TimeoutException, JSONException {
 
         String monDataWifiId = this.monData.getWifiId();
-        this.downloadQuestions();
 
         Intent intent = new Intent(this, QuizActivity.class);
         intent.putExtra(QuizActivity.QUIZ_QUESTIONS, this.quizQuestions);
-        intent.putExtra(QuizActivity.MONUMENT_IMG, this.monData.getImURL());
         startActivity(intent);
     }
 
     /**
      * Function that given JSONArray and String builds object QuizQuestion
      *
-     * @param answers
-     * @param question
+     * @param questionObj
+     * @param monumentID
      * @return
      * @throws JSONException
      */
-    private QuizQuestion buildQuizQuestion(JSONArray answers, String question) throws JSONException {
 
-        ArrayList<String> allAnswers = new ArrayList<>();
-        String correctAnswer = null;
+    private void insertQuestionInDb(JSONObject questionObj, int monumentID) throws JSONException {
+
+        String question = questionObj.getString("question");
+        int questionID = questionObj.getInt("id");
+        JSONArray answers = questionObj.getJSONArray("answers");
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance(getBaseContext());
+        dbHelper.insertQuestion(questionID, monumentID, question, 0);
 
         for (int j = 0; j < answers.length(); j++) {
-
             JSONObject tmp = answers.getJSONObject(j);
             String answer = tmp.getString("answer");
+            int answerID = tmp.getInt("id");
             int correct = tmp.getInt("correct");
-
-            if (correct == 1)
-                correctAnswer = answer;
-
-            allAnswers.add(answer);
+            dbHelper.insertAnswer(answerID, questionID, answer, correct);
         }
-
-        return new QuizQuestion(question, correctAnswer, allAnswers);
     }
 
     /**
-     * Function that downloads the questions and builds the list of quiz questions
+     * Function that downloads the questions and insert it in the database
      */
     private void downloadQuestions() {
-        final int id = this.monData.getMonumentID();
+        final int monumentID = this.monData.getMonumentID();
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
         final String token = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
 
         if (!token.equals("")) {
-
             JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, URLS.URL_GET_QUESTIONS, null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
                     System.out.println(response.toString());
                     for (int i = 0; i < response.length(); i++) {
-
                         try {
-
                             JSONObject tmpObj = response.getJSONObject(i);
-                            String question = tmpObj.getString("question");
-                            JSONArray answers = tmpObj.getJSONArray("answers");
-                            quizQuestions.add(buildQuizQuestion(answers, question));
+                            MonumentScreenActivity.this.insertQuestionInDb(tmpObj, monumentID);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
 
-                    for (QuizQuestion q : quizQuestions) {
-
-                        System.out.println(q.getQuestion());
-                    }
+                    MonumentScreenActivity.this.quizQuestions =
+                            DatabaseHelper.getInstance(getBaseContext()).buildQuizQuestionFromDB(monumentID);
                 }
             }, new Response.ErrorListener() {
 
@@ -161,7 +148,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
                 public Map<String, String> getHeaders() {
                     HashMap<String, String> headers = new HashMap<String, String>();
                     headers.put("token", token);
-                    headers.put("monumentID", "" + id);
+                    headers.put("monumentID", "" + monumentID);
                     headers.put("Content-Type", "application/json");
                     return headers;
                 }

@@ -25,7 +25,12 @@
             android:label="@string/title_activity_main"
             android:theme="@style/AppBaseTheme.NoActionBar" />
         <activity android:name=".Monument.MonumentScreenActivity" />
-        <activity android:name=".Quiz.QuizActivity"></activity>
+        <activity android:name=".Quiz.QuizActivity" />
+
+        <service
+            android:name=".SendQuestions"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

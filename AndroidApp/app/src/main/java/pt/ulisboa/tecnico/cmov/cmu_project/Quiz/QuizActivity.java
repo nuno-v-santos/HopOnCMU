@@ -20,7 +20,6 @@ public class QuizActivity extends AppCompatActivity {
 
     /* atributos relacionados com a passagem de informação */
     public final static String QUIZ_QUESTIONS = "QUIZ_QUESTIONS";
-    public final static String MONUMENT_IMG = "MONUMENT_IMG";
 
 
     private int imgID = 0; // resource ID para a imagem do monumento
@@ -45,8 +44,8 @@ public class QuizActivity extends AppCompatActivity {
 
         /*Obter dados da actividade anterior*/
         Intent intent = getIntent();
-        this.imgID = intent.getIntExtra(QuizActivity.MONUMENT_IMG, 0);
         this.quizQuestions = (ArrayList<QuizQuestion>) intent.getSerializableExtra(QuizActivity.QUIZ_QUESTIONS);
+
 
         this.alphabet = new String[getMaxNumberAnswers()];
 
@@ -59,13 +58,13 @@ public class QuizActivity extends AppCompatActivity {
             j++;
         }
 
-
         this.setInitialState();// carregar a primeira questão do quiz para a interface
 
     }
 
     /**
      * Function that return the max number of answers
+     *
      * @return the max number of responses of all questions
      */
     private int getMaxNumberAnswers() {
@@ -102,7 +101,7 @@ public class QuizActivity extends AppCompatActivity {
             this.listView = findViewById(R.id.lstViewQuiz);
             this.updateItemsAdapterView();
 
-            /*criar handler de ventos */
+            /*criar handler de eventos */
             this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -153,6 +152,7 @@ public class QuizActivity extends AppCompatActivity {
 
     /**
      * Função que avalia se a questão foi correctamente respondida
+     *
      * @param selectedOption
      * @return
      */
@@ -166,6 +166,7 @@ public class QuizActivity extends AppCompatActivity {
     /**
      * Função que responde ao evento onClick quando o utilizador pressiona o botão Next para carregar
      * a proxima questão do quiz
+     *
      * @param view
      */
     public void btnNextQuestionOnClick(View view) {

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -22,23 +20,19 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MainFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.MonumentListFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.Ranking.RankingFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
-import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentScreenActivity;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -76,8 +70,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent = getIntent();
         String userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
 
-        if(DatabaseHelper.getInstance(getBaseContext()).tableIsEmpty(DatabaseHelper.TABLE_MONUMENTS))
-            this.monumentDataLinkedList = getMonuments();
+        if (DatabaseHelper.getInstance(getBaseContext()).tableIsEmpty(DatabaseHelper.TABLE_MONUMENTS))
+            getMonuments();
         else {
 
             this.monumentDataLinkedList = DatabaseHelper.getInstance(getBaseContext()).buildMonumentsFromDB();
@@ -159,15 +153,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * @return MonumentData object
      * @throws JSONException
      */
-    private MonumentData buildMonument(JSONObject jObject, DatabaseHelper databaseHelper) throws JSONException {
-
+    private void addMonumentToDB(JSONObject jObject, DatabaseHelper databaseHelper) throws JSONException {
         String imURL = jObject.getString("imageURL");
         String name = jObject.getString("name");
         String wifiId = jObject.getString("wifiId");
         int id = jObject.getInt("id");
         String sampleDesc = getResources().getString(R.string.sample_desc);
         databaseHelper.insertMonument(id, MonumentData.NOT_VISITED, imURL, name, sampleDesc, wifiId);
-        return new MonumentData(imURL, name, sampleDesc, wifiId, id);
     }
 
 
@@ -176,8 +168,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      *
      * @return
      */
-    private LinkedList<MonumentData> getMonuments() {
-
+    private void getMonuments() {
         final LinkedList<MonumentData> monumentsList = new LinkedList<>();
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
         final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
@@ -188,11 +179,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onResponse(JSONArray response) {
                 for (int i = 0; i < response.length(); i++) {
                     try {
-                        monumentsList.add(buildMonument(response.getJSONObject(i), databaseHelper));
+                        addMonumentToDB(response.getJSONObject(i), databaseHelper);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
+
+                MainActivity.this.monumentDataLinkedList = databaseHelper.buildMonumentsFromDB();
             }
         }, new Response.ErrorListener() {
 
@@ -211,11 +204,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return headers;
             }
 
-
         };
 
         VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(jsonObjectRequest);
-        return monumentsList;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

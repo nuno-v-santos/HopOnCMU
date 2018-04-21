@@ -272,14 +272,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<QuizQuestion> quizQuestions = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
 
-        Cursor mCursor = db.rawQuery("SELECT " + KEY_QUESTION_ID + "," + KEY_QUESTION + " FROM" + TABLE_QUESTIONS +
-                " WHERE" + KEY_MON_ID_FK + " = " + Integer.toString(monumentID), null);
+        Cursor mCursor = db.rawQuery("SELECT " + KEY_QUESTION_ID + "," + KEY_QUESTION + " FROM " + TABLE_QUESTIONS +
+                " WHERE " + KEY_MON_ID_FK + " = " + Integer.toString(monumentID), null);
 
         while (mCursor.moveToNext()) {
             int questionID = mCursor.getInt(0);
             String question = mCursor.getString(1);
             Object[] res = this.getAnswer(questionID, db);
             ArrayList<String> answers = (ArrayList<String>) res[0];
+            for (String s : answers) {
+                System.out.println(s);
+            }
             String correctAnswer = (String) res[1];
             quizQuestions.add(new QuizQuestion(question, correctAnswer, answers));
         }
@@ -293,6 +296,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Object[] toReturn = new Object[2];
         ArrayList<String> answersList = new ArrayList<>();
         String correctAnswer = null;
+
         Cursor cursor = db.rawQuery("SELECT " + KEY_ANSWER + "," + KEY_CORRECT + " FROM "
                 + TABLE_ANSWERS + " WHERE " + KEY_QUESTION_ID_FK + " = "
                 + Integer.toString(questionID), null);
@@ -302,12 +306,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String answer = cursor.getString(0);
             answersList.add(answer);
             int correct = cursor.getInt(1);
+
             if (correct == 1) {
                 correctAnswer = answer;
 
             }
-
-            answersList.add(cursor.getString(0));
         }
 
         cursor.close();

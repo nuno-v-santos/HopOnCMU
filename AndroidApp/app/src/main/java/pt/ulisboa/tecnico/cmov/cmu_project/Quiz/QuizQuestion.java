@@ -13,9 +13,7 @@ public class QuizQuestion implements Serializable {
     private String question;
     private String correctAnswer;
     private ArrayList<String> answersList;
-    public ArrayList<String> getAnswersList() {
-        return answersList;
-    }
+
 
     public QuizQuestion(String question, String correctAnswer, ArrayList<String> questions) {
         this.question = question;
@@ -30,6 +28,10 @@ public class QuizQuestion implements Serializable {
 
     public String getCorrectAnswer() {
         return correctAnswer;
+    }
+
+    public ArrayList<String> getAnswersList() {
+        return answersList;
     }
 
     @Override
