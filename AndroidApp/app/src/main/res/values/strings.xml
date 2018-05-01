@@ -29,4 +29,7 @@
     <string name="invalid_comb_login">Ticket Number and Username combination does not exists</string>
     <string name="server_connection_error">server connection error</string>
     <string name="sample_desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget risus vitae massa semper aliquam quis mattis quam. Morbi vitae tortor tempus, placerat leo et, suscipit lectus. Phasellus ut euismod massa, eu eleifend ipsum.</string>
+    <string name="txt_down">download in progress</string>
+    <string name="quiz_answered">Quiz Already Answered</string>
+    <string name="go_back">Previous Screen</string>
 </resources>

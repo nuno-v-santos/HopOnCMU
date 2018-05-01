@@ -34,7 +34,7 @@ public class ImageManager {
         Bitmap bitmap = null;
         FileInputStream fiStream;
         try {
-            fiStream = context.openFileInput(imageName);
+            fiStream = context.openFileInput(buildImName(imageName));
             bitmap = BitmapFactory.decodeStream(fiStream);
             fiStream.close();
         } catch (Exception e) {

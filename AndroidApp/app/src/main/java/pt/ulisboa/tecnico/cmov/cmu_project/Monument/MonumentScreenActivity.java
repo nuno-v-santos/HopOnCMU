@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.DatabaseHelper;
@@ -33,6 +34,7 @@ import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizQuestion;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
 import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
 import pt.ulisboa.tecnico.cmov.cmu_project.VolleySingleton;
+
 
 public class MonumentScreenActivity extends AppCompatActivity {
 
@@ -48,11 +50,8 @@ public class MonumentScreenActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_monument_screen);
         Intent intent = getIntent();
-
         this.monData = (MonumentData) intent.getSerializableExtra(MONUMENT_DATA);
         this.updateUIWithMonumentInfo();
-
-        this.downloadQuestions();
     }
 
 
@@ -75,13 +74,34 @@ public class MonumentScreenActivity extends AppCompatActivity {
      *
      * @param view
      */
-    public void btnDownloadQuizOnClick(View view) throws InterruptedException, TimeoutException, JSONException {
+    public void btnDownloadQuizOnClick(View view) throws InterruptedException, TimeoutException, JSONException, ExecutionException {
 
-        String monDataWifiId = this.monData.getWifiId();
+        //String monDataWifiId = this.monData.getWifiId();
 
-        Intent intent = new Intent(this, QuizActivity.class);
-        intent.putExtra(QuizActivity.QUIZ_QUESTIONS, this.quizQuestions);
+        final int monID = this.monData.getMonumentID();
+        DatabaseHelper db = DatabaseHelper.getInstance(getBaseContext());
+        if (db.monQuestionAnswered(monID)) {
+            Toast.makeText(getBaseContext(), R.string.quiz_answered, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (db.questionForMonumentDownload(monID))
+            startQuizActivity(monID);
+        else
+            this.downloadQuestions();
+
+    }
+
+    private void startQuizActivity(int monumentID) {
+
+        MonumentScreenActivity.this.quizQuestions =
+                DatabaseHelper.getInstance(getBaseContext()).buildQuizQuestionFromDB(monumentID);
+
+        Intent intent = new Intent(getBaseContext(), QuizActivity.class);
+        intent.putExtra(QuizActivity.QUIZ_QUESTIONS, quizQuestions);
+        intent.putExtra(QuizActivity.MON_ID, monumentID);
         startActivity(intent);
+
     }
 
     /**
@@ -110,6 +130,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
         }
     }
 
+
     /**
      * Function that downloads the questions and insert it in the database
      */
@@ -132,8 +153,8 @@ public class MonumentScreenActivity extends AppCompatActivity {
                         }
                     }
 
-                    MonumentScreenActivity.this.quizQuestions =
-                            DatabaseHelper.getInstance(getBaseContext()).buildQuizQuestionFromDB(monumentID);
+                    MonumentScreenActivity.this.startQuizActivity(monumentID);
+
                 }
             }, new Response.ErrorListener() {
 
@@ -155,6 +176,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
             };
 
             VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(jsonObjectRequest);
+            Toast.makeText(getBaseContext(), R.string.txt_down, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -171,5 +193,6 @@ public class MonumentScreenActivity extends AppCompatActivity {
         String ssid = info.getSSID();
         return ssid.equals(monSSID);
     }
+
 
 }

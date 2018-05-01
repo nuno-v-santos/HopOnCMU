@@ -5,11 +5,19 @@ import android.graphics.Bitmap;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
+
+import java.util.Map;
 
 
 public class VolleySingleton {
@@ -79,10 +87,12 @@ public class VolleySingleton {
 
             Bitmap bitmap = imageManager.loadImageBitmap(context, url);
             imView.setImageBitmap(bitmap);
-            Toast.makeText(context,"should put img",Toast.LENGTH_SHORT).show();
         }
 
     }
+
+
+
 
 }
 
