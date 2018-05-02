@@ -31,7 +31,13 @@
             android:name=".SendQuestions"
             android:enabled="true"
             android:exported="true" />
+
         <receiver android:name=".NetworkStateReceiver$NetworkStateReceiver" />
+
+        <service
+            android:name=".HelloService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

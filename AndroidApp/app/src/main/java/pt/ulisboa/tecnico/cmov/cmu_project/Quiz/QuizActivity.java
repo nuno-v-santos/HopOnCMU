@@ -25,6 +25,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.DatabaseHelper;
 import pt.ulisboa.tecnico.cmov.cmu_project.LoginActivity;
@@ -32,7 +33,6 @@ import pt.ulisboa.tecnico.cmov.cmu_project.NetworkStateReceiver;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
 import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
 import pt.ulisboa.tecnico.cmov.cmu_project.UserAnswers;
-import pt.ulisboa.tecnico.cmov.cmu_project.VolleySingleton;
 
 public class QuizActivity extends AppCompatActivity implements NetworkStateReceiver.NetworkStateReceiverListener {
 
@@ -164,7 +164,7 @@ public class QuizActivity extends AppCompatActivity implements NetworkStateRecei
                             HashMap<String, Integer> map = currentQuestion.getAnswersID();
                             JsonObjectRequest j = buildRequest(qID, map.get(selectedOption));
                             UserAnswers.getInstance().addJsonRequest(j);
-                            VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(j);
+                            // VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(j);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -245,7 +245,6 @@ public class QuizActivity extends AppCompatActivity implements NetworkStateRecei
 
         postParams.put(QUESTION_ID, "" + questionID);
         postParams.put(ANSWER_ID, "" + answerID);
-        postParams.put("token", sessionToken);
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST, URLS.URL_POST_USER_ANSWERS, postParams, new Response.Listener<JSONObject>() {
             @Override
@@ -260,7 +259,17 @@ public class QuizActivity extends AppCompatActivity implements NetworkStateRecei
                 Toast.makeText(getBaseContext(), R.string.server_connection_error, Toast.LENGTH_LONG).show();
                 error.printStackTrace();
             }
-        });
+        })
+
+        {
+
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("token", sessionToken);
+                return headers;
+            }
+        };
 
 
         return jsonObjReq;
@@ -283,12 +292,11 @@ public class QuizActivity extends AppCompatActivity implements NetworkStateRecei
 
     @Override
     public void networkAvailable() {
-
-        UserAnswers.getInstance().sendRequests(VolleySingleton.getInstance(getBaseContext()));
+        return;
     }
 
     @Override
     public void networkUnavailable() {
-
+        return;
     }
 }

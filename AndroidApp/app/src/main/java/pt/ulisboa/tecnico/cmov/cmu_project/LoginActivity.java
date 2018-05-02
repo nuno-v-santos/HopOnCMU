@@ -51,6 +51,8 @@ public class LoginActivity extends AppCompatActivity {
         DatabaseHelper.getInstance(getBaseContext()).deleteDataBase(getBaseContext());
         Toast.makeText(this, "apagado", Toast.LENGTH_LONG).show();
 
+        Intent intent = new Intent(this, HelloService.class);
+        startService(intent);
 
     }
 

@@ -175,16 +175,27 @@ public class AndroidEndPoints {
 
         post("/android/userAnswers/", (req, response) -> {
 
-            JsonElement body = new JsonParser().parse(req.body());
-            System.out.println(body.toString());
-            System.out.println("USER ANSWERS RECEBI");
-
+            //obter o token
             String token = req.headers("token");
-            if (validateUser(token) == null)
-                return false;
+            User user = validateUser(token);
+
+            if (user == null)
+                return "{" +
+                        "\"error\" : " + "invalid user" + "," +
+                        "}";
 
 
-            return false;
+            JsonElement body = new JsonParser().parse(req.body());
+            String questionID = body.getAsJsonObject().get("questionID").getAsString();
+            String answerID = body.getAsJsonObject().get("answerID").getAsString();
+
+
+
+            return "{" +
+                    "\"error\" : " + "" + "," +
+                    "}";
+
+
         });
 
 

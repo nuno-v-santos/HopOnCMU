@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.cmov.cmu_project;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class UserAnswers {
 
@@ -15,10 +14,8 @@ public class UserAnswers {
     }
 
     public static UserAnswers getInstance() {
-
         if (mInstance == null)
             mInstance = new UserAnswers();
-
         return mInstance;
     }
 
@@ -27,13 +24,12 @@ public class UserAnswers {
         this.requests.add(e);
     }
 
-
     public void sendRequests(VolleySingleton volleySingleton) {
 
-        for (JsonObjectRequest e : this.requests) {
+        while (this.requests.size() > 0) {
+            JsonObjectRequest e = this.requests.remove(0);
             volleySingleton.getRequestQueue().add(e);
-            System.out.println("---Sending Pending Requests---");
-
+            System.out.println("Sending request");
         }
 
     }

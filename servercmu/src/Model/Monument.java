@@ -258,9 +258,6 @@ public class Monument {
 
 
 
-
-
-
     @Override
     public String toString() {
         return "Monument{" +
