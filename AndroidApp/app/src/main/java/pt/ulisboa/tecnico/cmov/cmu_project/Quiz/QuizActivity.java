@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.cmov.cmu_project.Quiz;
 
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,13 +14,31 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.DatabaseHelper;
+import pt.ulisboa.tecnico.cmov.cmu_project.LoginActivity;
+import pt.ulisboa.tecnico.cmov.cmu_project.NetworkStateReceiver;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
+import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
+import pt.ulisboa.tecnico.cmov.cmu_project.UserAnswers;
+import pt.ulisboa.tecnico.cmov.cmu_project.VolleySingleton;
 
-public class QuizActivity extends AppCompatActivity {
+public class QuizActivity extends AppCompatActivity implements NetworkStateReceiver.NetworkStateReceiverListener {
+
+
+    private static final String QUESTION_ID = "questionID";
+    private static final String ANSWER_ID = "answerID";
 
     /* information passing tags */
     public static final String QUIZ_QUESTIONS = "QUIZ_QUESTIONS";
@@ -39,6 +59,7 @@ public class QuizActivity extends AppCompatActivity {
     private boolean prev_screen = false;
     private int monID; // monument ID
 
+    private NetworkStateReceiver networkStateReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +86,9 @@ public class QuizActivity extends AppCompatActivity {
 
         this.setInitialState(); // load question to interface
 
+        networkStateReceiver = new NetworkStateReceiver();
+        networkStateReceiver.addListener(this);
+        this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     /**
@@ -75,7 +99,6 @@ public class QuizActivity extends AppCompatActivity {
     private int getMaxNumberAnswers() {
         int v = -1;
         for (QuizQuestion q : this.quizQuestions) {
-
             if (v < q.getAnswersList().size())
                 v = q.getAnswersList().size();
         }
@@ -84,29 +107,26 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     /**
-     * Função que coloca a imagem do monumento e carrega a questão que é dada por a actividade anterior
-     * para a interface gráfica
+     * Function that puts monument image and loads questions
      */
     private void setInitialState() {
 
         //colocar a imagem como fundo
-        if (imgID != 0) {
+        if (this.imgID != 0) {
 
             RelativeLayout relativeLayout = findViewById(R.id.relativeLayoutQuiz);
             relativeLayout.setBackground(getResources().getDrawable(this.imgID));
         }
 
-        // verficar se lista de questões não é null
         if (this.quizQuestions != null) {
 
             this.adapterItens = new ArrayList<>();
             this.currentQuestion = this.quizQuestions.get(this.questionNumber);
             this.itemsAdapter = new QuizListAdapter(this, this.adapterItens, this.alphabet);
-
             this.listView = findViewById(R.id.lstViewQuiz);
             this.updateItemsAdapterView();
 
-            /*criar handler de eventos */
+            /*Event handler when answering questions*/
             this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
                 @Override
@@ -135,6 +155,19 @@ public class QuizActivity extends AppCompatActivity {
                             Button button = findViewById(R.id.btnNextQuestion);
                             button.setText(R.string.go_back);
                             prev_screen = true;
+                        }
+
+                        try {
+
+                            String selectedOption = listView.getItemAtPosition(position).toString();
+                            int qID = currentQuestion.getQuestionID();
+                            HashMap<String, Integer> map = currentQuestion.getAnswersID();
+                            JsonObjectRequest j = buildRequest(qID, map.get(selectedOption));
+                            UserAnswers.getInstance().addJsonRequest(j);
+                            VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(j);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -183,8 +216,10 @@ public class QuizActivity extends AppCompatActivity {
      */
     public void btnNextQuestionOnClick(View view) {
 
-        if (this.prev_screen)
+        if (this.prev_screen) {
             finish();
+            return;
+        }
 
         this.questionNumber++;
         if (this.questionsAnswered && this.questionNumber < this.quizQuestions.size()) {
@@ -202,9 +237,58 @@ public class QuizActivity extends AppCompatActivity {
     }
 
 
+    public JsonObjectRequest buildRequest(int questionID, int answerID) throws JSONException {
+
+        JSONObject postParams = new JSONObject();
+        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
+        final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
+
+        postParams.put(QUESTION_ID, "" + questionID);
+        postParams.put(ANSWER_ID, "" + answerID);
+        postParams.put("token", sessionToken);
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST, URLS.URL_POST_USER_ANSWERS, postParams, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getBaseContext(), R.string.server_connection_error, Toast.LENGTH_LONG).show();
+                error.printStackTrace();
+            }
+        });
+
+
+        return jsonObjReq;
+    }
+
+
+    @Override
+    public void finish() {
+        networkStateReceiver.removeListener(this);
+        this.unregisterReceiver(networkStateReceiver);
+        super.finish();
+
+    }
+
+
     @Override
     public void onBackPressed() {
         return;
     }
 
+    @Override
+    public void networkAvailable() {
+
+        UserAnswers.getInstance().sendRequests(VolleySingleton.getInstance(getBaseContext()));
+    }
+
+    @Override
+    public void networkUnavailable() {
+
+    }
 }

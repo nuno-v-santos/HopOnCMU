@@ -2,7 +2,9 @@ package EndPoints;
 
 import Model.*;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.util.*;
 
@@ -170,5 +172,23 @@ public class AndroidEndPoints {
 
         });
 
+
+        post("/android/userAnswers/", (req, response) -> {
+
+            JsonElement body = new JsonParser().parse(req.body());
+            System.out.println(body.toString());
+            System.out.println("USER ANSWERS RECEBI");
+
+            String token = req.headers("token");
+            if (validateUser(token) == null)
+                return false;
+
+
+            return false;
+        });
+
+
     }
+
+
 }

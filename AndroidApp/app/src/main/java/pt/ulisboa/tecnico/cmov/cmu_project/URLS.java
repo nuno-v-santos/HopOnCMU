@@ -14,4 +14,5 @@ public class URLS {
     public static final String URL_GET_INFO = ROOT_URL + "android/userInfo/";
     public static final String URL_GET_MONUMENTS = ROOT_URL+ "android/monuments/";
     public static final String URL_GET_QUESTIONS = ROOT_URL+ "android/monumentQuestions/";
+    public static final String URL_POST_USER_ANSWERS = ROOT_URL+"/android/userAnswers/";
 }

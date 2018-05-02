@@ -2,6 +2,8 @@ package pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.CardView;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import pt.ulisboa.tecnico.cmov.cmu_project.ImageManager;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
 
@@ -56,18 +59,21 @@ public class MonumentListAdapter extends ArrayAdapter<MonumentData> {
         status.setText(monument.getStatus().toUpperCase());
         status.setBackgroundColor(getContext().getResources().getColor(getColor(monument.getStatus())));
 
-        // todo colocar imagem correct
-        imageView.setImageDrawable(convertView.getResources().getDrawable(R.drawable.belem));
+        ImageManager imageManager = new ImageManager();
 
+        Bitmap monImg = BitmapFactory.decodeResource(getContext().getResources(),
+                R.drawable.belem);
+        if(imageManager.checkIfFileExists(getContext(),monument.getImURL())) {
+            monImg = imageManager.loadImageBitmap(getContext(), monument.getImURL());
+        }
+
+        imageView.setImageBitmap(monImg);
         monumentName.setText(monument.getMonumentName());
-
 
         return convertView;
     }
 
-
     public int getColor(String status) {
-
         switch (status) {
             case Monument.VISITED:
                 return R.color.colorVisited;
@@ -78,7 +84,6 @@ public class MonumentListAdapter extends ArrayAdapter<MonumentData> {
             default:
                 return R.color.colorVisited;
         }
-
     }
 
     public int convertDpToPixel(float dp) {

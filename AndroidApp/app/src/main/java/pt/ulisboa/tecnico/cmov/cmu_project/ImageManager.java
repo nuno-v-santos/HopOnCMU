@@ -13,6 +13,7 @@ public class ImageManager {
     //http://www.codexpedia.com/android/android-download-and-save-image-internally/
 
     /**
+     * Function that saves image in file system
      * @param context
      * @param b
      * @param url
@@ -30,6 +31,12 @@ public class ImageManager {
         }
     }
 
+    /**
+     * Function that image from file system and returns it
+     * @param context
+     * @param imageName
+     * @return
+     */
     public Bitmap loadImageBitmap(Context context, String imageName) {
         Bitmap bitmap = null;
         FileInputStream fiStream;
@@ -44,6 +51,12 @@ public class ImageManager {
         return bitmap;
     }
 
+    /**
+     * Function that checks if a file exists
+     * @param context
+     * @param url
+     * @return
+     */
     public boolean checkIfFileExists(Context context, String url) {
         Bitmap bitmap = null;
         FileInputStream fiStream;

@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String SEND_MONUMENT_LIST = "MONUMENT_LIST";
     private LinkedList<MonumentData> monumentDataLinkedList = new LinkedList<>();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     return headers;
                 }
             };
+
             VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(myRequest);
         }
     }

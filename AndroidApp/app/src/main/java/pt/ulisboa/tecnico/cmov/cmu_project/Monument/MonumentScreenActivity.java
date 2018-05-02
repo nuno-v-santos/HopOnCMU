@@ -41,8 +41,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
     private MonumentData monData;
     public static final String MONUMENT_DATA = "MONUMENT_DATA";
     private ArrayList<QuizQuestion> quizQuestions = new ArrayList<>();
-    private int nClick = 0;
-    private boolean validSSID = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

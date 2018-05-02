@@ -30,7 +30,8 @@
         <service
             android:name=".SendQuestions"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+        <receiver android:name=".NetworkStateReceiver$NetworkStateReceiver" />
     </application>
 
 </manifest>
