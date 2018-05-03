@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmov.cmu_project;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,15 +31,15 @@ public class LoginActivity extends AppCompatActivity {
     public final static String SHARED_PREF_TOKEN = "SHARED_PREF_TOKEN";
     public final static String SESSION_TOKEN = "token";
     public final static String SEND_USERNAME = "SEND_USERNAME";
-
     private SharedPreferences.Editor editor;
-
     final private static String RANDOM = "random";
     final private static String USERNAME = "username";
     final private static String TICKET = "ticket";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide(); //<< this
         setContentView(R.layout.activity_login);
@@ -57,6 +58,10 @@ public class LoginActivity extends AppCompatActivity {
 
         DatabaseHelper.getInstance(getBaseContext()).deleteDataBase(getBaseContext());
         Toast.makeText(this, "apagado", Toast.LENGTH_LONG).show();
+
+        Intent intent = new Intent(this, HelloService.class);
+        startService(intent);
+
     }
 
     protected void setupParent(View view) {
@@ -141,7 +146,7 @@ public class LoginActivity extends AppCompatActivity {
                         LoginActivity.this.editor.commit();
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.putExtra(SEND_USERNAME,userName);
+                        intent.putExtra(SEND_USERNAME, userName);
 
                         startActivity(intent);
                         finish();
@@ -164,8 +169,8 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(jsonObjReq);
-        //Volley.newRequestQueue(this).add(jsonObjReq);
     }
+
 }
 
 

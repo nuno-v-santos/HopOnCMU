@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmov.cmu_project.Quiz;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -13,16 +14,24 @@ public class QuizQuestion implements Serializable {
     private String question;
     private String correctAnswer;
     private ArrayList<String> answersList;
-    public ArrayList<String> getAnswersList() {
-        return answersList;
-    }
+    private HashMap<String, Integer> answersID;
+    private int questionID;
 
-    public QuizQuestion(String question, String correctAnswer, ArrayList<String> questions) {
+    public QuizQuestion(int questionID, String question, String correctAnswer, ArrayList<String> questions, HashMap<String, Integer> answersID) {
+        this.questionID = questionID;
         this.question = question;
         this.correctAnswer = correctAnswer;
         this.answersList = questions;
+        this.answersID = answersID;
     }
 
+    public HashMap<String, Integer> getAnswersID() {
+        return answersID;
+    }
+
+    public int getQuestionID() {
+        return questionID;
+    }
 
     public String getQuestion() {
         return question;
@@ -30,6 +39,10 @@ public class QuizQuestion implements Serializable {
 
     public String getCorrectAnswer() {
         return correctAnswer;
+    }
+
+    public ArrayList<String> getAnswersList() {
+        return answersList;
     }
 
     @Override

@@ -1,13 +1,16 @@
 
 package Model;
+
 import utils.sqlite.BdConnection;
 import utils.sqlite.SQLiteConn;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+
 public class QuizResponse {
     private int id;
     private static BdConnection con = SQLiteConn.getInstace("src/ORM.db");
@@ -16,10 +19,9 @@ public class QuizResponse {
 
     // public constructor
     public QuizResponse() {
-        
+
         this.id = -1;
     }
-
 
 
     public int getId() {
@@ -52,9 +54,6 @@ public class QuizResponse {
     }
 
 
-
-   
-    
     public void save() {
 
 
@@ -62,25 +61,24 @@ public class QuizResponse {
 
         if (this.id == -1) {
 
-            
+
             query = "Insert into QuizResponse(score, date ) values (? , ?)";
 
             List<String> args = new ArrayList<>();
-            args.add(this.score+"");
-            args.add(new java.sql.Timestamp(this.date.getTime())+"");
-            this.id =  con.executeUpdate(query,args);
+            args.add(this.score + "");
+            args.add(new java.sql.Timestamp(this.date.getTime()) + "");
+            this.id = con.executeUpdate(query, args);
         } else {
-            
+
             query = "Update QuizResponse set score = ? , date = ? where id = ?";
 
             List<String> args = new ArrayList<>();
-            args.add(this.score+"");
-            args.add(new java.sql.Timestamp(this.date.getTime())+"");
-            args.add(this.id+"");
-            con.executeUpdate(query,args);
+            args.add(this.score + "");
+            args.add(new java.sql.Timestamp(this.date.getTime()) + "");
+            args.add(this.id + "");
+            con.executeUpdate(query, args);
 
         }
-
 
 
     }
@@ -128,9 +126,9 @@ public class QuizResponse {
 
     public static QuizResponse get(int i) {
         String query = String.format("SELECT * FROM QuizResponse where id = ? ;");
-           List<String> args = new ArrayList<>();
-           args.add(i+"");
-           ResultSet result = con.executeQuery(query,args);
+        List<String> args = new ArrayList<>();
+        args.add(i + "");
+        ResultSet result = con.executeQuery(query, args);
 
         try {
             while (result.next()) {
@@ -146,11 +144,10 @@ public class QuizResponse {
     }
 
 
-    
     public void delete() {
 
         List<String> args = new ArrayList<>();
-        args.add(this.id+"");
+        args.add(this.id + "");
         con.executeUpdate("DELETE FROM QuizResponse WHERE id = ? ", args);
         System.out.println("Success");
 
@@ -158,26 +155,26 @@ public class QuizResponse {
     }
 
 
-   public static QuizResponse getQuizResponseClass(ResultSet result) throws SQLException {
+    public static QuizResponse getQuizResponseClass(ResultSet result) throws SQLException {
 
         int id = result.getInt("id");
         int score = result.getInt("score");
         Date date = result.getDate("date");
 
         //Manel p = new Manel(Person.get(id));
-         QuizResponse p = new QuizResponse();
+        QuizResponse p = new QuizResponse();
         p.setId(id);
         p.setScore(score);
         p.setDate(date);
-       return p;
+        return p;
 
-   }
+    }
 
 
     public Quiz getQuiz() {
         // select * from Quiz as a inner join QuizResponse as b on a.id = b.quiz_id where b.id = this.id;
 
-        String query = String.format("select a.* from Quiz as a inner join QuizResponse as b on a.id = b.quiz_id where b.id ="+ this.id);
+        String query = String.format("select a.* from Quiz as a inner join QuizResponse as b on a.id = b.quiz_id where b.id =" + this.id);
         ResultSet result = con.executeQuery(query);
 
         try {
@@ -206,7 +203,7 @@ public class QuizResponse {
     public User getUser() {
         // select * from User as a inner join QuizResponse as b on a.id = b.user_id where b.id = this.id;
 
-        String query = String.format("select a.* from User as a inner join QuizResponse as b on a.id = b.user_id where b.id ="+ this.id);
+        String query = String.format("select a.* from User as a inner join QuizResponse as b on a.id = b.user_id where b.id =" + this.id);
         ResultSet result = con.executeQuery(query);
 
         try {
@@ -230,7 +227,6 @@ public class QuizResponse {
         con.executeUpdate(query);
 
     }
-
 
 
     @Override

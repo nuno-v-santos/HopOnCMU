@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
@@ -267,13 +268,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return monumentDataList;
     }
 
+    /**
+     * Function that builds all QuizQuestions related with a monument
+     *
+     * @param monumentID
+     * @return ArrayList<QuizQuestion> q
+     */
     public ArrayList<QuizQuestion> buildQuizQuestionFromDB(int monumentID) {
 
         ArrayList<QuizQuestion> quizQuestions = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
 
-        Cursor mCursor = db.rawQuery("SELECT " + KEY_QUESTION_ID + "," + KEY_QUESTION + " FROM" + TABLE_QUESTIONS +
-                " WHERE" + KEY_MON_ID_FK + " = " + Integer.toString(monumentID), null);
+        Cursor mCursor = db.rawQuery("SELECT " + KEY_QUESTION_ID + "," + KEY_QUESTION + " FROM " + TABLE_QUESTIONS +
+                " WHERE " + KEY_MON_ID_FK + " = " + Integer.toString(monumentID), null);
 
         while (mCursor.moveToNext()) {
             int questionID = mCursor.getInt(0);
@@ -281,19 +288,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Object[] res = this.getAnswer(questionID, db);
             ArrayList<String> answers = (ArrayList<String>) res[0];
             String correctAnswer = (String) res[1];
-            quizQuestions.add(new QuizQuestion(question, correctAnswer, answers));
+            HashMap<String, Integer> map = (HashMap<String, Integer>) res[2];
+            quizQuestions.add(new QuizQuestion(questionID, question, correctAnswer, answers, map));
         }
 
         mCursor.close();
         return quizQuestions;
     }
 
+    /**
+     * Function that builds possible answers for a question
+     * Auxiliary function of buildQuizQuestionFromDB
+     *
+     * @param questionID
+     * @param db
+     * @return Object[] o
+     */
     private Object[] getAnswer(int questionID, SQLiteDatabase db) {
 
-        Object[] toReturn = new Object[2];
         ArrayList<String> answersList = new ArrayList<>();
+        HashMap<String, Integer> answersID = new HashMap<>();
         String correctAnswer = null;
-        Cursor cursor = db.rawQuery("SELECT " + KEY_ANSWER + "," + KEY_CORRECT + " FROM "
+
+        Cursor cursor = db.rawQuery("SELECT " + KEY_ANSWER + "," + KEY_CORRECT + "," + KEY_ANSWER_ID + " FROM "
                 + TABLE_ANSWERS + " WHERE " + KEY_QUESTION_ID_FK + " = "
                 + Integer.toString(questionID), null);
 
@@ -302,19 +319,72 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String answer = cursor.getString(0);
             answersList.add(answer);
             int correct = cursor.getInt(1);
+            int id = cursor.getInt(2);
+            answersID.put(answer, id);
+
             if (correct == 1) {
                 correctAnswer = answer;
 
             }
-
-            answersList.add(cursor.getString(0));
         }
 
         cursor.close();
-        toReturn[0] = answersList;
-        toReturn[1] = correctAnswer;
-        return toReturn;
+
+        return new Object[]{answersList, correctAnswer, answersID};
     }
 
+    /**
+     * Function that checks if the quiz was downloaded for a monument
+     *
+     * @param monumentID
+     * @return true if question were downloaded , false otherwise
+     */
+    public boolean questionForMonumentDownload(int monumentID) {
+
+        boolean res = false;
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * " + " FROM " +
+                TABLE_QUESTIONS + " WHERE " + KEY_MON_ID_FK + " = "
+                + Integer.toString(monumentID), null);
+
+        if (cursor.getCount() > 0)
+            res = true;
+
+        return res;
+    }
+
+    /**
+     * Function that updates if a question was answered
+     *
+     * @param question
+     */
+    public void updateQuestionAnswered(int question) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_QUESTION_ANSWERED, 1);
+        db.update(TABLE_QUESTIONS, cv, KEY_QUESTION_ID + "= ?", new String[]{"" + question});
+    }
+
+    /**
+     * Function that verifies if a given quiz was already answered
+     *
+     * @param monID
+     * @return
+     */
+    public boolean monQuestionAnswered(int monID) {
+        boolean res = false;
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + KEY_QUESTION_ANSWERED + " FROM " +
+                TABLE_QUESTIONS + " WHERE " + KEY_MON_ID_FK + " = "
+                + Integer.toString(monID), null);
+
+        if (cursor.moveToFirst()) {
+            int a = cursor.getInt(0);
+            if (a == 1)
+                res = true;
+        }
+
+        return res;
+    }
 
 }

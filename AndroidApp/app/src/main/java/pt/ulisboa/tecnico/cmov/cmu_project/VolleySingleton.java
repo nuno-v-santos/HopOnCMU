@@ -2,14 +2,17 @@ package pt.ulisboa.tecnico.cmov.cmu_project;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.widget.ImageView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+
+import java.util.ArrayList;
 
 
 public class VolleySingleton {
@@ -18,8 +21,6 @@ public class VolleySingleton {
      */
     private static VolleySingleton mInstance;
     private RequestQueue requestQueue;
-    private Context context;
-
 
     private VolleySingleton(Context context) {
         requestQueue = Volley.newRequestQueue(context.getApplicationContext());
@@ -43,35 +44,47 @@ public class VolleySingleton {
      * @param url
      * @param imView
      */
-    public void requestImage(String url, final ImageView imView) {
-        // Initialize a new ImageRequest
-        ImageRequest imageRequest = new ImageRequest(
-                url, // Image URL
-                new Response.Listener<Bitmap>() { // Bitmap listener
-                    @Override
-                    public void onResponse(Bitmap response) {
-                        // Do something with response
-                        imView.setImageBitmap(response);
+    public void requestImage(final String url, final ImageView imView, final Context context) {
+        final ImageManager imageManager = new ImageManager();
+
+        if (!imageManager.checkIfFileExists(context, url)) {
+
+            // Initialize a new ImageRequest
+            ImageRequest imageRequest = new ImageRequest(url, // Image URL
+                    new Response.Listener<Bitmap>() { // Bitmap listener
+                        @Override
+                        public void onResponse(Bitmap response) {
+                            // Do something with response
+                            imView.setImageBitmap(response);
+                            imageManager.saveImage(context, response, url);
+                        }
+                    },
+
+                    0, // Image width
+                    0, // Image height
+                    ImageView.ScaleType.CENTER_CROP, // Image scale type
+                    Bitmap.Config.RGB_565, //Image decode configuration
+
+                    new Response.ErrorListener() { // Error listener
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // Do something with error response
+                            error.printStackTrace();
+                        }
                     }
-                },
-                0, // Image width
-                0, // Image height
+            );
 
-                ImageView.ScaleType.CENTER_CROP, // Image scale type
-                Bitmap.Config.RGB_565, //Image decode configuration
+            // Add ImageRequest to the RequestQueue
+            requestQueue.add(imageRequest);
+        } else {
 
-                new Response.ErrorListener() { // Error listener
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Do something with error response
-                        error.printStackTrace();
-                    }
-                }
-        );
+            Bitmap bitmap = imageManager.loadImageBitmap(context, url);
+            imView.setImageBitmap(bitmap);
+        }
 
-        // Add ImageRequest to the RequestQueue
-        requestQueue.add(imageRequest);
     }
+
+
 }
 
 
