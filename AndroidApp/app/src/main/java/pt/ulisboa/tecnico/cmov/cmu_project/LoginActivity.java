@@ -42,9 +42,17 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide(); //<< this
         setContentView(R.layout.activity_login);
-        this.editor = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE).edit();
-        this.editor.remove(SESSION_TOKEN);
-        this.editor.commit();
+        SharedPreferences sp = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
+        this.editor = sp.edit();
+        if (sp.getString(LoginActivity.SESSION_TOKEN, null) != null){
+            //TODO: check if session is still valid
+            Toast.makeText(this, "Logged in", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         setupParent(findViewById(R.id.relativeLayout));
 
         DatabaseHelper.getInstance(getBaseContext()).deleteDataBase(getBaseContext());
@@ -136,6 +144,7 @@ public class LoginActivity extends AppCompatActivity {
                         intent.putExtra(SEND_USERNAME,userName);
 
                         startActivity(intent);
+                        finish();
                     } else {
                         Toast.makeText(LoginActivity.this, response.getString("error"),
                                 Toast.LENGTH_SHORT).show();

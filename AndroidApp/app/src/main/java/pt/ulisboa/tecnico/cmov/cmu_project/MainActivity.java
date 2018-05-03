@@ -122,7 +122,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void logOutUser() {
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
         final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
-
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(LoginActivity.SESSION_TOKEN);
+        editor.apply();
         if (!sessionToken.equals("")) {
             JSONObject jsonParams = new JSONObject();
             JsonObjectRequest myRequest = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGOUT, jsonParams,
@@ -243,6 +245,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (id == R.id.nav_logout) {
             logOutUser();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
             finish();
             return true;
         }
