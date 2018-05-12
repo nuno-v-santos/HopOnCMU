@@ -1,10 +1,7 @@
 package pt.ulisboa.tecnico.cmov.cmu_project;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -13,15 +10,10 @@ import android.os.Message;
 import android.os.Process;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.UnknownHostException;
 
 
-public class HelloService extends Service {
+public class AnswerSenderService extends Service {
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
@@ -39,9 +31,7 @@ public class HelloService extends Service {
             try {
 
                 while (true) {
-                    System.out.println("Checking if server is online");
                     if (isHostReachable()) {
-                        System.out.println("PING AO SERVIDOR ");
                         UserAnswers u = UserAnswers.getInstance();
                         u.sendRequests(VolleySingleton.getInstance(getBaseContext()));
                         Toast.makeText(getBaseContext(), "sending requests", Toast.LENGTH_LONG).show();
@@ -58,7 +48,11 @@ public class HelloService extends Service {
             }
         }
 
-
+        /**
+         * Function that checks if the server is available or not
+         *
+         * @return True if available, false otherwise
+         */
         private boolean isHostReachable() {
             try {
                 InetAddress.getByName(URLS.SERVER_IP).isReachable(3000);

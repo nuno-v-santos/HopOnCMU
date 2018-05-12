@@ -32,4 +32,5 @@
     <string name="txt_down">download in progress</string>
     <string name="quiz_answered">Quiz Already Answered</string>
     <string name="go_back">Previous Screen</string>
+    <string name="play_quiz">Play Quiz</string>
 </resources>

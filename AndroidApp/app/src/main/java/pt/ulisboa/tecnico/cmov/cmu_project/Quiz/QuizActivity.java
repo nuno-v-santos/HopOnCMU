@@ -58,6 +58,9 @@ public class QuizActivity extends AppCompatActivity {
     private boolean prev_screen = false;
     private int monID; // monument ID
 
+    private Thread timeCounter = new Thread();
+    private long timeHelper = 0L;
+    private int sleep = 500;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +86,38 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         this.setInitialState(); // load question to interface
+        this.buildThread();
+    }
+
+    private long getElapsedTime() {
+
+        return (this.timeHelper * this.sleep / 1000);
+    }
+
+    /**
+     * Function that instatiates
+     */
+    private void buildThread() {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+
+                while (true) {
+
+                    try {
+                        Thread.sleep(QuizActivity.this.sleep);
+                        QuizActivity.this.timeHelper++;
+                    } catch (InterruptedException e) {
+                        break;
+                    }
+                }
+
+
+            }
+        };
+
+        this.timeCounter = new Thread(r);
+        this.timeCounter.start();
     }
 
     /**
@@ -146,6 +181,7 @@ public class QuizActivity extends AppCompatActivity {
                         QuizActivity.this.listView.setEnabled(false);
                         QuizActivity.this.questionsAnswered = true;
                         if (questionNumber + 1 == quizQuestions.size()) {
+                            QuizActivity.this.timeCounter.interrupt();
                             Button button = findViewById(R.id.btnNextQuestion);
                             button.setText(R.string.go_back);
                             prev_screen = true;
@@ -277,7 +313,7 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         DatabaseHelper.getInstance(getBaseContext()).updateQuestionAnswered(currentQuestion.getQuestionID());
-        // enviar para o servidor todas as respostas erradas talvez ???
+        // enviar para o servidor todas as respostas erradas talvez e tempos absurdos ???
         super.onDestroy();
 
     }

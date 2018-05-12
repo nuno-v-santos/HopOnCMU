@@ -2,10 +2,9 @@ package pt.ulisboa.tecnico.cmov.cmu_project;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         DatabaseHelper.getInstance(getBaseContext()).deleteDataBase(getBaseContext());
         Toast.makeText(this, "apagado", Toast.LENGTH_LONG).show();
 
-        Intent intent = new Intent(this, HelloService.class);
+        Intent intent = new Intent(this, AnswerSenderService.class);
         startService(intent);
 
     }
