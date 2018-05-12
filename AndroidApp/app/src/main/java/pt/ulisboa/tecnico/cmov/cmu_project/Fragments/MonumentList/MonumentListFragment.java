@@ -1,17 +1,13 @@
 package pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -28,7 +24,8 @@ public class MonumentListFragment extends Fragment {
         // Inflate the layout for this fragment
         getActivity().setTitle("Monument List");
 
-        LinkedList<MonumentData> monumentDataList = (LinkedList<MonumentData>) getArguments().getSerializable(MainActivity.SEND_MONUMENT_LIST);
+        LinkedList<MonumentData>
+                monumentDataList = (LinkedList<MonumentData>) getArguments().getSerializable(MainActivity.SEND_MONUMENT_LIST);
 
         View view = inflater.inflate(R.layout.fragment_monument_list, container, false);
 

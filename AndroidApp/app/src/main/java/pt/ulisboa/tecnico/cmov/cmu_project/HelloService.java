@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.cmov.cmu_project;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
@@ -11,8 +10,15 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.widget.Toast;
 import android.os.Process;
+import android.widget.Toast;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
 
 
 public class HelloService extends Service {
@@ -29,42 +35,40 @@ public class HelloService extends Service {
 
         @Override
         public void handleMessage(Message msg) {
-            // Normally we would do some work here, like download a file.
-            // For our sample, we just sleep for 5 seconds.
+
             try {
 
                 while (true) {
-
-                    if (checkInternetConnection()) {
+                    System.out.println("Checking if server is online");
+                    if (isHostReachable()) {
+                        System.out.println("PING AO SERVIDOR ");
                         UserAnswers u = UserAnswers.getInstance();
                         u.sendRequests(VolleySingleton.getInstance(getBaseContext()));
-                        Toast.makeText(getBaseContext(),"sending requests", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getBaseContext(), "sending requests", Toast.LENGTH_LONG).show();
                     }
 
-                    Thread.sleep(5000);
+                    Thread.sleep(5000); //sleep for 5 seconds.
                 }
 
             } catch (InterruptedException e) {
-                // Restore interrupt status.
                 Thread.currentThread().interrupt();
+                // Stop the service using the startId, so that we don't stop
+                // the service in the middle of handling another job
+                stopSelf(msg.arg1);
             }
-
-            // Stop the service using the startId, so that we don't stop
-            // the service in the middle of handling another job
-            stopSelf(msg.arg1);
         }
 
 
-        private boolean checkInternetConnection() {
-            ConnectivityManager cm =
-                    (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            boolean isConnected = activeNetwork != null &&
-                    activeNetwork.isConnectedOrConnecting();
-
-            return isConnected;
+        private boolean isHostReachable() {
+            try {
+                InetAddress.getByName(URLS.SERVER_IP).isReachable(3000);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
         }
+
+
     }
 
     @Override

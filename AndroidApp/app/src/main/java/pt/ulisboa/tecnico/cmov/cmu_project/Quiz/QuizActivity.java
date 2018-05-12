@@ -1,11 +1,10 @@
 package pt.ulisboa.tecnico.cmov.cmu_project.Quiz;
 
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -28,13 +27,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.DatabaseHelper;
+import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.Monument;
 import pt.ulisboa.tecnico.cmov.cmu_project.LoginActivity;
-import pt.ulisboa.tecnico.cmov.cmu_project.NetworkStateReceiver;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
 import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
 import pt.ulisboa.tecnico.cmov.cmu_project.UserAnswers;
 
-public class QuizActivity extends AppCompatActivity implements NetworkStateReceiver.NetworkStateReceiverListener {
+public class QuizActivity extends AppCompatActivity {
 
 
     private static final String QUESTION_ID = "questionID";
@@ -59,7 +58,6 @@ public class QuizActivity extends AppCompatActivity implements NetworkStateRecei
     private boolean prev_screen = false;
     private int monID; // monument ID
 
-    private NetworkStateReceiver networkStateReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,10 +83,6 @@ public class QuizActivity extends AppCompatActivity implements NetworkStateRecei
         }
 
         this.setInitialState(); // load question to interface
-
-        networkStateReceiver = new NetworkStateReceiver();
-        networkStateReceiver.addListener(this);
-        this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     /**
@@ -164,7 +158,6 @@ public class QuizActivity extends AppCompatActivity implements NetworkStateRecei
                             HashMap<String, Integer> map = currentQuestion.getAnswersID();
                             JsonObjectRequest j = buildRequest(qID, map.get(selectedOption));
                             UserAnswers.getInstance().addJsonRequest(j);
-                            // VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(j);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -262,7 +255,6 @@ public class QuizActivity extends AppCompatActivity implements NetworkStateRecei
         })
 
         {
-
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<String, String>();
@@ -278,25 +270,22 @@ public class QuizActivity extends AppCompatActivity implements NetworkStateRecei
 
     @Override
     public void finish() {
-        networkStateReceiver.removeListener(this);
-        this.unregisterReceiver(networkStateReceiver);
+        DatabaseHelper.getInstance(getBaseContext()).updateMonumentStatus(monID, Monument.VISITED);
         super.finish();
-
     }
 
+    @Override
+    public void onDestroy() {
+        DatabaseHelper.getInstance(getBaseContext()).updateQuestionAnswered(currentQuestion.getQuestionID());
+        // enviar para o servidor todas as respostas erradas talvez ???
+        super.onDestroy();
+
+    }
 
     @Override
     public void onBackPressed() {
         return;
     }
 
-    @Override
-    public void networkAvailable() {
-        return;
-    }
 
-    @Override
-    public void networkUnavailable() {
-        return;
-    }
 }

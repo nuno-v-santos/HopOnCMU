@@ -261,6 +261,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String monDesc = mCursor.getString(4);
             String wifiID = mCursor.getString(2);
             MonumentData monumentData = new MonumentData(imURL, monName, monDesc, wifiID, monID);
+            monumentData.setStatus(status);
+
             monumentDataList.add(monumentData);
         }
 
