@@ -73,7 +73,6 @@ public class QuizActivity extends AppCompatActivity {
         Intent intent = getIntent();
         this.quizQuestions = (ArrayList<QuizQuestion>) intent.getSerializableExtra(QuizActivity.QUIZ_QUESTIONS);
         this.monID = intent.getIntExtra(QuizActivity.MON_ID, 0);
-
         this.alphabet = new String[getMaxNumberAnswers()];
 
         int j = 0;
@@ -86,6 +85,7 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         this.setInitialState(); // load question to interface
+        DatabaseHelper.getInstance(getBaseContext()).updateMonumentStatus(monID, Monument.VISITED);
         this.buildThread();
     }
 
@@ -103,7 +103,6 @@ public class QuizActivity extends AppCompatActivity {
             public void run() {
 
                 while (true) {
-
                     try {
                         Thread.sleep(QuizActivity.this.sleep);
                         QuizActivity.this.timeHelper++;
@@ -111,8 +110,6 @@ public class QuizActivity extends AppCompatActivity {
                         break;
                     }
                 }
-
-
             }
         };
 
@@ -306,13 +303,12 @@ public class QuizActivity extends AppCompatActivity {
 
     @Override
     public void finish() {
-        DatabaseHelper.getInstance(getBaseContext()).updateMonumentStatus(monID, Monument.VISITED);
         super.finish();
     }
 
     @Override
     public void onDestroy() {
-        DatabaseHelper.getInstance(getBaseContext()).updateQuestionAnswered(currentQuestion.getQuestionID());
+        // DatabaseHelper.getInstance(getBaseContext()).updateQuestionAnswered(currentQuestion.getQuestionID());
         // enviar para o servidor todas as respostas erradas talvez e tempos absurdos ???
         super.onDestroy();
 

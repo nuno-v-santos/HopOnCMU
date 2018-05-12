@@ -181,7 +181,7 @@ public class AndroidEndPoints {
 
             if (user == null)
                 return "{" +
-                        "\"error\" : " + "invalid user" + "," +
+                        "\"error\" : " + "invalid user"  +
                         "}";
 
 
@@ -190,9 +190,8 @@ public class AndroidEndPoints {
             String answerID = body.getAsJsonObject().get("answerID").getAsString();
 
 
-
             return "{" +
-                    "\"error\" : " + "" + "," +
+                    "\"error\" : " + "empty"  +
                     "}";
 
 

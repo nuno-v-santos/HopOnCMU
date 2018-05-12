@@ -37,7 +37,9 @@ import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String SEND_MONUMENT_LIST = "MONUMENT_LIST";
+
     private LinkedList<MonumentData> monumentDataLinkedList = new LinkedList<>();
+    private String userName;
 
 
     @Override
@@ -45,11 +47,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //to set our main fragment
+        Intent intent = getIntent();
+        this.userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
+
+
+        Intent serviceInt = new Intent(this, AnswerSenderService.class);
+        startService(serviceInt);
+
         MainFragment fragment = new MainFragment();
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
+
 
         // not sure if we need a tool bar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -68,8 +77,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        Intent intent = getIntent();
-        String userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
 
         if (DatabaseHelper.getInstance(getBaseContext()).tableIsEmpty(DatabaseHelper.TABLE_MONUMENTS))
             getMonuments();
@@ -223,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_home) {
             fragment = new MainFragment();
+
         } else if (id == R.id.nav_ranking) {
             fragment = new RankingFragment();
         } else if (id == R.id.nav_monuments) {

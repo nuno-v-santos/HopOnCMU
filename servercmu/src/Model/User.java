@@ -2,6 +2,7 @@ package Model;
 
 import utils.sqlite.BdConnection;
 import utils.sqlite.SQLiteConn;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,10 +15,9 @@ public class User {
 
     // public constructor
     public User() {
-        
+
         this.id = -1;
     }
-
 
 
     public int getId() {
@@ -41,9 +41,6 @@ public class User {
     }
 
 
-
-   
-    
     public void save() {
 
 
@@ -51,23 +48,22 @@ public class User {
 
         if (this.id == -1) {
 
-            
+
             query = "Insert into User(username ) values (?)";
 
             List<String> args = new ArrayList<>();
-            args.add(this.username+"");
-            this.id =  con.executeUpdate(query,args);
+            args.add(this.username + "");
+            this.id = con.executeUpdate(query, args);
         } else {
-            
+
             query = "Update User set username = ? where id = ?";
 
             List<String> args = new ArrayList<>();
-            args.add(this.username+"");
-            args.add(this.id+"");
-            con.executeUpdate(query,args);
+            args.add(this.username + "");
+            args.add(this.id + "");
+            con.executeUpdate(query, args);
 
         }
-
 
 
     }
@@ -116,9 +112,9 @@ public class User {
 
     public static User get(int i) {
         String query = String.format("SELECT * FROM User where id = ? ;");
-           List<String> args = new ArrayList<>();
-           args.add(i+"");
-           ResultSet result = con.executeQuery(query,args);
+        List<String> args = new ArrayList<>();
+        args.add(i + "");
+        ResultSet result = con.executeQuery(query, args);
 
         try {
             while (result.next()) {
@@ -134,11 +130,10 @@ public class User {
     }
 
 
-    
     public void delete() {
 
         List<String> args = new ArrayList<>();
-        args.add(this.id+"");
+        args.add(this.id + "");
         con.executeUpdate("DELETE FROM User WHERE id = ? ", args);
         System.out.println("Success");
 
@@ -146,36 +141,36 @@ public class User {
     }
 
 
-   public static User getUserClass(ResultSet result) throws SQLException {
+    public static User getUserClass(ResultSet result) throws SQLException {
 
         int id = result.getInt("id");
         String username = result.getString("username");
 
         //Manel p = new Manel(Person.get(id));
-         User p = new User();
+        User p = new User();
         p.setId(id);
         p.setUsername(username);
-       return p;
+        return p;
 
-   }
+    }
 
 
     public Session getSession() {
-    // select * from Session as a inner join User as b on a.id = b.session_id where b.id = this.id;
+        // select * from Session as a inner join User as b on a.id = b.session_id where b.id = this.id;
 
-        String query = String.format("select a.* from Session as a inner join User as b on a.id = b.session_id where b.id ="+ this.id);
+        String query = String.format("select a.* from Session as a inner join User as b on a.id = b.session_id where b.id =" + this.id);
         ResultSet result = con.executeQuery(query);
 
-            try {
-                while (result.next()) {
+        try {
+            while (result.next()) {
 
-                    Session p = (Session) Session.getSessionClass(result);
-                    return p;
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
+                Session p = (Session) Session.getSessionClass(result);
+                return p;
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         return null;
 
@@ -183,33 +178,28 @@ public class User {
 
     public void setSession(Session session) {
 
-        String query = String.format("Update %s set session_id = %s  where id = %d", "User", session != null ? "'"+session.getId()+"'" :"null", this.id);
+        String query = String.format("Update %s set session_id = %s  where id = %d", "User", session != null ? "'" + session.getId() + "'" : "null", this.id);
         con.executeUpdate(query);
 
     }
 
 
-
-
-
-
-
     public Ticket getTicket() {
-    // select * from Ticket as a inner join User as b on a.id = b.ticket_id where b.id = this.id;
+        // select * from Ticket as a inner join User as b on a.id = b.ticket_id where b.id = this.id;
 
-        String query = String.format("select a.* from Ticket as a inner join User as b on a.id = b.ticket_id where b.id ="+ this.id);
+        String query = String.format("select a.* from Ticket as a inner join User as b on a.id = b.ticket_id where b.id =" + this.id);
         ResultSet result = con.executeQuery(query);
 
-            try {
-                while (result.next()) {
+        try {
+            while (result.next()) {
 
-                    Ticket p = (Ticket) Ticket.getTicketClass(result);
-                    return p;
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
+                Ticket p = (Ticket) Ticket.getTicketClass(result);
+                return p;
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         return null;
 
@@ -217,7 +207,7 @@ public class User {
 
     public void setTicket(Ticket ticket) {
 
-        String query = String.format("Update %s set ticket_id = %s  where id = %d", "User", ticket != null ? "'"+ticket.getId()+"'" :"null", this.id);
+        String query = String.format("Update %s set ticket_id = %s  where id = %d", "User", ticket != null ? "'" + ticket.getId() + "'" : "null", this.id);
         con.executeUpdate(query);
 
     }
@@ -252,8 +242,6 @@ public class User {
             return null;
         }
     }
-
-
 
 
     @Override

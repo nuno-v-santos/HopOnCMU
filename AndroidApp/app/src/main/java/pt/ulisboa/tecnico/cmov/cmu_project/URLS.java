@@ -8,7 +8,7 @@ public class URLS {
 
     //private static final String ROOT_URL = "http://194.210.159.185:1234/";
     public static final String SERVER_IP = "192.168.1.5";
-    private static final String ROOT_URL = "http://192.168.1.5:1234/";
+    private static final String ROOT_URL = "http://" + SERVER_IP + ":1234/";
 
     public static final String URL_REGISTER = ROOT_URL + "register";
     public static final String URL_LOGIN = ROOT_URL + "login";
