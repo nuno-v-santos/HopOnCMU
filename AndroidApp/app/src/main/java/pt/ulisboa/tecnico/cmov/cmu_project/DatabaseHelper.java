@@ -248,8 +248,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      *
      * @return ArrayList<MonumentData> e
      */
-    public LinkedList<MonumentData> buildMonumentsFromDB() {
-        LinkedList<MonumentData> monumentDataList = new LinkedList<>();
+    public ArrayList<MonumentData> buildMonumentsFromDB() {
+        ArrayList<MonumentData> monumentDataList = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor mCursor = db.rawQuery("SELECT * FROM " + TABLE_MONUMENTS, null);
 

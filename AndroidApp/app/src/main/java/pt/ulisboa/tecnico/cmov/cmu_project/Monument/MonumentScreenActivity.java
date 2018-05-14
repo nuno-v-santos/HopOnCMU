@@ -41,7 +41,6 @@ public class MonumentScreenActivity extends AppCompatActivity {
     private MonumentData monData;
     public static final String MONUMENT_DATA = "MONUMENT_DATA";
     private ArrayList<QuizQuestion> quizQuestions = new ArrayList<>();
-    private boolean qDonwloaded = false;
 
 
     @Override
@@ -52,6 +51,13 @@ public class MonumentScreenActivity extends AppCompatActivity {
         Intent intent = getIntent();
         this.monData = (MonumentData) intent.getSerializableExtra(MONUMENT_DATA);
         this.updateUIWithMonumentInfo();
+
+        if (DatabaseHelper.getInstance(getBaseContext()).questionForMonumentDownload(this.monData.getMonumentID())) {
+
+            Button button = findViewById(R.id.btnDownloadQuiz);
+            button.setText(R.string.play_quiz);
+        }
+
     }
 
 
@@ -80,19 +86,22 @@ public class MonumentScreenActivity extends AppCompatActivity {
 
         final int monID = this.monData.getMonumentID();
         DatabaseHelper db = DatabaseHelper.getInstance(getBaseContext());
+
         if (db.monQuestionAnswered(monID)) {
             Toast.makeText(getBaseContext(), R.string.quiz_answered, Toast.LENGTH_SHORT).show();
             return;
         }
 
 
-        if (db.questionForMonumentDownload(monID) && this.qDonwloaded) {
+        if (db.questionForMonumentDownload(monID)) {
             DatabaseHelper.getInstance(getBaseContext()).updateMonumentStatus(this.monData.getMonumentID(), Monument.QUIZ);
             startQuizActivity(monID);
-        } else
-            {
+
+        } else if (!db.questionForMonumentDownload(monID)) {
             Toast.makeText(getBaseContext(), R.string.txt_down, Toast.LENGTH_SHORT).show();
             this.downloadQuestions();
+
+
         }
 
     }
@@ -158,10 +167,8 @@ public class MonumentScreenActivity extends AppCompatActivity {
                         }
                     }
 
-                    MonumentScreenActivity.this.qDonwloaded = true;
                     Button btn = findViewById(R.id.btnDownloadQuiz);
                     btn.setText(R.string.play_quiz);
-                    //MonumentScreenActivity.this.startQuizActivity(monumentID);
 
                 }
             }, new Response.ErrorListener() {

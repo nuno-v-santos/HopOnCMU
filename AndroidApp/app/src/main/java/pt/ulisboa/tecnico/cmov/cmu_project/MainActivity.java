@@ -36,9 +36,7 @@ import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static final String SEND_MONUMENT_LIST = "MONUMENT_LIST";
 
-    private LinkedList<MonumentData> monumentDataLinkedList = new LinkedList<>();
     private String userName;
 
 
@@ -80,10 +78,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (DatabaseHelper.getInstance(getBaseContext()).tableIsEmpty(DatabaseHelper.TABLE_MONUMENTS))
             getMonuments();
-        else {
 
-            this.monumentDataLinkedList = DatabaseHelper.getInstance(getBaseContext()).buildMonumentsFromDB();
-        }
     }
 
     @Override
@@ -180,7 +175,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * @return
      */
     private void getMonuments() {
-        final LinkedList<MonumentData> monumentsList = new LinkedList<>();
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
         final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
         Toast.makeText(this, sessionToken, Toast.LENGTH_SHORT).show();
@@ -196,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 }
 
-                MainActivity.this.monumentDataLinkedList = databaseHelper.buildMonumentsFromDB();
             }
         }, new Response.ErrorListener() {
 
@@ -235,11 +228,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragment = new RankingFragment();
         } else if (id == R.id.nav_monuments) {
 
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(MainActivity.SEND_MONUMENT_LIST, monumentDataLinkedList);
-
             fragment = new MonumentListFragment();
-            fragment.setArguments(bundle);
 
         } else if (id == R.id.nav_share_results) {
             //todo: wi-fi direct

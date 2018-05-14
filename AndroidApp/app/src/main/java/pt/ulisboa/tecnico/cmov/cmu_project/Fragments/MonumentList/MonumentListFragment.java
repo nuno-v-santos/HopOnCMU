@@ -30,14 +30,10 @@ public class MonumentListFragment extends Fragment {
         getActivity().setTitle("Monument List");
 
 
-        LinkedList<MonumentData>
-                monumentDataList = (LinkedList<MonumentData>) getArguments().getSerializable(MainActivity.SEND_MONUMENT_LIST);
-
         View view = inflater.inflate(R.layout.fragment_monument_list, container, false);
 
-        // Create the adapter to convert the array to views
-        this.data.addAll(monumentDataList);
-        this.adapter = new MonumentListAdapter(getContext(), data);
+
+        this.adapter = new MonumentListAdapter(getContext(), this.data);
 
         // Attach the adapter to a ListView
         ListView listView = (ListView) view.findViewById(R.id.monumentsList);
@@ -61,9 +57,7 @@ public class MonumentListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        LinkedList<MonumentData> x = DatabaseHelper.getInstance(getContext()).buildMonumentsFromDB();
-        this.data = new ArrayList<MonumentData>();
-        this.data.addAll(x);
+        this.data = DatabaseHelper.getInstance(getContext()).buildMonumentsFromDB();
         this.adapter.clear();
         this.adapter.addAll(this.data);
         this.adapter.notifyDataSetChanged();
