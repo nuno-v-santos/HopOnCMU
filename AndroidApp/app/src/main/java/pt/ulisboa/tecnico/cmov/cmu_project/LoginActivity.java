@@ -33,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
     final private static String RANDOM = "random";
     final private static String USERNAME = "username";
     final private static String TICKET = "ticket";
+    private String userName = "Username";
 
 
     @Override
@@ -47,6 +48,7 @@ public class LoginActivity extends AppCompatActivity {
             //TODO: check if session is still valid
             Toast.makeText(this, "Logged in", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.putExtra(SEND_USERNAME, userName);
             startActivity(intent);
             finish();
             return;

@@ -82,7 +82,7 @@ public class AndroidEndPoints {
                 JsonObject responsePrams = new JsonObject();
 
                 return "" + '{' +
-                        '"' + "tiket" + '"' + ':' + ticket + ',' +
+                        '"' + "ticket" + '"' + ':' + ticket + ',' +
                         '"' + "tour" + '"' + ':' + tour +
                         '}';
 
