@@ -47,11 +47,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
 
+
         //get the shared prefs
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
         this.token = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
-
-
+        sync();
 
         Intent serviceInt = new Intent(this, AnswerSenderService.class);
         startService(serviceInt);
@@ -115,6 +115,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void sync() {
+        if (token != null && !token.equals("")) {
+            JsonObjectRequest myRequest = new JsonObjectRequest(Request.Method.GET, URLS.URL_SYNC, null,
+
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            System.out.println(response.toString());
+
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            error.printStackTrace();
+                        }
+                    }) {
+
+                @Override
+                public Map<String, String> getHeaders() {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("token", token);
+                    return headers;
+                }
+            };
+
+            VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(myRequest);
+        }
     }
 
     /**

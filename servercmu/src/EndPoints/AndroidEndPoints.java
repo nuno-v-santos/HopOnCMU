@@ -7,12 +7,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static spark.Spark.*;
 
 public class AndroidEndPoints {
 
     public static int VERSION = 0;
+
     private static User validateUser(String token) {
 
         System.out.println("TOKEN");
@@ -219,6 +221,86 @@ public class AndroidEndPoints {
 
         });
 
+
+        get("/android/version/", (req, res) -> {
+            return VERSION;
+        });
+
+        get("/android/sync/", (req, res) -> {
+            try {
+
+                //obter o token
+                String token = req.headers("token");
+                User user = validateUser(token);
+                if (user == null)
+                    return false;
+
+
+                Gson gson = new Gson();
+                StringBuilder stringBuilder = new StringBuilder();
+                List<Monument> monuments = user.getTicket().getTour().getMonuments();
+                List<QuizResponse> quizResponses = user.getQuizResponses();
+
+
+                stringBuilder.append("{");
+                //monuments
+                stringBuilder.append("\"monuments\":[");
+
+                for (Monument monument : monuments) {
+
+                    Quiz quiz = monument.getQuiz();
+
+                    StringBuilder quizQuestions = new StringBuilder();
+                    quizQuestions.append("[");
+
+                    List<Question> questions = quiz.getQuestions();
+                    boolean firs = true;
+
+                    for (Question question : questions) {
+                        String answersString = gson.toJson(question.getAnswers());
+
+                        if (firs) {
+                            firs = false;
+                        } else {
+                            quizQuestions.append(",");
+                        }
+
+                        quizQuestions.append(
+                                "{" +
+                                        "\"id\" : " + "\"" + question.getId() + "\"" + "," +
+                                        "\"question\" : " + "\"" + question.getQuestion() + "\"" + "," +
+                                        "\"answers\" : " + answersString +
+                                        "}"
+                        );
+
+                    }
+
+
+                    quizQuestions.append("]");
+                    System.out.println(quizQuestions.toString());
+
+                    List<QuizResponse> thisMonumentQuizResponses = quizResponses.stream().filter(quizResponse -> {
+                        return quizResponse.getQuiz().getId() == monument.getQuiz().getId();
+                    }).collect(Collectors.toList());
+
+                    stringBuilder.append("{" +
+                            "\"monument\" : " + gson.toJson(monument) + "," +
+                            "\"activeQuiz\" : " + (thisMonumentQuizResponses.size() != monument.getQuiz().getQuestions().size()) + "," +
+                            "\"responses\" : " + gson.toJson(thisMonumentQuizResponses) + "," +
+                            "\"questions\" : " + quizQuestions.toString() +
+                            "}");
+
+                }
+                stringBuilder.append("]");
+                //end monuments
+                stringBuilder.append("}");
+                return stringBuilder.toString();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        });
 
     }
 
