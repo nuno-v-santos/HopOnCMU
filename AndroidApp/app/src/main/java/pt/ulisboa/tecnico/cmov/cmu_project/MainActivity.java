@@ -87,10 +87,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        if (userName != null) {
-            TextView usernameText = findViewById(R.id.usernameFragmentMain);
+        /*if (userName != null) {
+            TextView usernameText = findViewById(R.id.username);
             usernameText.setText(userName);
-        }
+        }*/
 
         if (DatabaseHelper.getInstance(getBaseContext()).tableIsEmpty(DatabaseHelper.TABLE_MONUMENTS))
             getMonuments();
