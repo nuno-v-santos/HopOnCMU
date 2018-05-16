@@ -26,8 +26,11 @@
                                 <th>Id</th>
                                 <th>score</th>
                                 <th>date</th>
+                                <th>correct</th>
+                                <th>time</th>
                                             <th>quizId</th>
                                             <th>userId</th>
+                                            <th>answerId</th>
                                 <th>actions</th>
                                 </thead>
                                 <tbody>
@@ -36,8 +39,11 @@
                                     <td>${quizresponse.id}</td>
                                     <td>${quizresponse.score}</td>
                                     <td>${quizresponse.date}</td>
+                                    <td>${quizresponse.correct}</td>
+                                    <td>${quizresponse.time}</td>
                                             <td> <#if quizresponse.quiz??>${quizresponse.quiz.id}</#if></td>
                                             <td> <#if quizresponse.user??>${quizresponse.user.id}</#if></td>
+                                            <td> <#if quizresponse.answer??>${quizresponse.answer.id}</#if></td>
                                     <td>
                                         <a href="update?id=${quizresponse.id}">
                                             <button type="submit" class="btn btn-warning btn-fill ">Update</button>

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Create a QuizResponse</title>
-<#include "../imports.html">
+    <#include "../imports.html">
 </head>
 <div class="main-panel" style="width : 100%; float : none ; height: 100%">
-  <#include "../menu.html">
+    <#include "../menu.html">
 
 
     <div class="content">
@@ -21,16 +21,13 @@
                         <div class="content">
 
                             <form id="myForm" action="create" method="post">
-                                <input type="hidden" />
+                                <input type="hidden"/>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="score">Score</label>
                                         <input class="form-control" id="score" name="score"
-                                               
-                                               
-                                               
-                                               
-                                               
+
+
                                                type="number"/>
                                     </div>
                                 </div>
@@ -38,12 +35,27 @@
                                     <div class="form-group">
                                         <label for="date">Date</label>
                                         <input class="form-control" id="date" name="date"
-                                               
-                                               
-                                               
-                                               
-                                               
+
+
                                                type="text"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="correct">correct</label>
+                                        <input class="form-control" id="correct" name="correct"
+
+
+                                               type="text"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="time">time</label>
+                                        <input class="form-control" id="time" name="time"
+
+
+                                               type="number"/>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -77,4 +89,5 @@
             'maxlength': "Too long"
         }
     });
+
 </script>

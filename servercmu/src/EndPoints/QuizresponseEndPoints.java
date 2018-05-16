@@ -1,5 +1,6 @@
 package EndPoints;
 
+import Model.Answer;
 import Model.Quiz;
 import Model.QuizResponse;
 import Model.User;
@@ -44,6 +45,8 @@ public class QuizresponseEndPoints {
             model.put("quiz", Quiz.all());
             model.put("quizresponseUser", quizresponse.getUser() == null ? new User() : quizresponse.getUser());
             model.put("user", User.all());
+            model.put("quizresponseAnswer", quizresponse.getAnswer() == null ? new Answer() : quizresponse.getAnswer());
+            model.put("answer", Answer.all());
             return engine.render(model, "/quizresponse/update.html");
 
         });
@@ -56,9 +59,13 @@ public class QuizresponseEndPoints {
             QuizResponse quizresponse = QuizResponse.get(Integer.parseInt(request.queryParams("id")));
             quizresponse.setScore(Integer.parseInt(!request.queryParams("score").isEmpty() ? request.queryParams("score") : "0"));
             quizresponse.setDate(new Date(request.queryParams("date")));
+            quizresponse.setTime(Long.parseLong(!request.queryParams("time").isEmpty() ? request.queryParams("time") : "0"));
+            quizresponse.setCorrect(Integer.parseInt(!request.queryParams("correct").isEmpty() ? request.queryParams("correct") : "0"));
+
             quizresponse.save();
             quizresponse.setQuiz(Quiz.get(Integer.parseInt(request.queryParams("quizId"))));
             quizresponse.setUser(User.get(Integer.parseInt(request.queryParams("userId"))));
+            quizresponse.setAnswer(Answer.get(Integer.parseInt(request.queryParams("answerId"))));
             response.redirect("/quizresponse/list?id=" + request.queryParams("id"));
 
             return "";
