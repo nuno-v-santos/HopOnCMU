@@ -186,6 +186,7 @@ public class AndroidEndPoints {
 
 
             JsonElement body = new JsonParser().parse(req.body());
+            System.out.println(body);
             String questionID = body.getAsJsonObject().get("questionID").getAsString();
             String answerID = body.getAsJsonObject().get("answerID").getAsString();
 

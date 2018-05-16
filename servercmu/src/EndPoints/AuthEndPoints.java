@@ -166,7 +166,6 @@ public class AuthEndPoints {
             return false;
         })));
 
-
         get("test", (((request, response) -> {
 
             String token = request.headers("token");

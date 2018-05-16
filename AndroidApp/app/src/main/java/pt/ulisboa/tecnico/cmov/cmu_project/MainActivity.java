@@ -37,7 +37,7 @@ import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
 
-    private String userName;
+    private String token;
 
 
     @Override
@@ -45,8 +45,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = getIntent();
-        this.userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
+
+        //get the shared prefs
+        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
+        this.token = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
+
 
 
         Intent serviceInt = new Intent(this, AnswerSenderService.class);

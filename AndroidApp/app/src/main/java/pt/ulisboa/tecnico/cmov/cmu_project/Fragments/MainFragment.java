@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toolbar;
 
 import com.android.volley.AuthFailureError;
@@ -37,6 +38,10 @@ import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
  */
 public class MainFragment extends Fragment {
 
+    private int random;
+    private String userName;
+    private String ticket;
+
     public MainFragment() {
         // Required empty public constructor
     }
@@ -46,51 +51,20 @@ public class MainFragment extends Fragment {
 
         // Inflate the layout for this fragment
         getActivity().setTitle("Home");
-        try {
-            getInfo();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return inflater.inflate(R.layout.fragment_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
+
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, getActivity().MODE_PRIVATE);
+        this.random = sharedPreferences.getInt(LoginActivity.RANDOM, 0);
+        this.userName = sharedPreferences.getString(LoginActivity.USERNAME, "");
+        this.ticket = sharedPreferences.getString(LoginActivity.TICKET, "");
+
+
+        TextView userNameTextView = view.findViewById(R.id.usernameFragmentMain);
+        userNameTextView.setText(userName);
+
+        return view;
+
     }
 
-    private void getInfo() throws JSONException {
-
-        JSONObject postParams = new JSONObject();
-        final SharedPreferences sharedPref = getActivity().getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN,Context.MODE_PRIVATE);
-        final String token = sharedPref.getString(LoginActivity.SESSION_TOKEN, "");
-
-
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
-                URLS.URL_GET_INFO, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                        System.out.println(response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                        //Failure Callback
-                    }
-                })
-
-        {
-
-            /** Passing some request headers* */
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap();
-                headers.put("Content-Type", "application/json");
-                headers.put("token", token);
-                return headers;
-            }
-        };
-
-        Volley.newRequestQueue(getContext()).add(jsonObjReq);
-    }
 
 }

@@ -30,9 +30,9 @@ public class LoginActivity extends AppCompatActivity {
     public final static String SESSION_TOKEN = "token";
     public final static String SEND_USERNAME = "SEND_USERNAME";
     private SharedPreferences.Editor editor;
-    final private static String RANDOM = "random";
-    final private static String USERNAME = "username";
-    final private static String TICKET = "ticket";
+    final public static String RANDOM = "random";
+    final public static String USERNAME = "username";
+    final public static String TICKET = "ticket";
 
 
     @Override
@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         SharedPreferences sp = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
         this.editor = sp.edit();
-        if (sp.getString(LoginActivity.SESSION_TOKEN, null) != null){
+        if (sp.getString(LoginActivity.SESSION_TOKEN, null) != null) {
             //TODO: check if session is still valid
             Toast.makeText(this, "Logged in", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -124,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
      * @throws IOException
      * @throws JSONException
      */
-    private void loginPost(final String userName, final String ticketNumber, int randInt) throws JSONException {
+    private void loginPost(final String userName, final String ticketNumber, final int randInt) throws JSONException {
 
         JSONObject postParams = new JSONObject();
         postParams.put(LoginActivity.USERNAME, userName);
@@ -139,6 +139,9 @@ public class LoginActivity extends AppCompatActivity {
                     if (response.getString("error").equals("")) {
                         String token = response.getString(LoginActivity.SESSION_TOKEN);
                         LoginActivity.this.editor.putString(LoginActivity.SESSION_TOKEN, token);
+                        LoginActivity.this.editor.putString(LoginActivity.USERNAME, userName);
+                        LoginActivity.this.editor.putString(LoginActivity.TICKET, ticketNumber);
+                        LoginActivity.this.editor.putInt(LoginActivity.RANDOM, randInt);
                         LoginActivity.this.editor.commit();
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
