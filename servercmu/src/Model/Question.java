@@ -1,5 +1,6 @@
 package Model;
 
+import EndPoints.AndroidEndPoints;
 import utils.sqlite.BdConnection;
 import utils.sqlite.SQLiteConn;
 import java.sql.ResultSet;
@@ -69,6 +70,7 @@ public class Question {
         }
 
 
+        AndroidEndPoints.VERSION++;
 
     }
 

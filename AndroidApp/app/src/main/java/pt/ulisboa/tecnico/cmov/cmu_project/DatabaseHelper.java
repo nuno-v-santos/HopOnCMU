@@ -239,7 +239,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public void deleteDataBase(Context context) {
 
-        context.getApplicationContext().deleteDatabase(DATABASE_NAME);
+        SQLiteDatabase db = this.getWritableDatabase();
+       boolean b = db.isReadOnly();
+        db.execSQL("delete from "+ TABLE_ANSWERS);
+        db.execSQL("delete from "+ TABLE_QUESTIONS);
+        db.execSQL("delete from "+ TABLE_MONUMENTS);
+
+       // context.getApplicationContext().deleteDatabase(DATABASE_NAME);
         System.out.println("Database has been deleted");
     }
 

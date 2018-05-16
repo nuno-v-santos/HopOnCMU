@@ -1,6 +1,7 @@
 
 package Model;
 
+import EndPoints.AndroidEndPoints;
 import utils.sqlite.BdConnection;
 import utils.sqlite.SQLiteConn;
 
@@ -111,6 +112,7 @@ public class QuizResponse {
         }
 
 
+        AndroidEndPoints.VERSION++;
     }
 
 

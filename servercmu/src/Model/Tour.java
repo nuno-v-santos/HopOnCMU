@@ -1,7 +1,10 @@
 
 package Model;
+
+import EndPoints.AndroidEndPoints;
 import utils.sqlite.BdConnection;
 import utils.sqlite.SQLiteConn;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,10 +17,9 @@ public class Tour {
 
     // public constructor
     public Tour() {
-        
+
         this.id = -1;
     }
-
 
 
     public int getId() {
@@ -41,9 +43,6 @@ public class Tour {
     }
 
 
-
-   
-    
     public void save() {
 
 
@@ -51,24 +50,25 @@ public class Tour {
 
         if (this.id == -1) {
 
-            
+
             query = "Insert into Tour(name ) values (?)";
 
             List<String> args = new ArrayList<>();
-            args.add(this.name+"");
-            this.id =  con.executeUpdate(query,args);
+            args.add(this.name + "");
+            this.id = con.executeUpdate(query, args);
         } else {
-            
+
             query = "Update Tour set name = ? where id = ?";
 
             List<String> args = new ArrayList<>();
-            args.add(this.name+"");
-            args.add(this.id+"");
-            con.executeUpdate(query,args);
+            args.add(this.name + "");
+            args.add(this.id + "");
+            con.executeUpdate(query, args);
 
         }
 
 
+        AndroidEndPoints.VERSION++;
 
     }
 
@@ -115,9 +115,9 @@ public class Tour {
 
     public static Tour get(int i) {
         String query = String.format("SELECT * FROM Tour where id = ? ;");
-           List<String> args = new ArrayList<>();
-           args.add(i+"");
-           ResultSet result = con.executeQuery(query,args);
+        List<String> args = new ArrayList<>();
+        args.add(i + "");
+        ResultSet result = con.executeQuery(query, args);
 
         try {
             while (result.next()) {
@@ -133,11 +133,10 @@ public class Tour {
     }
 
 
-    
     public void delete() {
 
         List<String> args = new ArrayList<>();
-        args.add(this.id+"");
+        args.add(this.id + "");
         con.executeUpdate("DELETE FROM Tour WHERE id = ? ", args);
         System.out.println("Success");
 
@@ -145,18 +144,18 @@ public class Tour {
     }
 
 
-   public static Tour getTourClass(ResultSet result) throws SQLException {
+    public static Tour getTourClass(ResultSet result) throws SQLException {
 
         int id = result.getInt("id");
         String name = result.getString("name");
 
         //Manel p = new Manel(Person.get(id));
-         Tour p = new Tour();
+        Tour p = new Tour();
         p.setId(id);
         p.setName(name);
-       return p;
+        return p;
 
-   }
+    }
 
 
    /* public List<Ticket> getTickets() {
@@ -187,43 +186,39 @@ public class Tour {
     }
 
 
-
-            //ok  Relation_Person_Manel
-        //"select b.* from Relation_Tour_Monument as a inner join Monument as b on a.monument_id = b.id where a.tour_id = " + this.id;
+    //ok  Relation_Person_Manel
+    //"select b.* from Relation_Tour_Monument as a inner join Monument as b on a.monument_id = b.id where a.tour_id = " + this.id;
 
     public List<Monument> getMonuments() {
 
         String query = String.format("select b.* from Relation_Tour_Monument as a inner join Monument as b on a.monument_id = b.id where a.tour_id = " + this.id);
         ResultSet result = con.executeQuery(query);
         List<Monument> lista = new ArrayList<>();
-            try {
-                while (result.next()) {
+        try {
+            while (result.next()) {
 
-                    Monument p = (Monument) Monument.getMonumentClass(result);
-                    lista.add(p);
-                }
-                return lista;
-
-            } catch (SQLException e) {
-                e.printStackTrace();
+                Monument p = (Monument) Monument.getMonumentClass(result);
+                lista.add(p);
             }
+            return lista;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
-    public void addMonument(Monument monument){
-        String query = String.format("Insert into Relation_Tour_Monument(tour_id, monument_id) values (%d, %d)",this.id,monument.getId());
+    public void addMonument(Monument monument) {
+        String query = String.format("Insert into Relation_Tour_Monument(tour_id, monument_id) values (%d, %d)", this.id, monument.getId());
 
         con.executeUpdate(query);
     }
 
-    public void removeMonument(Monument monument){
-        String query = String.format("Delete from Relation_Tour_Monument where tour_id = %d and  monument_id = %d",this.id,monument.getId());
+    public void removeMonument(Monument monument) {
+        String query = String.format("Delete from Relation_Tour_Monument where tour_id = %d and  monument_id = %d", this.id, monument.getId());
 
         con.executeUpdate(query);
     }
-
-
-
 
 
     @Override

@@ -12,6 +12,7 @@ import static spark.Spark.*;
 
 public class AndroidEndPoints {
 
+    public static int VERSION = 0;
     private static User validateUser(String token) {
 
         System.out.println("TOKEN");
