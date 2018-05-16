@@ -130,7 +130,11 @@ public class LoginActivity extends AppCompatActivity {
 
         JSONObject postParams = new JSONObject();
         postParams.put(LoginActivity.USERNAME, userName);
-        postParams.put(LoginActivity.TICKET, Integer.parseInt(ticketNumber));
+        try{
+            postParams.put(LoginActivity.TICKET, Integer.parseInt(ticketNumber));
+        } catch (NumberFormatException e){
+            e.printStackTrace();
+        }
         postParams.put(LoginActivity.RANDOM, randInt);
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGIN, postParams, new Response.Listener<JSONObject>() {
