@@ -181,20 +181,40 @@ public class AndroidEndPoints {
 
             if (user == null)
                 return "{" +
-                        "\"error\" : " + "invalid user"  +
+                        "\"error\" : " + "invalid user" +
                         "}";
-
 
             JsonElement body = new JsonParser().parse(req.body());
             System.out.println(body);
             String questionID = body.getAsJsonObject().get("questionID").getAsString();
+
+            boolean alreadyAnswered = !QuizResponse.where("answer_id = " + questionID).isEmpty();
+
+            if (alreadyAnswered) {
+                return "{" +
+                        "\"error\" : " + "Already Answered" +
+                        "}";
+            }
+
+
             String answerID = body.getAsJsonObject().get("answerID").getAsString();
 
+            Answer answer = Answer.get(Integer.parseInt(answerID));
+            Question question = Question.get(Integer.parseInt(questionID));
+
+            QuizResponse quizResponse = new QuizResponse();
+            quizResponse.setTime(0);
+            quizResponse.setCorrect(answer.getCorrect());
+            quizResponse.setDate(new Date());
+            quizResponse.setScore(answer.getCorrect() * 100);
+            quizResponse.save();
+            quizResponse.setUser(user);
+            quizResponse.setQuiz(question.getQuiz());
+            quizResponse.setQuestion(question);
 
             return "{" +
-                    "\"error\" : " + "empty"  +
+                    "\"error\" : " + "empty" +
                     "}";
-
 
         });
 

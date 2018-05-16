@@ -28,6 +28,8 @@ public class Application {
         port(1234);
         staticFiles.externalLocation("src/resources/public/");
 
+        secure("src/keystore.jks", "mestrado", null , null);
+
         // Configure freemarker engine
         FreemarkerEngine engine = new FreemarkerEngine("src/resources/templates");
 

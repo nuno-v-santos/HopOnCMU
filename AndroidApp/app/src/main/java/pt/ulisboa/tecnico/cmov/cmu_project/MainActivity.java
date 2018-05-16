@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.cmov.cmu_project;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -125,6 +126,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(LoginActivity.SESSION_TOKEN);
         editor.apply();
+
+        DatabaseHelper.getInstance(getApplicationContext()).deleteDataBase(this.getApplicationContext());
+
         if (!sessionToken.equals("")) {
             JSONObject jsonParams = new JSONObject();
             JsonObjectRequest myRequest = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGOUT, jsonParams,
