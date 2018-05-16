@@ -57,7 +57,7 @@ public class MonumentListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        this.data = DatabaseHelper.getInstance(getContext()).buildMonumentsFromDB();
+        this.data = DatabaseHelper.getInstance(getContext().getApplicationContext()).buildMonumentsFromDB();
         this.adapter.clear();
         this.adapter.addAll(this.data);
         this.adapter.notifyDataSetChanged();

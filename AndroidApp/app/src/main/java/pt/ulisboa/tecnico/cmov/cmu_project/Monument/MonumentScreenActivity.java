@@ -52,7 +52,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
         this.monData = (MonumentData) intent.getSerializableExtra(MONUMENT_DATA);
         this.updateUIWithMonumentInfo();
 
-        if (DatabaseHelper.getInstance(getBaseContext()).questionForMonumentDownload(this.monData.getMonumentID())) {
+        if (DatabaseHelper.getInstance(getApplicationContext()).questionForMonumentDownload(this.monData.getMonumentID())) {
 
             Button button = findViewById(R.id.btnDownloadQuiz);
             button.setText(R.string.play_quiz);
@@ -85,7 +85,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
         //String monDataWifiId = this.monData.getWifiId();
 
         final int monID = this.monData.getMonumentID();
-        DatabaseHelper db = DatabaseHelper.getInstance(getBaseContext());
+        DatabaseHelper db = DatabaseHelper.getInstance(getApplicationContext());
 
         if (db.monQuestionAnswered(monID)) {
             Toast.makeText(getBaseContext(), R.string.quiz_answered, Toast.LENGTH_SHORT).show();
@@ -94,7 +94,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
 
 
         if (db.questionForMonumentDownload(monID)) {
-            DatabaseHelper.getInstance(getBaseContext()).updateMonumentStatus(this.monData.getMonumentID(), Monument.QUIZ);
+            DatabaseHelper.getInstance(getApplicationContext()).updateMonumentStatus(this.monData.getMonumentID(), Monument.QUIZ);
             startQuizActivity(monID);
 
         } else if (!db.questionForMonumentDownload(monID)) {
@@ -109,7 +109,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
     private void startQuizActivity(int monumentID) {
 
         MonumentScreenActivity.this.quizQuestions =
-                DatabaseHelper.getInstance(getBaseContext()).buildQuizQuestionFromDB(monumentID);
+                DatabaseHelper.getInstance(getApplicationContext()).buildQuizQuestionFromDB(monumentID);
 
         Intent intent = new Intent(getBaseContext(), QuizActivity.class);
         intent.putExtra(QuizActivity.QUIZ_QUESTIONS, quizQuestions);
@@ -132,7 +132,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
         String question = questionObj.getString("question");
         int questionID = questionObj.getInt("id");
         JSONArray answers = questionObj.getJSONArray("answers");
-        DatabaseHelper dbHelper = DatabaseHelper.getInstance(getBaseContext());
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance(getApplicationContext());
         dbHelper.insertQuestion(questionID, monumentID, question, 0);
 
         for (int j = 0; j < answers.length(); j++) {
