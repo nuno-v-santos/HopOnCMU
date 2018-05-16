@@ -1,9 +1,6 @@
 package EndPoints;
 
-import Model.Answer;
-import Model.Quiz;
-import Model.QuizResponse;
-import Model.User;
+import Model.*;
 import com.google.gson.Gson;
 import utils.FreemarkerEngine;
 
@@ -45,8 +42,8 @@ public class QuizresponseEndPoints {
             model.put("quiz", Quiz.all());
             model.put("quizresponseUser", quizresponse.getUser() == null ? new User() : quizresponse.getUser());
             model.put("user", User.all());
-            model.put("quizresponseAnswer", quizresponse.getAnswer() == null ? new Answer() : quizresponse.getAnswer());
-            model.put("answer", Answer.all());
+            model.put("quizresponseAnswer", quizresponse.getQuestion() == null ? new Answer() : quizresponse.getQuestion());
+            model.put("answer", Question.all());
             return engine.render(model, "/quizresponse/update.html");
 
         });
@@ -65,7 +62,7 @@ public class QuizresponseEndPoints {
             quizresponse.save();
             quizresponse.setQuiz(Quiz.get(Integer.parseInt(request.queryParams("quizId"))));
             quizresponse.setUser(User.get(Integer.parseInt(request.queryParams("userId"))));
-            quizresponse.setAnswer(Answer.get(Integer.parseInt(request.queryParams("answerId"))));
+            quizresponse.setQuestion(Question.get(Integer.parseInt(request.queryParams("answerId"))));
             response.redirect("/quizresponse/list?id=" + request.queryParams("id"));
 
             return "";

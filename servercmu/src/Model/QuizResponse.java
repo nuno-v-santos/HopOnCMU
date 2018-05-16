@@ -262,16 +262,16 @@ public class QuizResponse {
 
     }
 
-    public Answer getAnswer() {
+    public Question getQuestion() {
         // select * from User as a inner join QuizResponse as b on a.id = b.user_id where b.id = this.id;
 
-        String query = String.format("select a.* from Answer as a inner join QuizResponse as b on a.id = b.answer_id where b.id =" + this.id);
+        String query = String.format("select a.* from Question as a inner join QuizResponse as b on a.id = b.answer_id where b.id =" + this.id);
         ResultSet result = con.executeQuery(query);
 
         try {
             while (result.next()) {
 
-                Answer p = (Answer) Answer.getAnswerClass(result);
+                Question p = (Question) Question.getQuestionClass(result);
                 return p;
             }
 
@@ -283,7 +283,7 @@ public class QuizResponse {
 
     }
 
-    public void setAnswer(Answer answer) {
+    public void setQuestion(Question answer) {
 
         String query = String.format("Update %s set answer_id = '%d'  where id = %d", "QuizResponse", answer != null ? answer.getId() : -1, this.id);
         con.executeUpdate(query);
