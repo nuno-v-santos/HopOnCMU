@@ -1,8 +1,15 @@
 package pt.ulisboa.tecnico.cmov.cmu_project;
 
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Messenger;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -29,31 +36,27 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
-import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
+import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
+import pt.inesc.termite.wifidirect.SimWifiP2pManager.PeerListListener;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MainFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.MonumentListFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.Ranking.RankingFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 
 import pt.inesc.termite.wifidirect.*;
+import pt.ulisboa.tecnico.cmov.cmu_project.Termite.SimWifiP2pBroadcastReceiver;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
 
     private String userName;
-
+    public static final String TAG = "peerscanner";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SimWifiP2pBroadcast a = new SimWifiP2pBroadcast();
-        SimWifiP2pManager mManager = null;
-        SimWifiP2pManager.Channel mChannel = null;
-        SimWifiP2pSocketServer mSrvSocket = null;
-        SimWifiP2pSocket mCliSocket = null;
 
         Intent intent = getIntent();
         this.userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getMonuments();
 
     }
+
 
     @Override
     public void onBackPressed() {
@@ -268,5 +272,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 }

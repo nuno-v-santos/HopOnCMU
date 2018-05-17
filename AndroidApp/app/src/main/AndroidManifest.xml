@@ -29,7 +29,6 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Monument.MonumentScreenActivity" />
         <activity android:name=".Quiz.QuizActivity" />
-        <activity android:name=".Termite.PeerScannerActivity" />
 
         <service android:name="pt.inesc.termite.wifidirect.service.SimWifiP2pService" />
 
