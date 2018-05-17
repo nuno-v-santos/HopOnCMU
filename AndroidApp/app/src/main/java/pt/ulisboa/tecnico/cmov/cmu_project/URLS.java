@@ -7,7 +7,7 @@ package pt.ulisboa.tecnico.cmov.cmu_project;
 public class URLS {
 
     //private static final String ROOT_URL = "http://194.210.159.185:1234/";
-    public static final String SERVER_IP = "10.20.233.242";
+    public static final String SERVER_IP = "10.0.2.2";
     private static final String ROOT_URL = "https://" + SERVER_IP + ":1234/";
 
     public static final String URL_REGISTER = ROOT_URL + "register";
@@ -19,7 +19,5 @@ public class URLS {
     public static final String URL_POST_USER_ANSWERS = ROOT_URL + "android/userAnswers/";
     public static final String URL_CHECK_VERSION = ROOT_URL + "android/version/";
     public static final String URL_SYNC = ROOT_URL + "android/sync/";
-    public static final String URL_POST_ANSWERS_POOL = ROOT_URL + "android/sync/answers/";
-    public static final String URL_POST_EVENTS_POOL = ROOT_URL + "android/sync/events/";
 
 }

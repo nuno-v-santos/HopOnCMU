@@ -7,12 +7,15 @@ import android.widget.Toast;
 
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
 import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
+import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.Monument;
+import pt.ulisboa.tecnico.cmov.cmu_project.MainActivity;
+import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentScreenActivity;
 
 public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
 
-    private PeerScannerActivity mActivity;
+    private MonumentScreenActivity mActivity;
 
-    public SimWifiP2pBroadcastReceiver(PeerScannerActivity activity) {
+    public SimWifiP2pBroadcastReceiver(MonumentScreenActivity activity) {
         super();
         this.mActivity = activity;
     }
