@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.cmov.cmu_project;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -12,8 +11,10 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -30,15 +31,19 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
+import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MainFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.MonumentListFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.Ranking.RankingFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 
+import pt.inesc.termite.wifidirect.*;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
 
-    private String token;
+    private String userName;
 
 
     @Override
@@ -46,11 +51,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SimWifiP2pBroadcast a = new SimWifiP2pBroadcast();
+        SimWifiP2pManager mManager = null;
+        SimWifiP2pManager.Channel mChannel = null;
+        SimWifiP2pSocketServer mSrvSocket = null;
+        SimWifiP2pSocket mCliSocket = null;
 
-        //get the shared prefs
-        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
-        this.token = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
-        //  sync();
+        Intent intent = getIntent();
+        this.userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
+
 
         Intent serviceInt = new Intent(this, AnswerSenderService.class);
         startService(serviceInt);
@@ -78,6 +87,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        /*if (userName != null) {
+            TextView usernameText = findViewById(R.id.username);
+            usernameText.setText(userName);
+        }*/
 
         if (DatabaseHelper.getInstance(getBaseContext()).tableIsEmpty(DatabaseHelper.TABLE_MONUMENTS))
             getMonuments();
@@ -116,50 +129,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
-
-    private void sync() {
-        if (token != null && !token.equals("")) {
-            JsonObjectRequest myRequest = new JsonObjectRequest(Request.Method.GET, URLS.URL_SYNC, null,
-
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            System.out.println(response.toString());
-                            DatabaseHelper.getInstance(getApplicationContext()).deleteDataBase(getApplicationContext());
-                            try {
-                                JSONArray result = response.getJSONArray("monuments");
-
-                                int i = 0;
-                                while (!result.isNull(0)) {
-                                    JSONObject monumentObj = result.getJSONObject(i++);
-                                    addMonumentToDB(monumentObj.getJSONObject("monument"), DatabaseHelper.getInstance(getApplicationContext()));
-                                }
-
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            error.printStackTrace();
-                        }
-                    }) {
-
-                @Override
-                public Map<String, String> getHeaders() {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("token", token);
-                    return headers;
-                }
-            };
-
-            VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(myRequest);
-        }
-    }
-
     /**
      * Function that logs out the user.
      */
@@ -169,9 +138,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(LoginActivity.SESSION_TOKEN);
         editor.apply();
-
-        DatabaseHelper.getInstance(getApplicationContext()).deleteDataBase(this.getApplicationContext());
-
         if (!sessionToken.equals("")) {
             JSONObject jsonParams = new JSONObject();
             JsonObjectRequest myRequest = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGOUT, jsonParams,
@@ -232,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, URLS.URL_GET_MONUMENTS, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
+                Log.d("response",response.toString());
                 for (int i = 0; i < response.length(); i++) {
                     try {
                         addMonumentToDB(response.getJSONObject(i), databaseHelper);
@@ -245,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
                 Toast.makeText(MainActivity.this, R.string.server_connection_error, Toast.LENGTH_SHORT).show();
 
             }

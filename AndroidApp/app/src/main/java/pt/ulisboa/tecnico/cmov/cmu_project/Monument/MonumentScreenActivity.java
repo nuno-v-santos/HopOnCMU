@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmov.cmu_project.Monument;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,6 +33,7 @@ import pt.ulisboa.tecnico.cmov.cmu_project.LoginActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizQuestion;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
+import pt.ulisboa.tecnico.cmov.cmu_project.Termite.PeerScannerActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
 import pt.ulisboa.tecnico.cmov.cmu_project.VolleySingleton;
 
@@ -103,9 +105,36 @@ public class MonumentScreenActivity extends AppCompatActivity {
             Toast.makeText(getBaseContext(), R.string.txt_down, Toast.LENGTH_SHORT).show();
             this.downloadQuestions();
 
+        } else if (!dbHelper.questionForMonumentDownload(monID)) {
+            //scans nearby peers to check if near the monument
+            Intent i = new Intent(this, pt.ulisboa.tecnico.cmov.cmu_project.Termite.PeerScannerActivity.class);
+            startActivityForResult(i, 1);
 
         }
+    }
 
+    /**
+     peerScan activity returns the nearby peers
+     Here it checks if the monument is one of the nearby
+     If it is then it downloads the quiz
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 1) {
+            if(resultCode == Activity.RESULT_OK){
+                String result = data.getStringExtra("peers");
+                String[] peersScanned = result.split(",");
+                for (String peer : peersScanned){
+                    if (peer.equals(this.monData.getWifiId())){
+                        Toast.makeText(getBaseContext(), R.string.txt_down, Toast.LENGTH_SHORT).show();
+                        this.downloadQuestions();
+                        return;
+                    }
+                }
+                Toast.makeText(getBaseContext(), "Not in the monument", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void startQuizActivity(int monumentID) {

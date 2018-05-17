@@ -7,9 +7,21 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
         <item name="android:windowNoTitle">true</item>   <!-- //this -->
     </style>
+
+    <style name="AppBaseTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
 
     <style name="hoponcmu">
         <item name="android:textSize">
@@ -20,16 +32,10 @@
         </item>
         <item name="android:fontFamily">@font/dancing_script</item>
     </style>
-
-    <style name="AppBaseTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
+    
 
     <style name="AppBaseTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppBaseTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-
 
 </resources>

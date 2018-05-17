@@ -108,6 +108,7 @@ public class RegisterActivity extends AppCompatActivity {
                         Intent intent = new Intent(getBaseContext(), MainActivity.class);
                         intent.putExtra(SEND_USERNAME,userName);
                         startActivity(intent);
+                        finish();
                     }
                 } catch (JSONException e) {
                     Toast.makeText(getBaseContext(), R.string.server_connection_error, Toast.LENGTH_LONG).show();

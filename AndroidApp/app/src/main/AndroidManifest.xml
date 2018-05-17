@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="pt.ulisboa.tecnico.cmov.cmu_project">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -12,7 +13,8 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppBaseTheme">
+        android:theme="@style/AppTheme"
+        tools:replace="android:icon">
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,9 +26,11 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppBaseTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Monument.MonumentScreenActivity" />
         <activity android:name=".Quiz.QuizActivity" />
+        <activity android:name=".Termite.PeerScannerActivity" />
+        <service android:name="pt.inesc.termite.wifidirect.service.SimWifiP2pService" />
 
         <service
             android:name=".SendQuestions"

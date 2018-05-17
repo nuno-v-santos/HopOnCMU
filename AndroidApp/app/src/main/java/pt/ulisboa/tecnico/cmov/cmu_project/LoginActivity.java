@@ -40,9 +40,11 @@ public class LoginActivity extends AppCompatActivity {
     public final static String SESSION_TOKEN = "token";
     public final static String SEND_USERNAME = "SEND_USERNAME";
     private SharedPreferences.Editor editor;
+
     final public static String RANDOM = "random";
     final public static String USERNAME = "username";
     final public static String TICKET = "ticket";
+    private String userName = "Username";
 
 
     @Override
@@ -58,6 +60,7 @@ public class LoginActivity extends AppCompatActivity {
             //TODO: check if session is still valid
             Toast.makeText(this, "Logged in", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.putExtra(SEND_USERNAME, userName);
             startActivity(intent);
             finish();
             return;
@@ -139,7 +142,11 @@ public class LoginActivity extends AppCompatActivity {
 
         JSONObject postParams = new JSONObject();
         postParams.put(LoginActivity.USERNAME, userName);
-        postParams.put(LoginActivity.TICKET, Integer.parseInt(ticketNumber));
+        try{
+            postParams.put(LoginActivity.TICKET, Integer.parseInt(ticketNumber));
+        } catch (NumberFormatException e){
+            e.printStackTrace();
+        }
         postParams.put(LoginActivity.RANDOM, randInt);
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGIN, postParams, new Response.Listener<JSONObject>() {
