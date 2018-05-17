@@ -14,6 +14,13 @@ public class MonumentData implements Serializable {
     public static final String QUIZ = "Quiz";
 
 
+    public static final String INITIAL = "INITIAL";
+    public static final String DOWNLOADED = "DOWNLOADED";
+    public static final String STARTED = "STARTED";
+    public static final String INTERRUPTED = "INTERRUPTED";
+    public static final String ANSWERED = "ANSWERED";
+
+
     private String status = NOT_VISITED;
     private static final long serialVersionUID = 834457624276534179L;
     private String imURL;
@@ -22,6 +29,7 @@ public class MonumentData implements Serializable {
     private String wifiId;
 
     private int monumentID;
+    private String quizStatus;
 
     public MonumentData(String imURL, String monumentName, String monumentDescription, String wifiId, int monumentID) {
         this.imURL = imURL;
@@ -87,5 +95,13 @@ public class MonumentData implements Serializable {
     public int hashCode() {
 
         return Objects.hash(imURL, monumentName, monumentDescription, wifiId);
+    }
+
+    public void setQuizStatus(String quizStatus) {
+        this.quizStatus = quizStatus;
+    }
+
+    public String getQuizStatus() {
+        return quizStatus;
     }
 }

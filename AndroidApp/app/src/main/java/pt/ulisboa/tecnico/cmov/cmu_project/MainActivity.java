@@ -47,11 +47,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
 
-
         //get the shared prefs
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
         this.token = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
-        sync();
+        //  sync();
 
         Intent serviceInt = new Intent(this, AnswerSenderService.class);
         startService(serviceInt);
@@ -126,7 +125,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void onResponse(JSONObject response) {
                             System.out.println(response.toString());
+                            DatabaseHelper.getInstance(getApplicationContext()).deleteDataBase(getApplicationContext());
+                            try {
+                                JSONArray result = response.getJSONArray("monuments");
 
+                                int i = 0;
+                                while (!result.isNull(0)) {
+                                    JSONObject monumentObj = result.getJSONObject(i++);
+                                    addMonumentToDB(monumentObj.getJSONObject("monument"), DatabaseHelper.getInstance(getApplicationContext()));
+                                }
+
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
                     },
                     new Response.ErrorListener() {
@@ -203,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String wifiId = jObject.getString("wifiId");
         int id = jObject.getInt("id");
         String sampleDesc = getResources().getString(R.string.sample_desc);
-        databaseHelper.insertMonument(id, MonumentData.NOT_VISITED, imURL, name, sampleDesc, wifiId);
+        databaseHelper.insertMonument(id, MonumentData.NOT_VISITED, MonumentData.INITIAL, imURL, name, sampleDesc, wifiId);
     }
 
 

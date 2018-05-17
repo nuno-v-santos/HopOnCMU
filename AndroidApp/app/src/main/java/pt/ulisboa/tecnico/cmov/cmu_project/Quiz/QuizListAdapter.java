@@ -20,14 +20,11 @@ public class QuizListAdapter extends ArrayAdapter<String> {
 
     private final Activity context;
     private final ArrayList<String> itemNames;
-    private final String[] itemAlpha;
 
-    public QuizListAdapter(Activity context, ArrayList<String> itemNames, String[] itemAlpha) {
+    public QuizListAdapter(Activity context, ArrayList<String> itemNames) {
         super(context, R.layout.question_btn_layout, itemNames);
-        // TODO Auto-generated constructor stub
         this.context = context;
         this.itemNames = itemNames;
-        this.itemAlpha = itemAlpha;
     }
 
     public View getView(int position, View view, ViewGroup parent) {
@@ -36,7 +33,8 @@ public class QuizListAdapter extends ArrayAdapter<String> {
         TextView label = rowView.findViewById(R.id.monumentNameListAdapter);
         TextView a = rowView.findViewById(R.id.a);
         label.setText(itemNames.get(position));
-        a.setText(this.itemAlpha[position]);
+        char alfabeth = (char) (65 + position);
+        a.setText(alfabeth + "");
         return rowView;
 
     }

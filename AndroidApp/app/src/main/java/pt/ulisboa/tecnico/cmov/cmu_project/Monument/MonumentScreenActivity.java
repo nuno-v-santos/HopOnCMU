@@ -41,6 +41,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
     private MonumentData monData;
     public static final String MONUMENT_DATA = "MONUMENT_DATA";
     private ArrayList<QuizQuestion> quizQuestions = new ArrayList<>();
+    private DatabaseHelper dbHelper;
 
 
     @Override
@@ -49,6 +50,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_monument_screen);
         Intent intent = getIntent();
+        dbHelper = DatabaseHelper.getInstance(getApplicationContext());
         this.monData = (MonumentData) intent.getSerializableExtra(MONUMENT_DATA);
         this.updateUIWithMonumentInfo();
 
@@ -85,19 +87,19 @@ public class MonumentScreenActivity extends AppCompatActivity {
         //String monDataWifiId = this.monData.getWifiId();
 
         final int monID = this.monData.getMonumentID();
-        DatabaseHelper db = DatabaseHelper.getInstance(getApplicationContext());
 
-        if (db.monQuestionAnswered(monID)) {
+
+        if (dbHelper.monQuestionAnswered(monID)) {
             Toast.makeText(getBaseContext(), R.string.quiz_answered, Toast.LENGTH_SHORT).show();
             return;
         }
 
 
-        if (db.questionForMonumentDownload(monID)) {
+        if (dbHelper.questionForMonumentDownload(monID)) {
             DatabaseHelper.getInstance(getApplicationContext()).updateMonumentStatus(this.monData.getMonumentID(), Monument.QUIZ);
             startQuizActivity(monID);
 
-        } else if (!db.questionForMonumentDownload(monID)) {
+        } else if (!dbHelper.questionForMonumentDownload(monID)) {
             Toast.makeText(getBaseContext(), R.string.txt_down, Toast.LENGTH_SHORT).show();
             this.downloadQuestions();
 
@@ -132,7 +134,6 @@ public class MonumentScreenActivity extends AppCompatActivity {
         String question = questionObj.getString("question");
         int questionID = questionObj.getInt("id");
         JSONArray answers = questionObj.getJSONArray("answers");
-        DatabaseHelper dbHelper = DatabaseHelper.getInstance(getApplicationContext());
         dbHelper.insertQuestion(questionID, monumentID, question, 0);
 
         for (int j = 0; j < answers.length(); j++) {
@@ -167,6 +168,8 @@ public class MonumentScreenActivity extends AppCompatActivity {
                         }
                     }
 
+
+                    dbHelper.updateMonumentQuizStatus(monumentID, MonumentData.DOWNLOADED);
                     Button btn = findViewById(R.id.btnDownloadQuiz);
                     btn.setText(R.string.play_quiz);
 
@@ -176,7 +179,6 @@ public class MonumentScreenActivity extends AppCompatActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Toast.makeText(MonumentScreenActivity.this, R.string.server_connection_error, Toast.LENGTH_SHORT).show();
-
                 }
 
             }) {
@@ -201,6 +203,7 @@ public class MonumentScreenActivity extends AppCompatActivity {
      * @param monSSID
      * @return
      */
+
     private Boolean checkNetworkSSDI(String monSSID) {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = wifiManager.getConnectionInfo();

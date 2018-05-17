@@ -29,6 +29,7 @@ import java.util.Map;
 import pt.ulisboa.tecnico.cmov.cmu_project.DatabaseHelper;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.Monument;
 import pt.ulisboa.tecnico.cmov.cmu_project.LoginActivity;
+import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
 import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
 import pt.ulisboa.tecnico.cmov.cmu_project.UserAnswers;
@@ -39,6 +40,7 @@ public class QuizActivity extends AppCompatActivity {
     private static final String QUESTION_ID = "questionID";
     private static final String ANSWER_ID = "answerID";
 
+
     /* information passing tags */
     public static final String QUIZ_QUESTIONS = "QUIZ_QUESTIONS";
     public static final String MON_ID = "MON_ID";
@@ -46,11 +48,11 @@ public class QuizActivity extends AppCompatActivity {
 
     private int imgID = 0; // resource ID monument image
     private int questionNumber = 0; // question number to present to user
+    private DatabaseHelper db;
 
     private ArrayList<QuizQuestion> quizQuestions; // question list
     private QuizListAdapter itemsAdapter; // list adapter that extends o ArrayAdapter<String>
     private ArrayList<String> adapterItens = new ArrayList<>(); // strings list of possible answers
-    private String[] alphabet; //alphabet strings for visual effects A - answer ss
     private ListView listView;
 
     private QuizQuestion currentQuestion; // question that the user is answering
@@ -58,78 +60,24 @@ public class QuizActivity extends AppCompatActivity {
     private boolean prev_screen = false;
     private int monID; // monument ID
 
-    private Thread timeCounter = new Thread();
-    private long timeHelper = 0L;
-    private int sleep = 500;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_quiz);
+        db = DatabaseHelper.getInstance(getApplicationContext());
 
         /*get data from previous activity*/
         Intent intent = getIntent();
         this.quizQuestions = (ArrayList<QuizQuestion>) intent.getSerializableExtra(QuizActivity.QUIZ_QUESTIONS);
         this.monID = intent.getIntExtra(QuizActivity.MON_ID, 0);
-        this.alphabet = new String[getMaxNumberAnswers()];
+        db.updateMonumentStatus(monID, MonumentData.VISITED);
+        db.updateMonumentQuizStatus(monID, MonumentData.STARTED);
 
-        int j = 0;
-        for (char c = 'A'; c <= 'Z'; c++) {
-            if (j == quizQuestions.size() + 1)
-                break;
 
-            this.alphabet[j] = "" + c;
-            j++;
-        }
+        this.setInitialState();
 
-        this.setInitialState(); // load question to interface
-        DatabaseHelper.getInstance(getBaseContext()).updateMonumentStatus(monID, Monument.VISITED);
-        this.buildThread();
-    }
-
-    private long getElapsedTime() {
-
-        return (this.timeHelper * this.sleep / 1000);
-    }
-
-    /**
-     * Function that instatiates
-     */
-    private void buildThread() {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-
-                while (true) {
-                    try {
-                        Thread.sleep(QuizActivity.this.sleep);
-                        QuizActivity.this.timeHelper++;
-                    } catch (InterruptedException e) {
-                        break;
-                    }
-                }
-            }
-        };
-
-        this.timeCounter = new Thread(r);
-        this.timeCounter.start();
-    }
-
-    /**
-     * Function that return the max number of answers
-     *
-     * @return the max number of responses of all questions
-     */
-    private int getMaxNumberAnswers() {
-        int v = -1;
-        for (QuizQuestion q : this.quizQuestions) {
-            if (v < q.getAnswersList().size())
-                v = q.getAnswersList().size();
-        }
-
-        return v;
     }
 
     /**
@@ -148,7 +96,7 @@ public class QuizActivity extends AppCompatActivity {
 
             this.adapterItens = new ArrayList<>();
             this.currentQuestion = this.quizQuestions.get(this.questionNumber);
-            this.itemsAdapter = new QuizListAdapter(this, this.adapterItens, this.alphabet);
+            this.itemsAdapter = new QuizListAdapter(this, this.adapterItens);
             this.listView = findViewById(R.id.lstViewQuiz);
             this.updateItemsAdapterView();
 
@@ -161,40 +109,28 @@ public class QuizActivity extends AppCompatActivity {
                     DatabaseHelper.getInstance(getBaseContext()).updateQuestionAnswered(currentQuestion.getQuestionID());
 
                     if (QuizActivity.this.questionNumber <= QuizActivity.this.quizQuestions.size()) {
-                        listView.getChildAt(position).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                        for (int i = 0; i < QuizActivity.this.adapterItens.size(); i++) {
 
-                            if (i != position) {
+                        //marcar se errou ou acertou
+                        if (QuizActivity.this.selectedRightOption(listView.getItemAtPosition(position).toString()))
+                            listView.getChildAt(position).setBackgroundColor(Color.GREEN);
+                        else
+                            listView.getChildAt(position).setBackgroundColor(Color.RED);
 
-                                listView.getChildAt(i).setBackgroundColor(Color.RED);
-                            }
 
-                            if (QuizActivity.this.selectedRightOption(listView.getItemAtPosition(i).toString())) {
-
-                                listView.getChildAt(i).setBackgroundColor(Color.GREEN);
-                            }
-                        }
+                        //todo: add answer to cache
 
                         QuizActivity.this.listView.setEnabled(false);
                         QuizActivity.this.questionsAnswered = true;
                         if (questionNumber + 1 == quizQuestions.size()) {
-                            QuizActivity.this.timeCounter.interrupt();
+                            // QuizActivity.this.timeCounter.interrupt();
+                            db.updateMonumentQuizStatus(monID, MonumentData.ANSWERED);
                             Button button = findViewById(R.id.btnNextQuestion);
                             button.setText(R.string.go_back);
                             prev_screen = true;
+                        } else {
+                            questionsAnswered = true;
                         }
 
-                        try {
-
-                            String selectedOption = listView.getItemAtPosition(position).toString();
-                            int qID = currentQuestion.getQuestionID();
-                            HashMap<String, Integer> map = currentQuestion.getAnswersID();
-                            JsonObjectRequest j = buildRequest(qID, map.get(selectedOption));
-                            UserAnswers.getInstance().addJsonRequest(j);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
                     }
                 }
             });
@@ -247,7 +183,6 @@ public class QuizActivity extends AppCompatActivity {
             return;
         }
 
-        this.questionNumber++;
         if (this.questionsAnswered && this.questionNumber < this.quizQuestions.size()) {
 
             this.currentQuestion = this.quizQuestions.get(QuizActivity.this.questionNumber++);
@@ -263,44 +198,6 @@ public class QuizActivity extends AppCompatActivity {
     }
 
 
-    public JsonObjectRequest buildRequest(int questionID, int answerID) throws JSONException {
-
-        JSONObject postParams = new JSONObject();
-        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, this.MODE_PRIVATE);
-        final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
-
-        postParams.put(QUESTION_ID, "" + questionID);
-        postParams.put(ANSWER_ID, "" + answerID);
-
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST, URLS.URL_POST_USER_ANSWERS, postParams, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-
-
-            }
-
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getBaseContext(), R.string.server_connection_error, Toast.LENGTH_LONG).show();
-                error.printStackTrace();
-            }
-        })
-
-        {
-            @Override
-            public Map<String, String> getHeaders() {
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("token", sessionToken);
-                return headers;
-            }
-        };
-
-
-        return jsonObjReq;
-    }
-
-
     @Override
     public void finish() {
         super.finish();
@@ -310,6 +207,7 @@ public class QuizActivity extends AppCompatActivity {
     public void onDestroy() {
         // DatabaseHelper.getInstance(getBaseContext()).updateQuestionAnswered(currentQuestion.getQuestionID());
         // enviar para o servidor todas as respostas erradas talvez e tempos absurdos ???
+        db.updateMonumentQuizStatus(monID, MonumentData.INTERRUPTED);
         super.onDestroy();
 
     }

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.Monument;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizQuestion;
 
@@ -29,6 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Monument Table Columns
     private static final String KEY_MON_ID = "monumentId";
     private static final String KEY_STATUS = "status";
+    private static final String KEY_QUIZ_STATUS = "quizStatus";
     private static final String KEY_IMG_URL = "imgURL";
     private static final String KEY_MON_NAME = "monumentName";
     private static final String KEY_MON_DESC = "monumentDesc";
@@ -75,16 +77,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
         String CREATE_MONUMENT_TABLE = "CREATE TABLE " + TABLE_MONUMENTS + "(" +
-                KEY_MON_ID + " INTEGER PRIMARY KEY," + KEY_STATUS + " TEXT," + KEY_IMG_URL + " TEXT," +
-                KEY_MON_NAME + " TEXT," + KEY_MON_DESC + " TEXT," + KEY_WIFI_ID + " TEXT" + ")";
+                KEY_MON_ID + " INTEGER PRIMARY KEY,"
+                + KEY_STATUS + " TEXT,"
+                + KEY_IMG_URL + " TEXT,"
+                + KEY_MON_NAME + " TEXT,"
+                + KEY_QUIZ_STATUS + " TEXT,"
+                + KEY_MON_DESC + " TEXT,"
+                + KEY_WIFI_ID + " TEXT"
+                + ")";
 
         String CREATE_QUESTION_TABLE = "CREATE TABLE " + TABLE_QUESTIONS + "(" +
                 KEY_QUESTION_ID + " INTEGER PRIMARY KEY," +
                 KEY_MON_ID_FK + " INTEGER REFERENCES " + TABLE_MONUMENTS + "," +
-                KEY_QUESTION + " TEXT," + KEY_QUESTION_ANSWERED + " INTEGER" + ")";
+                KEY_QUESTION + " TEXT," +
+                KEY_QUESTION_ANSWERED + " INTEGER" + ")";
 
-        String CREATE_ANSWER_TABLE = "CREATE TABLE " + TABLE_ANSWERS + "(" + KEY_ANSWER_ID + " INTEGER PRIMARY KEY," +
-                KEY_QUESTION_ID_FK + " INTEGER REFERENCES " + TABLE_QUESTIONS + "," + KEY_ANSWER + " TEXT," + KEY_CORRECT + " INTEGER" + ")";
+        String CREATE_ANSWER_TABLE = "CREATE TABLE " + TABLE_ANSWERS + "(" +
+                KEY_ANSWER_ID + " INTEGER PRIMARY KEY," +
+                KEY_QUESTION_ID_FK + " INTEGER REFERENCES " + TABLE_QUESTIONS + "," +
+                KEY_ANSWER + " TEXT," +
+                KEY_CORRECT + " INTEGER" +
+                ")";
 
         sqLiteDatabase.execSQL(CREATE_MONUMENT_TABLE);
         sqLiteDatabase.execSQL(CREATE_QUESTION_TABLE);
@@ -137,7 +150,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param monDesc
      * @param wifiID
      */
-    public void insertMonument(int monumentID, String status, String imgURL, String monName,
+    public void insertMonument(int monumentID, String status, String quizStatus, String imgURL, String monName,
                                String monDesc, String wifiID) {
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -145,6 +158,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_MON_ID, monumentID);
         contentValues.put(KEY_STATUS, status);
+        contentValues.put(KEY_QUIZ_STATUS, quizStatus);
         contentValues.put(KEY_IMG_URL, imgURL);
         contentValues.put(KEY_MON_NAME, monName);
         contentValues.put(KEY_MON_DESC, monDesc);
@@ -182,6 +196,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String strFilter = KEY_MON_ID + "=" + monumentID;
         ContentValues args = new ContentValues();
         args.put(KEY_STATUS, status);
+        db.update(TABLE_MONUMENTS, args, strFilter, null);
+    }
+
+    /**
+     * Function that updates the monument status
+     *
+     * @param monumentID
+     * @param status
+     */
+    public void updateMonumentQuizStatus(int monumentID, String status) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String strFilter = KEY_MON_ID + "=" + monumentID;
+        ContentValues args = new ContentValues();
+        args.put(KEY_QUIZ_STATUS, status);
         db.update(TABLE_MONUMENTS, args, strFilter, null);
     }
 
@@ -240,12 +268,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void deleteDataBase(Context context) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-       boolean b = db.isReadOnly();
-        db.execSQL("delete from "+ TABLE_ANSWERS);
-        db.execSQL("delete from "+ TABLE_QUESTIONS);
-        db.execSQL("delete from "+ TABLE_MONUMENTS);
+        boolean b = db.isReadOnly();
+        db.execSQL("delete from " + TABLE_ANSWERS);
+        db.execSQL("delete from " + TABLE_QUESTIONS);
+        db.execSQL("delete from " + TABLE_MONUMENTS);
 
-       // context.getApplicationContext().deleteDatabase(DATABASE_NAME);
+        // context.getApplicationContext().deleteDatabase(DATABASE_NAME);
         System.out.println("Database has been deleted");
     }
 
@@ -261,13 +289,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         while (mCursor.moveToNext()) {
             int monID = mCursor.getInt(0);
-            String status = mCursor.getString(1);
-            String imURL = mCursor.getString(2);
-            String monName = mCursor.getString(3);
-            String monDesc = mCursor.getString(4);
-            String wifiID = mCursor.getString(2);
+            String status = mCursor.getString(mCursor.getColumnIndex(KEY_STATUS));
+            String quizStatus = mCursor.getString(mCursor.getColumnIndex(KEY_QUIZ_STATUS));
+            String imURL = mCursor.getString(mCursor.getColumnIndex(KEY_IMG_URL));
+            String monName = mCursor.getString(mCursor.getColumnIndex(KEY_MON_NAME));
+            String monDesc = mCursor.getString(mCursor.getColumnIndex(KEY_MON_DESC));
+            String wifiID = mCursor.getString(mCursor.getColumnIndex(KEY_WIFI_ID));
             MonumentData monumentData = new MonumentData(imURL, monName, monDesc, wifiID, monID);
             monumentData.setStatus(status);
+            monumentData.setQuizStatus(status);
 
             monumentDataList.add(monumentData);
         }
@@ -382,13 +412,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean monQuestionAnswered(int monID) {
         boolean res = false;
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + KEY_QUESTION_ANSWERED + " FROM " +
-                TABLE_QUESTIONS + " WHERE " + KEY_MON_ID_FK + " = "
+        Cursor cursor = db.rawQuery("SELECT " + KEY_QUIZ_STATUS + " FROM " +
+                TABLE_MONUMENTS + " WHERE " + KEY_MON_ID + " = "
                 + Integer.toString(monID), null);
 
         if (cursor.moveToFirst()) {
-            int a = cursor.getInt(0);
-            if (a == 1)
+            String a = cursor.getString(cursor.getColumnIndex(KEY_QUIZ_STATUS));
+            if (a.equals(MonumentData.ANSWERED) || a.equals(MonumentData.INTERRUPTED))
                 res = true;
         }
 

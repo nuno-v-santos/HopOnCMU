@@ -116,9 +116,16 @@ public class AndroidEndPoints {
                 quizQuestions.append("[");
 
                 List<Question> questions = quiz.getQuestions();
+                boolean firs = true;
 
                 for (Question question : questions) {
                     String answersString = gson.toJson(question.getAnswers());
+
+                    if (firs) {
+                        firs = false;
+                    } else {
+                        quizQuestions.append(",");
+                    }
 
                     quizQuestions.append(
                             "{" +
