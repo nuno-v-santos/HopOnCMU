@@ -44,7 +44,6 @@ import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.Ranking.RankingFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 
 import pt.inesc.termite.wifidirect.*;
-import pt.ulisboa.tecnico.cmov.cmu_project.Termite.SimWifiP2pBroadcastReceiver;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 

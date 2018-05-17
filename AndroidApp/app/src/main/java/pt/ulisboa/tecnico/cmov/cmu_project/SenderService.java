@@ -1,14 +1,23 @@
 package pt.ulisboa.tecnico.cmov.cmu_project;
 
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+
 import android.content.SharedPreferences;
+
+import android.content.ServiceConnection;
+import android.os.AsyncTask;
+
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Messenger;
 import android.os.Process;
+
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -26,19 +35,46 @@ import org.json.JSONObject;
 
 import java.net.InetAddress;
 import java.util.HashMap;
+
+import android.util.Log;
+import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import java.util.List;
 import java.util.Map;
 
+
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentScreenActivity;
+
+import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
+import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
+import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
+import pt.inesc.termite.wifidirect.SimWifiP2pManager;
+import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
+import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
+import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketManager;
+import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
+
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizAnswer;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizEvent;
 
 
-public class SenderService extends Service {
+public class SenderService extends Service implements SimWifiP2pManager.GroupInfoListener {
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
+    private SimWifiP2pManager mManager = null;
+    private SimWifiP2pManager.Channel mChannel = null;
+    private Messenger mService = null;
+    private SimWifiP2pSocketServer mSrvSocket = null;
+    private SimWifiP2pSocket mCliSocket = null;
+
 
     // Handler that receives messages from the thread
     public final class ServiceHandler extends Handler {
@@ -61,6 +97,7 @@ public class SenderService extends Service {
                 while (true) {
 
                     if (isHostReachable()) {
+                        Log.d("HOST REACHABLE","YES");
                         List<QuizAnswer> answers = db.getPoolQuizAnswers();
                         List<QuizEvent> events = db.getEventPool();
                         try {
@@ -71,6 +108,10 @@ public class SenderService extends Service {
                         }
                         System.out.println(answers);
                         System.out.println(events);
+                    } else {
+                        Log.d("HOST NOT REACHABLE","NO");
+                        Toast.makeText(getBaseContext(), "no access to server", Toast.LENGTH_SHORT).show();
+                        mManager.requestGroupInfo(mChannel, SenderService.this);
                     }
 
                     synchronized (this) {
@@ -192,8 +233,7 @@ public class SenderService extends Service {
          */
         private boolean isHostReachable() {
             try {
-                InetAddress.getByName(URLS.SERVER_IP).isReachable(3000);
-                return true;
+                return InetAddress.getByName(URLS.SERVER_IP).isReachable(3000);
             } catch (Exception e) {
                 return false;
             }
@@ -214,6 +254,14 @@ public class SenderService extends Service {
         // Get the HandlerThread's Looper and use it for our Handler
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
+
+        SimWifiP2pSocketManager.Init(getApplicationContext());
+
+        Intent i = new Intent(getApplicationContext(), SimWifiP2pService.class);
+        bindService(i, mConnection, Context.BIND_AUTO_CREATE);
+
+        new IncommingCommTask().executeOnExecutor(
+                AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
@@ -239,5 +287,133 @@ public class SenderService extends Service {
     @Override
     public void onDestroy() {
         Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
+    }
+
+
+
+
+    //Termite stuff
+
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        // callbacks for service binding, passed to bindService()
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mService = new Messenger(service);
+            mManager = new SimWifiP2pManager(mService);
+            mChannel = mManager.initialize(getApplication(), getMainLooper(), null);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
+            mManager = null;
+            mChannel = null;
+        }
+    };
+
+
+
+    /*
+	 * Asynctasks implementing message exchange
+	 */
+
+    public class IncommingCommTask extends AsyncTask<Void, String, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            Log.d("incomtask", "IncommingCommTask started (" + this.hashCode() + ").");
+
+            try {
+                mSrvSocket = new SimWifiP2pSocketServer(9876);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    SimWifiP2pSocket sock = mSrvSocket.accept();
+                    try {
+                        BufferedReader sockIn = new BufferedReader(
+                                new InputStreamReader(sock.getInputStream()));
+                        String st = sockIn.readLine();
+                        publishProgress(st);
+                        sock.getOutputStream().write(("\n").getBytes());
+                    } catch (IOException e) {
+                        Log.d("Error reading socket:", e.getMessage());
+                    } finally {
+                        sock.close();
+                    }
+                } catch (IOException e) {
+                    Log.d("Error socket:", e.getMessage());
+                    break;
+                    //e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+
+    }
+
+    public class OutgoingCommTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                mCliSocket = new SimWifiP2pSocket(params[0], 9876);
+            } catch (UnknownHostException e) {
+                return "Unknown Host:" + e.getMessage();
+            } catch (IOException e) {
+                return "IO error:" + e.getMessage();
+            }
+            return null;
+        }
+    }
+
+    public class SendCommTask extends AsyncTask<String, String, Void> {
+
+        @Override
+        protected Void doInBackground(String... msg) {
+            try {
+                mCliSocket.getOutputStream().write((msg[0] + "\n").getBytes());
+                BufferedReader sockIn = new BufferedReader(
+                        new InputStreamReader(mCliSocket.getInputStream()));
+                sockIn.readLine();
+                mCliSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mCliSocket = null;
+            return null;
+        }
+    }
+
+
+    @Override
+    public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
+                                     SimWifiP2pInfo groupInfo) {
+        // compile list of network members
+        StringBuilder peersStr = new StringBuilder();
+        for (String deviceName : groupInfo.getDevicesInNetwork()) {
+            SimWifiP2pDevice device = devices.getByName(deviceName);
+            String devstr = "" + deviceName + " (" +
+                    ((device == null)?"??":device.getVirtIp()) + ")\n";
+            peersStr.append(devstr);
+        }
+
+
+        //setup client socket / in this case client is the middle man that will submit our quiz
+        new OutgoingCommTask().executeOnExecutor(
+                AsyncTask.THREAD_POOL_EXECUTOR,
+                "IP of the client");
+
+
+        //send the quiz answers
+        //TODO: missing: the part where the middle man receives the quiz and responds with ok
+        new SendCommTask().executeOnExecutor(
+                AsyncTask.THREAD_POOL_EXECUTOR,
+                "quiz answer here");
     }
 }

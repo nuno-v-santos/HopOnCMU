@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.cmov.cmu_project.Monument;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +12,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Messenger;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -33,8 +31,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import pt.inesc.termite.wifidirect.SimWifiP2pManager.PeerListListener;
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
+import pt.inesc.termite.wifidirect.SimWifiP2pManager.PeerListListener;
 import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
 import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
@@ -42,11 +40,9 @@ import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 import pt.ulisboa.tecnico.cmov.cmu_project.DatabaseHelper;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.Monument;
 import pt.ulisboa.tecnico.cmov.cmu_project.LoginActivity;
-import pt.ulisboa.tecnico.cmov.cmu_project.MainActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizQuestion;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
-import pt.ulisboa.tecnico.cmov.cmu_project.Termite.SimWifiP2pBroadcastReceiver;
 import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
 import pt.ulisboa.tecnico.cmov.cmu_project.VolleySingleton;
 
@@ -60,23 +56,12 @@ public class MonumentScreenActivity extends AppCompatActivity implements PeerLis
 
     private SimWifiP2pManager mManager = null;
     private SimWifiP2pManager.Channel mChannel = null;
-    private SimWifiP2pBroadcastReceiver mReceiver;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_monument_screen);
-
-        // register broadcast receiver
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
-        filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
-        filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
-        filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
-        mReceiver = new SimWifiP2pBroadcastReceiver(this);
-        registerReceiver(mReceiver, filter);
 
         Intent i = new Intent(getApplicationContext(), SimWifiP2pService.class);
         bindService(i, mConnection, Context.BIND_AUTO_CREATE);
@@ -94,11 +79,6 @@ public class MonumentScreenActivity extends AppCompatActivity implements PeerLis
 
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        unregisterReceiver(mReceiver);
-    }
 
     private ServiceConnection mConnection = new ServiceConnection() {
         // callbacks for service binding, passed to bindService()
@@ -126,7 +106,7 @@ public class MonumentScreenActivity extends AppCompatActivity implements PeerLis
     @Override
     public void onPeersAvailable(SimWifiP2pDeviceList peers) {
         for (SimWifiP2pDevice device : peers.getDeviceList()) {
-            if (device.deviceName.equals(this.monData.getMonumentName())){
+            if (device.deviceName.equals(this.monData.getWifiId())){
                 Toast.makeText(getBaseContext(), R.string.txt_down, Toast.LENGTH_SHORT).show();
                 this.downloadQuestions();
                 return;
