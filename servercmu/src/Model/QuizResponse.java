@@ -89,7 +89,7 @@ public class QuizResponse {
         if (this.id == -1) {
 
 
-            query = "Insert into QuizResponse(score, date, correct, time ) values (? , ?)";
+            query = "Insert into QuizResponse(score, date, correct, time ) values (? , ?, ? , ?)";
 
             List<String> args = new ArrayList<>();
             args.add(this.score + "");

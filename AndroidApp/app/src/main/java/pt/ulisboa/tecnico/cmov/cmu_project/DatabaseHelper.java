@@ -518,10 +518,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         while (mCursor.moveToNext()) {
 
+            int id = mCursor.getInt(mCursor.getColumnIndex(ANSWER_POOL_ID));
             int questionID = mCursor.getInt(mCursor.getColumnIndex(ANSWER_POOL_QUESTION_ID));
             boolean correctAnswer = mCursor.getInt(mCursor.getColumnIndex(ANSWER_POOL_CORRECT)) == 1;
             long time = mCursor.getLong(mCursor.getColumnIndex(ANSWER_POOL_TIME));
-            QuizAnswer answer = new QuizAnswer(questionID, 0, correctAnswer, time);
+            QuizAnswer answer = new QuizAnswer(id, questionID, 0, correctAnswer, time);
 
             quizAnswers.add(answer);
         }
@@ -541,11 +542,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         while (mCursor.moveToNext()) {
 
+            int id = mCursor.getInt(mCursor.getColumnIndex(EVENT_POOL_ID));
             int munId = mCursor.getInt(mCursor.getColumnIndex(EVENT_POOL_MON_ID));
             String type = mCursor.getString(mCursor.getColumnIndex(EVENT_POOL_TYPE));
             String value = mCursor.getString(mCursor.getColumnIndex(EVENT_POOL_VALUE));
 
-            QuizEvent answer = new QuizEvent(munId, type, value);
+            QuizEvent answer = new QuizEvent(id, munId, type, value);
 
             eventPool.add(answer);
         }
@@ -560,4 +562,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    public void updateAnswerPoolAck(int id) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(ANSWER_POOL_ACK, 1);
+        db.update(TABLE_ANSWERS_POOL, cv, ANSWER_POOL_ID + "= ?", new String[]{"" + id});
+    }
 }

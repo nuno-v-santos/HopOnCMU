@@ -2,17 +2,35 @@ package pt.ulisboa.tecnico.cmov.cmu_project;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
+import android.widget.Button;
 import android.widget.Toast;
 
-import java.net.InetAddress;
-import java.util.List;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
+import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentScreenActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizAnswer;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizEvent;
 
@@ -45,6 +63,12 @@ public class SenderService extends Service {
                     if (isHostReachable()) {
                         List<QuizAnswer> answers = db.getPoolQuizAnswers();
                         List<QuizEvent> events = db.getEventPool();
+                        try {
+                            postEvents(events);
+                            postAnswers(answers);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         System.out.println(answers);
                         System.out.println(events);
                     }
@@ -62,6 +86,103 @@ public class SenderService extends Service {
                 // the service in the middle of handling another job
                 stopSelf(msg.arg1);
             }
+        }
+
+        private void postEvents(List<QuizEvent> events) {
+
+            SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, getApplicationContext().MODE_PRIVATE);
+            final String token = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
+
+            JSONObject postParams = new JSONObject();
+
+
+            try {
+                Gson gson = new Gson();
+                postParams.put("events", new JSONArray(gson.toJson(events)));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            if (!token.equals("")) {
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, URLS.URL_POST_EVENTS_POOL, postParams, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println(response.toString());
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), R.string.server_connection_error, Toast.LENGTH_SHORT).show();
+                    }
+
+                }) {
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        HashMap<String, String> headers = new HashMap<String, String>();
+                        headers.put("token", token);
+                        headers.put("Content-Type", "application/json");
+                        return headers;
+                    }
+                };
+
+                VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(jsonObjectRequest);
+            }
+
+        }
+
+        private void postAnswers(List<QuizAnswer> answers) throws JSONException {
+
+
+            SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, getApplicationContext().MODE_PRIVATE);
+            final String token = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
+            Gson gson = new Gson();
+
+
+            if (!token.equals("")) {
+                JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.POST, URLS.URL_POST_ANSWERS_POOL, new JSONArray(gson.toJson(answers)),
+                        new Response.Listener<JSONArray>() {
+
+                            @Override
+                            public void onResponse(JSONArray response) {
+                                System.out.println(response.toString());
+
+                                for (int i = 0; i < response.length(); i++) {
+                                    try {
+
+                                        int id = Integer.parseInt(response.getString(i));
+                                        db.updateAnswerPoolAck(id);
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+
+                            }
+                        }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), R.string.server_connection_error, Toast.LENGTH_SHORT).show();
+                    }
+
+                }) {
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        HashMap<String, String> headers = new HashMap<String, String>();
+                        headers.put("token", token);
+                        headers.put("Content-Type", "application/json");
+                        return headers;
+                    }
+                };
+
+                VolleySingleton.getInstance(getBaseContext()).getRequestQueue().add(jsonObjectRequest);
+            }
+
         }
 
         /**

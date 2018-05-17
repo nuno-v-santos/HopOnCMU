@@ -1,10 +1,7 @@
 package EndPoints;
 
 import Model.*;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -308,6 +305,49 @@ public class AndroidEndPoints {
                 return false;
             }
         });
+
+        post("/android/sync/answers/", (req, res) -> {
+
+            String token = req.headers("token");
+            User user = validateUser(token);
+
+            if (user == null)
+                return "{" +
+                        "\"error\" : " + "invalid user" +
+                        "}";
+
+            System.out.println(req.body());
+            JsonElement body = new JsonParser().parse(req.body());
+            JsonArray answers = body.getAsJsonArray();
+            ArrayList<String> response = new ArrayList<>();
+            Gson gson = new Gson();
+
+            for (JsonElement a : answers) {
+                response.add(a.getAsJsonObject().get("id").getAsString());
+                if (QuizResponse.where("answer_id =" + a.getAsJsonObject().get("questionId").getAsString() + " and user_id=" + user.getId()).size() == 0) {
+                    QuizResponse quizResponse = new QuizResponse();
+                    quizResponse.setScore(a.getAsJsonObject().get("isCorrect").getAsBoolean() ? 100 + (30 - a.getAsJsonObject().get("time").getAsInt()) : 0);
+                    quizResponse.setDate(new Date());
+                    quizResponse.setCorrect(a.getAsJsonObject().get("isCorrect").getAsBoolean() ? 1 : 0);
+                    quizResponse.save();
+                    quizResponse.setQuestion(Question.get(a.getAsJsonObject().get("questionId").getAsInt()));
+                    quizResponse.setQuiz(Question.get(a.getAsJsonObject().get("questionId").getAsInt()).getQuiz());
+                    quizResponse.setUser(user);
+                }
+            }
+
+
+            return gson.toJson(response);
+
+        });
+
+        post("/android/sync/events/", (req, res) -> {
+
+            System.out.println(req.body());
+            return false;
+
+        });
+
 
     }
 

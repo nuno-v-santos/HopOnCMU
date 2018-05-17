@@ -5,15 +5,24 @@ package pt.ulisboa.tecnico.cmov.cmu_project.Quiz;
  */
 
 public class QuizEvent {
+    private int id;
     private int munId;
     private String type;
     private String value;
 
-
-    public QuizEvent(int munId, String type, String value) {
+    public QuizEvent(int id, int munId, String type, String value) {
+        this.id = id;
         this.munId = munId;
         this.type = type;
         this.value = value;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getMunId() {

@@ -35,7 +35,7 @@ public class QuizActivity extends AppCompatActivity {
     private int imgID = 0; // resource ID monument image
     private int questionNumber = 0; // question number to present to user
     private DatabaseHelper db;
-    private long startedTime;
+    private long elapsedSeconds;
     CountDownTimer timer;
 
     private ArrayList<QuizAnswer> quizAnswers;
@@ -67,7 +67,6 @@ public class QuizActivity extends AppCompatActivity {
 
 
         this.setInitialState();
-        this.startedTime = System.currentTimeMillis();
         initTimer();
 
     }
@@ -114,7 +113,7 @@ public class QuizActivity extends AppCompatActivity {
                             listView.getChildAt(position).setBackgroundColor(Color.RED);
 
 
-                        quizAnswers.add(new QuizAnswer(currentQuestion.getQuestionID(), 0, QuizActivity.this.selectedRightOption(listView.getItemAtPosition(position).toString()), System.currentTimeMillis() - startedTime));
+                        quizAnswers.add(new QuizAnswer(0, currentQuestion.getQuestionID(), 0, QuizActivity.this.selectedRightOption(listView.getItemAtPosition(position).toString()), elapsedSeconds));
 
                         //todo: add answer to cache
 
@@ -149,6 +148,7 @@ public class QuizActivity extends AppCompatActivity {
 
             public void onTick(long millisUntilFinished) {
                 textTimer.setText("0:" + checkDigit(time));
+                elapsedSeconds++;
                 time--;
             }
 
@@ -212,7 +212,7 @@ public class QuizActivity extends AppCompatActivity {
             this.updateItemsAdapterView();
             QuizActivity.this.questionsAnswered = false;
             initTimer();
-            startedTime = System.currentTimeMillis();
+            elapsedSeconds = 0;
 
         } else {
 
