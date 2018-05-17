@@ -30,6 +30,7 @@
         <activity android:name=".Monument.MonumentScreenActivity" />
         <activity android:name=".Quiz.QuizActivity" />
         <activity android:name=".Termite.PeerScannerActivity" />
+
         <service android:name="pt.inesc.termite.wifidirect.service.SimWifiP2pService" />
 
         <service
@@ -37,7 +38,11 @@
             android:enabled="true"
             android:exported="true" />
 
-        <receiver android:name=".NetworkStateReceiver$NetworkStateReceiver" />
+        <receiver android:name=".NetworkStateReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
 
         <receiver android:name=".Quiz.TimeChangedReceiver">
             <intent-filter>
@@ -46,7 +51,7 @@
         </receiver>
 
         <service
-            android:name=".AnswerSenderService"
+            android:name=".SenderService"
             android:enabled="true"
             android:exported="true"></service>
     </application>

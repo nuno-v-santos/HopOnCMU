@@ -26,6 +26,17 @@
             android:textColor="@color/colorWhite"
             android:textSize="20dp" />
 
+        <TextView
+            android:id="@+id/quizTimeElapsed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="48dp"
+            android:text="TextView"
+            android:textColor="@color/cardview_light_background"
+            android:textSize="24sp" />
+
     </RelativeLayout>
 
     <ListView

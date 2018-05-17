@@ -1,9 +1,9 @@
 package pt.ulisboa.tecnico.cmov.cmu_project.Quiz;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,26 +13,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.DatabaseHelper;
-import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.Monument;
-import pt.ulisboa.tecnico.cmov.cmu_project.LoginActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
-import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
-import pt.ulisboa.tecnico.cmov.cmu_project.UserAnswers;
 
 public class QuizActivity extends AppCompatActivity {
 
@@ -49,7 +35,10 @@ public class QuizActivity extends AppCompatActivity {
     private int imgID = 0; // resource ID monument image
     private int questionNumber = 0; // question number to present to user
     private DatabaseHelper db;
+    private long startedTime;
+    CountDownTimer timer;
 
+    private ArrayList<QuizAnswer> quizAnswers;
     private ArrayList<QuizQuestion> quizQuestions; // question list
     private QuizListAdapter itemsAdapter; // list adapter that extends o ArrayAdapter<String>
     private ArrayList<String> adapterItens = new ArrayList<>(); // strings list of possible answers
@@ -74,10 +63,18 @@ public class QuizActivity extends AppCompatActivity {
         this.monID = intent.getIntExtra(QuizActivity.MON_ID, 0);
         db.updateMonumentStatus(monID, MonumentData.VISITED);
         db.updateMonumentQuizStatus(monID, MonumentData.STARTED);
+        this.quizAnswers = new ArrayList<>();
 
 
         this.setInitialState();
+        this.startedTime = System.currentTimeMillis();
+        initTimer();
 
+    }
+
+
+    public String checkDigit(int number) {
+        return number <= 9 ? "0" + number : String.valueOf(number);
     }
 
     /**
@@ -117,17 +114,22 @@ public class QuizActivity extends AppCompatActivity {
                             listView.getChildAt(position).setBackgroundColor(Color.RED);
 
 
+                        quizAnswers.add(new QuizAnswer(currentQuestion.getQuestionID(), 0, QuizActivity.this.selectedRightOption(listView.getItemAtPosition(position).toString()), System.currentTimeMillis() - startedTime));
+
                         //todo: add answer to cache
 
                         QuizActivity.this.listView.setEnabled(false);
                         QuizActivity.this.questionsAnswered = true;
                         if (questionNumber + 1 == quizQuestions.size()) {
                             // QuizActivity.this.timeCounter.interrupt();
+                            timer.cancel();
                             db.updateMonumentQuizStatus(monID, MonumentData.ANSWERED);
                             Button button = findViewById(R.id.btnNextQuestion);
                             button.setText(R.string.go_back);
                             prev_screen = true;
+                            db.insertAnswersPool(quizAnswers);
                         } else {
+                            timer.cancel();
                             questionsAnswered = true;
                         }
 
@@ -135,6 +137,26 @@ public class QuizActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void initTimer() {
+
+        final TextView textTimer = (TextView) findViewById(R.id.quizTimeElapsed);
+
+        timer = new CountDownTimer(30000, 1000) {
+
+            int time = 30;
+
+            public void onTick(long millisUntilFinished) {
+                textTimer.setText("0:" + checkDigit(time));
+                time--;
+            }
+
+            public void onFinish() {
+                textTimer.setText("timeup");
+            }
+
+        }.start();
     }
 
     /**
@@ -185,10 +207,12 @@ public class QuizActivity extends AppCompatActivity {
 
         if (this.questionsAnswered && this.questionNumber < this.quizQuestions.size()) {
 
-            this.currentQuestion = this.quizQuestions.get(QuizActivity.this.questionNumber++);
+            questionNumber++;
+            this.currentQuestion = this.quizQuestions.get(QuizActivity.this.questionNumber);
             this.updateItemsAdapterView();
             QuizActivity.this.questionsAnswered = false;
-
+            initTimer();
+            startedTime = System.currentTimeMillis();
 
         } else {
 

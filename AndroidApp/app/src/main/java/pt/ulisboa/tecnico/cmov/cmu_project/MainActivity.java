@@ -14,7 +14,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -28,7 +27,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
@@ -61,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
 
 
-        Intent serviceInt = new Intent(this, AnswerSenderService.class);
+        Intent serviceInt = new Intent(this, SenderService.class);
         startService(serviceInt);
 
         MainFragment fragment = new MainFragment();

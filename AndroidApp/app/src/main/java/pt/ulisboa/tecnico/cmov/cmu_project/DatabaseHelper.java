@@ -8,10 +8,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.List;
 
-import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.Monument;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
+import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizAnswer;
+import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizEvent;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizQuestion;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -25,6 +26,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_MONUMENTS = "monuments";
     public static final String TABLE_QUESTIONS = "questions";
     public static final String TABLE_ANSWERS = "ansers";
+    public static final String TABLE_ANSWERS_POOL = "answersPool";
+    public static final String TABLE_EVENTS_POOL = "eventsPool";
 
 
     // Monument Table Columns
@@ -48,6 +51,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_ANSWER = "answer";
     private static final String KEY_QUESTION_ID_FK = "questionIdFk";
     private static final String KEY_CORRECT = "correct";
+
+    //answer pool table
+    private static final String ANSWER_POOL_ID = "answerId";
+    private static final String ANSWER_POOL_QUESTION_ID = "questionId";
+    private static final String ANSWER_POOL_TIME = "time";
+    private static final String ANSWER_POOL_CORRECT = "correct";
+    private static final String ANSWER_POOL_ACK = "ack";
+
+
+    //answer pool table
+    private static final String EVENT_POOL_ID = "answerId";
+    private static final String EVENT_POOL_TYPE = "type";
+    private static final String EVENT_POOL_VALUE = "value";
+    private static final String EVENT_POOL_MON_ID = "monId";
+    private static final String EVENT_POOL_ACK = "ack";
+    private SenderService.ServiceHandler currentPool;
 
 
     /**
@@ -99,9 +118,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 KEY_CORRECT + " INTEGER" +
                 ")";
 
+        String CREATE_ANSWER_POOL_TABLE = "CREATE TABLE " + TABLE_ANSWERS_POOL + "(" +
+                ANSWER_POOL_ID + " INTEGER PRIMARY KEY," +
+                ANSWER_POOL_QUESTION_ID + " INTEGER," +
+                ANSWER_POOL_TIME + " INTEGER," +
+                ANSWER_POOL_CORRECT + " INTEGER," +
+                ANSWER_POOL_ACK + " INTEGER" +
+                ")";
+
+        String CREATE_EVENT_POOL_TABLE = "CREATE TABLE " + TABLE_EVENTS_POOL + "(" +
+                EVENT_POOL_ID + " INTEGER PRIMARY KEY," +
+                EVENT_POOL_TYPE + " TEXT," +
+                EVENT_POOL_VALUE + " TEXT," +
+                EVENT_POOL_ACK + " INTEGER," +
+                EVENT_POOL_MON_ID + " INTEGER" +
+                ")";
+
         sqLiteDatabase.execSQL(CREATE_MONUMENT_TABLE);
         sqLiteDatabase.execSQL(CREATE_QUESTION_TABLE);
         sqLiteDatabase.execSQL(CREATE_ANSWER_TABLE);
+        sqLiteDatabase.execSQL(CREATE_ANSWER_POOL_TABLE);
+        sqLiteDatabase.execSQL(CREATE_EVENT_POOL_TABLE);
     }
 
     @Override
@@ -111,6 +148,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_MONUMENTS);
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_QUESTIONS);
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ANSWERS);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ANSWERS_POOL);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS_POOL);
             onCreate(sqLiteDatabase);
         }
     }
@@ -197,6 +236,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues args = new ContentValues();
         args.put(KEY_STATUS, status);
         db.update(TABLE_MONUMENTS, args, strFilter, null);
+        addEventPool(monumentID, "status", status);
     }
 
     /**
@@ -211,6 +251,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues args = new ContentValues();
         args.put(KEY_QUIZ_STATUS, status);
         db.update(TABLE_MONUMENTS, args, strFilter, null);
+        addEventPool(monumentID, "quizStatus", status);
     }
 
     /**
@@ -272,6 +313,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("delete from " + TABLE_ANSWERS);
         db.execSQL("delete from " + TABLE_QUESTIONS);
         db.execSQL("delete from " + TABLE_MONUMENTS);
+        db.execSQL("delete from " + TABLE_ANSWERS_POOL);
+        db.execSQL("delete from " + TABLE_EVENTS_POOL);
 
         // context.getApplicationContext().deleteDatabase(DATABASE_NAME);
         System.out.println("Database has been deleted");
@@ -424,5 +467,97 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return res;
     }
+
+
+    public void insertAnswersPool(List<QuizAnswer> answers) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        for (QuizAnswer answer : answers) {
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(ANSWER_POOL_QUESTION_ID, answer.getQuestionId());
+            contentValues.put(ANSWER_POOL_CORRECT, answer.isCorrect());
+            contentValues.put(ANSWER_POOL_TIME, answer.getTime());
+            contentValues.put(ANSWER_POOL_ACK, false);
+            db.insert(TABLE_ANSWERS_POOL, null, contentValues);
+        }
+
+        synchronized (currentPool) {
+            currentPool.notify();
+        }
+
+    }
+
+    public void addEventPool(int idMun, String type, String value) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(EVENT_POOL_MON_ID, idMun);
+        contentValues.put(EVENT_POOL_TYPE, type);
+        contentValues.put(EVENT_POOL_VALUE, value);
+        contentValues.put(EVENT_POOL_ACK, 0);
+
+        db.insert(TABLE_EVENTS_POOL, null, contentValues);
+
+        synchronized (currentPool) {
+            currentPool.notify();
+        }
+
+    }
+
+    public List<QuizAnswer> getPoolQuizAnswers() {
+
+        ArrayList<QuizAnswer> quizAnswers = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor mCursor = db.rawQuery("SELECT * FROM " + TABLE_ANSWERS_POOL +
+                " WHERE " + ANSWER_POOL_ACK + " = 0", null);
+
+        while (mCursor.moveToNext()) {
+
+            int questionID = mCursor.getInt(mCursor.getColumnIndex(ANSWER_POOL_QUESTION_ID));
+            boolean correctAnswer = mCursor.getInt(mCursor.getColumnIndex(ANSWER_POOL_CORRECT)) == 1;
+            long time = mCursor.getLong(mCursor.getColumnIndex(ANSWER_POOL_TIME));
+            QuizAnswer answer = new QuizAnswer(questionID, 0, correctAnswer, time);
+
+            quizAnswers.add(answer);
+        }
+
+        mCursor.close();
+        return quizAnswers;
+
+    }
+
+    public List<QuizEvent> getEventPool() {
+
+        ArrayList<QuizEvent> eventPool = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor mCursor = db.rawQuery("SELECT * FROM " + TABLE_EVENTS_POOL +
+                " WHERE " + ANSWER_POOL_ACK + " = 0", null);
+
+        while (mCursor.moveToNext()) {
+
+            int munId = mCursor.getInt(mCursor.getColumnIndex(EVENT_POOL_MON_ID));
+            String type = mCursor.getString(mCursor.getColumnIndex(EVENT_POOL_TYPE));
+            String value = mCursor.getString(mCursor.getColumnIndex(EVENT_POOL_VALUE));
+
+            QuizEvent answer = new QuizEvent(munId, type, value);
+
+            eventPool.add(answer);
+        }
+
+        mCursor.close();
+        return eventPool;
+
+    }
+
+    public void setCurrentPool(SenderService.ServiceHandler currentPool) {
+        this.currentPool = currentPool;
+    }
+
 
 }

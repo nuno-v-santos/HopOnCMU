@@ -11,15 +11,21 @@ import android.os.Process;
 import android.widget.Toast;
 
 import java.net.InetAddress;
+import java.util.List;
+
+import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizAnswer;
+import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizEvent;
 
 
-public class AnswerSenderService extends Service {
+public class SenderService extends Service {
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
 
     // Handler that receives messages from the thread
-    private final class ServiceHandler extends Handler {
+    public final class ServiceHandler extends Handler {
+
+        private DatabaseHelper db;
 
         public ServiceHandler(Looper looper) {
             super(looper);
@@ -28,16 +34,26 @@ public class AnswerSenderService extends Service {
         @Override
         public void handleMessage(Message msg) {
 
+            db = DatabaseHelper.getInstance(getApplicationContext());
+            db.setCurrentPool(this);
+            NetworkStateReceiver.setCurrentPool(this);
+
             try {
 
                 while (true) {
+
                     if (isHostReachable()) {
-                        UserAnswers u = UserAnswers.getInstance();
-                        u.sendRequests(VolleySingleton.getInstance(getBaseContext()));
-                        Toast.makeText(getBaseContext(), "sending requests", Toast.LENGTH_LONG).show();
+                        List<QuizAnswer> answers = db.getPoolQuizAnswers();
+                        List<QuizEvent> events = db.getEventPool();
+                        System.out.println(answers);
+                        System.out.println(events);
                     }
 
-                    Thread.sleep(5000); //sleep for 5 seconds.
+                    synchronized (this) {
+                        this.wait();
+                        Toast.makeText(getApplicationContext(), "SOMEONE WAKED UP SERVICE", Toast.LENGTH_LONG);
+                    }
+
                 }
 
             } catch (InterruptedException e) {
