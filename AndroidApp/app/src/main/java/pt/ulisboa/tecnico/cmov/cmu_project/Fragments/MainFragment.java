@@ -8,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toolbar;
 
@@ -25,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.LoginActivity;
+import pt.ulisboa.tecnico.cmov.cmu_project.MainActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
 import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
 
@@ -57,6 +60,20 @@ public class MainFragment extends Fragment {
         this.random = sharedPreferences.getInt(LoginActivity.RANDOM, 0);
         this.userName = sharedPreferences.getString(LoginActivity.USERNAME, "");
         this.ticket = sharedPreferences.getString(LoginActivity.TICKET, "");
+
+        Switch sw = view.findViewById(R.id.switch1);
+
+        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                if(isChecked){
+                    MainActivity.wifiDirect.wifiOn();
+                }else {
+                    MainActivity.wifiDirect.wifiOff();
+                }
+
+            }
+        });
 
 
         TextView userNameTextView = view.findViewById(R.id.usernameFragmentMain);

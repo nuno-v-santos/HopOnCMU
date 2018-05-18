@@ -65,7 +65,7 @@ import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizAnswer;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizEvent;
 
 
-public class SenderService extends Service implements SimWifiP2pManager.GroupInfoListener {
+public class SenderService extends Service {
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
@@ -91,14 +91,15 @@ public class SenderService extends Service implements SimWifiP2pManager.GroupInf
             db = DatabaseHelper.getInstance(getApplicationContext());
             db.setCurrentPool(this);
             NetworkStateReceiver.setCurrentPool(this);
+            WifiDirect.setPool(this);
 
 
             try {
 
                 while (true) {
 
-                    if (isHostReachable()) {
-                        Log.d("HOST REACHABLE","YES");
+                    if (!MainActivity.wifiDirect.ismBound() || MainActivity.wifiDirect.isGO()) {
+                        Log.d("HOST REACHABLE", "YES");
                         List<QuizAnswer> answers = db.getPoolQuizAnswers();
                         List<QuizEvent> events = db.getEventPool();
                         try {
@@ -110,9 +111,34 @@ public class SenderService extends Service implements SimWifiP2pManager.GroupInf
                         System.out.println(answers);
                         System.out.println(events);
                     } else {
-                        Log.d("HOST NOT REACHABLE","NO");
-                        Toast.makeText(getBaseContext(), "no access to server", Toast.LENGTH_SHORT).show();
-                        mManager.requestGroupInfo(mChannel, SenderService.this);
+
+                        List<QuizAnswer> answers = db.getPoolQuizAnswers();
+                        List<QuizEvent> events = db.getEventPool();
+                        JSONObject jsonObject = new JSONObject();
+
+                        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, getApplicationContext().MODE_PRIVATE);
+                        final String token = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
+
+                        String[] s = token.split("\\|");
+                        int id = (Integer.parseInt(s[1]));
+
+
+                        try {
+                            JSONObject jsonObject2 = new JSONObject();
+                            jsonObject2.accumulate("answers", new JSONArray(answers));
+                            jsonObject2.accumulate("events", new JSONArray(events));
+                            jsonObject.put("data", jsonObject2);
+                            jsonObject.put("type", "server");
+                            jsonObject.put("id", id);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        MainActivity.wifiDirect.sendServer(jsonObject);
+
                     }
 
                     synchronized (this) {
@@ -128,6 +154,7 @@ public class SenderService extends Service implements SimWifiP2pManager.GroupInf
                 // the service in the middle of handling another job
                 stopSelf(msg.arg1);
             }
+
         }
 
         private void postEvents(List<QuizEvent> events) throws JSONException {
@@ -257,11 +284,6 @@ public class SenderService extends Service implements SimWifiP2pManager.GroupInf
 
         SimWifiP2pSocketManager.Init(getApplicationContext());
 
-        Intent i = new Intent(getApplicationContext(), SimWifiP2pService.class);
-        bindService(i, mConnection, Context.BIND_AUTO_CREATE);
-
-        new IncommingCommTask().executeOnExecutor(
-                AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
@@ -290,130 +312,4 @@ public class SenderService extends Service implements SimWifiP2pManager.GroupInf
     }
 
 
-
-
-    //Termite stuff
-
-
-    private ServiceConnection mConnection = new ServiceConnection() {
-        // callbacks for service binding, passed to bindService()
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            mService = new Messenger(service);
-            mManager = new SimWifiP2pManager(mService);
-            mChannel = mManager.initialize(getApplication(), getMainLooper(), null);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mService = null;
-            mManager = null;
-            mChannel = null;
-        }
-    };
-
-
-
-    /*
-	 * Asynctasks implementing message exchange
-	 */
-
-    public class IncommingCommTask extends AsyncTask<Void, String, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            Log.d("incomtask", "IncommingCommTask started (" + this.hashCode() + ").");
-
-            try {
-                mSrvSocket = new SimWifiP2pSocketServer(9876);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    SimWifiP2pSocket sock = mSrvSocket.accept();
-                    try {
-                        BufferedReader sockIn = new BufferedReader(
-                                new InputStreamReader(sock.getInputStream()));
-                        String st = sockIn.readLine();
-                        publishProgress(st);
-                        sock.getOutputStream().write(("\n").getBytes());
-                    } catch (IOException e) {
-                        Log.d("Error reading socket:", e.getMessage());
-                    } finally {
-                        sock.close();
-                    }
-                } catch (IOException e) {
-                    Log.d("Error socket:", e.getMessage());
-                    break;
-                    //e.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-
-    }
-
-    public class OutgoingCommTask extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                mCliSocket = new SimWifiP2pSocket(params[0], 9876);
-            } catch (UnknownHostException e) {
-                return "Unknown Host:" + e.getMessage();
-            } catch (IOException e) {
-                return "IO error:" + e.getMessage();
-            }
-            return null;
-        }
-    }
-
-    public class SendCommTask extends AsyncTask<String, String, Void> {
-
-        @Override
-        protected Void doInBackground(String... msg) {
-            try {
-                mCliSocket.getOutputStream().write((msg[0] + "\n").getBytes());
-                BufferedReader sockIn = new BufferedReader(
-                        new InputStreamReader(mCliSocket.getInputStream()));
-                sockIn.readLine();
-                mCliSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            mCliSocket = null;
-            return null;
-        }
-    }
-
-
-    @Override
-    public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
-                                     SimWifiP2pInfo groupInfo) {
-        // compile list of network members
-        StringBuilder peersStr = new StringBuilder();
-        for (String deviceName : groupInfo.getDevicesInNetwork()) {
-            SimWifiP2pDevice device = devices.getByName(deviceName);
-            String devstr = "" + deviceName + " (" +
-                    ((device == null)?"??":device.getVirtIp()) + ")\n";
-            peersStr.append(devstr);
-        }
-
-
-        //setup client socket / in this case client is the middle man that will submit our quiz
-        new OutgoingCommTask().executeOnExecutor(
-                AsyncTask.THREAD_POOL_EXECUTOR,
-                "IP of the client");
-
-
-        //send the quiz answers
-        //TODO: missing: the part where the middle man receives the quiz and responds with ok
-        new SendCommTask().executeOnExecutor(
-                AsyncTask.THREAD_POOL_EXECUTOR,
-                "quiz answer here");
-    }
 }

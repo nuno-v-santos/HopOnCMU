@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.Messenger;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,7 +49,7 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
     private SimWifiP2pDevice myDevice = null;
     private String goIP;
     private Thread receiver;
-    private static SenderService pool;
+    private static SenderService.ServiceHandler pool;
 
     private WifiDirect(Context context) {
 
@@ -73,7 +74,6 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
             public void run() {
 
 
-
                 Log.d("MRECEIVER", "IncommingCommTask started (" + this.hashCode() +
                         ").");
                 SimWifiP2pSocketServer mSrvSocket = null;
@@ -83,9 +83,21 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
                     e.printStackTrace();
                 }
 
-                pool.notify();
-
-                while (!Thread.currentThread().isInterrupted()) {
+                if (pool != null) {
+                    synchronized (pool) {
+                        pool.notify();
+                    }
+                }
+                while (true) {
+                    if (Thread.currentThread().isInterrupted()) {
+                        synchronized (this) {
+                            try {
+                                this.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                     try {
                         SimWifiP2pSocket sock = mSrvSocket.accept();
                         try {
@@ -234,7 +246,14 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
         Intent intent = new Intent(getContext(), SimWifiP2pService.class);
         getContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         mBound = true;
-        receiver.start();
+
+        if (receiver.getState() == Thread.State.NEW)
+            receiver.start();
+        else {
+            synchronized (receiver) {
+                receiver.notify();
+            }
+        }
 
 
       /*  // spawn the chat server background task
@@ -322,12 +341,12 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
 
     }
 
-    public static SenderService getPool() {
+    public static SenderService.ServiceHandler getPool() {
         return pool;
     }
 
-    public static void setPool(SenderService p) {
-        pool = p;
+    public static void setPool(SenderService.ServiceHandler pool) {
+        WifiDirect.pool = pool;
     }
 
     public ArrayList<SimWifiP2pDevice> getDevicesList() {
