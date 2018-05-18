@@ -118,7 +118,9 @@ public class MonumentScreenActivity extends AppCompatActivity {
 
         } else if (!dbHelper.questionForMonumentDownload(monID)) {
             //scans nearby peers to check if near the monument
-            for (SimWifiP2pDevice device : MainActivity.wifiDirect.getDevicesList()) {
+            System.out.println(MainActivity.wifiDirect.getDevicesList().size());
+            for (SimWifiP2pDevice device : MainActivity.wifiDirect.getPeerList()) {
+
                 if (device.deviceName.equals(this.monData.getWifiId())) {
                     Toast.makeText(getBaseContext(), R.string.txt_down, Toast.LENGTH_SHORT).show();
                     this.downloadQuestions();

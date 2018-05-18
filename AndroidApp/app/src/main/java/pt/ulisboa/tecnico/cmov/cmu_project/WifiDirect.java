@@ -46,6 +46,7 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
     private boolean mBound = false;
     private boolean isGO = false;
     private ArrayList<SimWifiP2pDevice> devicesList = new ArrayList<>();
+    private ArrayList<SimWifiP2pDevice> peerList = new ArrayList<>();
     private SimWifiP2pDevice myDevice = null;
     private String goIP;
     private Thread receiver;
@@ -242,6 +243,8 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
 
         // compile list of devices in range
         for (SimWifiP2pDevice device : peers.getDeviceList()) {
+            SimWifiP2pDevice d = peers.getByName(device.deviceName);
+            this.devicesList.add(d);
             String devstr = "" + device.deviceName + " (" + device.getVirtIp() + ")\n";
             peersStr.append(devstr);
         }
@@ -260,7 +263,7 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
                 receiver.notify();
             }
         }*/
-        getContext().unbindService(mConnection);
+       // getContext().unbindService(mConnection);
 
     }
 
@@ -352,5 +355,13 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
 
     public ArrayList<SimWifiP2pDevice> getDevicesList() {
         return devicesList;
+    }
+
+    public ArrayList<SimWifiP2pDevice> getPeerList() {
+        return peerList;
+    }
+
+    public void setPeerList(ArrayList<SimWifiP2pDevice> peerList) {
+        this.peerList = peerList;
     }
 }

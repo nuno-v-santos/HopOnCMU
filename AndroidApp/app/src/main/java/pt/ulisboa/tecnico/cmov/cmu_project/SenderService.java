@@ -69,12 +69,6 @@ public class SenderService extends Service {
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
-    private SimWifiP2pManager mManager = null;
-    private SimWifiP2pManager.Channel mChannel = null;
-    private Messenger mService = null;
-    private SimWifiP2pSocketServer mSrvSocket = null;
-    private SimWifiP2pSocket mCliSocket = null;
-
 
     // Handler that receives messages from the thread
     public final class ServiceHandler extends Handler {
@@ -281,9 +275,6 @@ public class SenderService extends Service {
         // Get the HandlerThread's Looper and use it for our Handler
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
-
-        SimWifiP2pSocketManager.Init(getApplicationContext());
-
     }
 
     @Override
