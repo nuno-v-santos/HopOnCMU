@@ -5,12 +5,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.Messenger;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,6 +28,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
 import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
@@ -46,6 +58,7 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
     private boolean mBound = false;
     private boolean isGO = false;
     private ArrayList<SimWifiP2pDevice> devicesList = new ArrayList<>();
+    private ArrayList<SimWifiP2pDevice> peerList = new ArrayList<>();
     private SimWifiP2pDevice myDevice = null;
     private String goIP;
     private Thread receiver;
@@ -240,8 +253,11 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
     public void onPeersAvailable(SimWifiP2pDeviceList peers) {
         StringBuilder peersStr = new StringBuilder();
 
+        peerList.clear();
         // compile list of devices in range
         for (SimWifiP2pDevice device : peers.getDeviceList()) {
+            SimWifiP2pDevice d = peers.getByName(device.deviceName);
+            this.peerList.add(d);
             String devstr = "" + device.deviceName + " (" + device.getVirtIp() + ")\n";
             peersStr.append(devstr);
         }
@@ -260,7 +276,6 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
                 receiver.notify();
             }
         }
-        getContext().unbindService(mConnection);
 
     }
 
@@ -305,6 +320,10 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
                         this.redirect(jsonObject);
                     }
                     break;
+
+                case "serverResponse":
+                    this.receiveServerResponse(jsonObject);
+                    break;
             }
 
 
@@ -313,12 +332,111 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
         }
     }
 
-    private void redirect(JSONObject jsonObject) {
+    private void receiveServerResponse(JSONObject jsonObject) {
+        System.out.println(jsonObject);
+
+
+        JSONArray response = null;
+        try {
+            response = jsonObject.getJSONObject("data").getJSONArray("answers");
+
+            for (int i = 0; i < response.length(); i++) {
+                try {
+
+                    int id = Integer.parseInt(response.getString(i));
+                    DatabaseHelper.getInstance(context).updateAnswerPoolAck(id);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            response = jsonObject.getJSONObject("data").getJSONArray("events");
+
+            for (int i = 0; i < response.length(); i++) {
+                try {
+
+                    int id = Integer.parseInt(response.getString(i));
+                    DatabaseHelper.getInstance(context).updateEventPoolAck(id);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private void sendServerResponse(final JSONObject jsonObject, final JSONObject response) {
+
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+
+
+                try {
+                    SimWifiP2pSocket mCliSocket = new SimWifiP2pSocket(jsonObject.getString("sender"), 10001);
+                    mCliSocket.getOutputStream().write(
+                            (response.toString() + "\n").getBytes());
+                    BufferedReader sockIn = new BufferedReader(
+                            new InputStreamReader(mCliSocket.getInputStream()));
+                    sockIn.readLine();
+                    mCliSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+    }
+
+    private void redirect(final JSONObject jsonObject) {
         System.out.println("SEND TO SERVER");
+
+
+        Gson gson = new Gson();
+        System.out.println(jsonObject);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, URLS.URL_POST_SERVER_POOL, jsonObject,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println(response.toString());
+
+                        sendServerResponse(jsonObject, response);
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println(error);
+                //Toast.makeText(getApplicationContext(), R.string.server_connection_error, Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+        VolleySingleton.getInstance(context).getRequestQueue().add(jsonObjectRequest);
+
+
     }
 
 
     public void sendServer(final JSONObject jsonObject) {
+
+        System.out.println(jsonObject);
 
         AsyncTask.execute(new Runnable() {
             @Override
@@ -353,4 +471,20 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
     public ArrayList<SimWifiP2pDevice> getDevicesList() {
         return devicesList;
     }
+
+    public ArrayList<SimWifiP2pDevice> getPeerList() {
+        return peerList;
+    }
+
+    public void setPeerList(ArrayList<SimWifiP2pDevice> peerList) {
+        this.peerList = peerList;
+    }
+
+    public String getMyIp() {
+        if (this.myDevice != null)
+            return this.myDevice.getVirtIp().split(":")[0];
+        else
+            return "";
+    }
+
 }

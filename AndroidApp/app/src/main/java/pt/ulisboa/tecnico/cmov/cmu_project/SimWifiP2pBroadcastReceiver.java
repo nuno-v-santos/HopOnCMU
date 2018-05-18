@@ -14,6 +14,7 @@ public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
 
     public SimWifiP2pBroadcastReceiver(WifiDirect activity) {
         super();
+
         this.mActivity = activity;
     }
 
@@ -40,7 +41,7 @@ public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
             // Request available peers from the wifi p2p manager. This is an
             // asynchronous call and the calling activity is notified with a
             // callback on PeerListListener.onPeersAvailable()
-
+            mActivity.getmManager().requestPeers(mActivity.getmChannel(), mActivity);
             Toast.makeText(mActivity.getContext(), "Peer list changed",
                     Toast.LENGTH_SHORT).show();
 
@@ -51,6 +52,7 @@ public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
             ginfo.print();
             mActivity.setGO(ginfo.askIsGO());
             mActivity.getmManager().requestGroupInfo(mActivity.getmChannel(), mActivity);
+            mActivity.getmManager().requestPeers(mActivity.getmChannel(), mActivity);
 
             Toast.makeText(mActivity.getContext(), "Network membership changed",
                     Toast.LENGTH_SHORT).show();
@@ -62,6 +64,7 @@ public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
             ginfo.print();
             mActivity.setGO(ginfo.askIsGO());
             mActivity.getmManager().requestGroupInfo(mActivity.getmChannel(), mActivity);
+            mActivity.getmManager().requestPeers(mActivity.getmChannel(), mActivity);
             Toast.makeText(mActivity.getContext(), "Group ownership changed",
                     Toast.LENGTH_SHORT).show();
         }

@@ -393,7 +393,81 @@ public class AndroidEndPoints {
 
         });
 
+        post("/android/sync/server/", (req, res) -> {
 
+            System.out.println(req.body());
+            JsonObject body = new JsonParser().parse(req.body()).getAsJsonObject();
+
+            return "{" +
+                    "\"type\" : " + "\"serverResponse\"," +
+                    "\"data\" : " + "{" +
+                    "\"answers\" : " + processAnswers(body.get("data").getAsJsonObject().get("answers").getAsJsonArray(), body.get("id").getAsInt()) + "," +
+                    "\"events\" : " + processEvents(body.get("data").getAsJsonObject().get("events").getAsJsonArray(), body.get("id").getAsInt()) +
+                    "}" +
+                    "}";
+
+        });
+
+
+    }
+
+    private static String processAnswers(JsonArray answers, int userId) {
+
+        ArrayList<String> response = new ArrayList<>();
+        Gson gson = new Gson();
+
+        for (JsonElement a : answers) {
+            response.add(a.getAsJsonObject().get("id").getAsString());
+            if (QuizResponse.where("answer_id =" + a.getAsJsonObject().get("questionId").getAsString() + " and user_id=" + userId).size() == 0) {
+                QuizResponse quizResponse = new QuizResponse();
+                quizResponse.setScore(a.getAsJsonObject().get("isCorrect").getAsBoolean() ? 100 + (30 - a.getAsJsonObject().get("time").getAsInt()) : 0);
+                quizResponse.setDate(new Date());
+                quizResponse.setCorrect(a.getAsJsonObject().get("isCorrect").getAsBoolean() ? 1 : 0);
+                quizResponse.save();
+                quizResponse.setQuestion(Question.get(a.getAsJsonObject().get("questionId").getAsInt()));
+                quizResponse.setQuiz(Question.get(a.getAsJsonObject().get("questionId").getAsInt()).getQuiz());
+                quizResponse.setUser(User.get(userId));
+            }
+        }
+
+
+        return gson.toJson(response);
+
+    }
+
+
+    private static String processEvents(JsonArray events, int userId) {
+
+        Gson gson = new Gson();
+        ArrayList<String> response = new ArrayList<>();
+        for (JsonElement a : events) {
+            response.add(a.getAsJsonObject().get("id").getAsString());
+
+            List<UserMonument> userMonuments = UserMonument.where("user_id=" + userId + " and mon_id=" + a.getAsJsonObject().get("munId").getAsString());
+
+            if (userMonuments.size() == 0) {
+                UserMonument userMonument = new UserMonument();
+                userMonument.setUser_id(userId);
+                userMonument.setMon_id(a.getAsJsonObject().get("munId").getAsInt());
+                if (a.getAsJsonObject().get("type").getAsString().equals("status"))
+                    userMonument.setStatus(a.getAsJsonObject().get("value").getAsString());
+                else
+                    userMonument.setQuizStatus(a.getAsJsonObject().get("value").getAsString());
+                userMonument.save();
+            } else {
+                UserMonument userMonument = userMonuments.get(0);
+                if (a.getAsJsonObject().get("type").getAsString().equals("status"))
+                    userMonument.setStatus(a.getAsJsonObject().get("value").getAsString());
+                else
+                    userMonument.setQuizStatus(a.getAsJsonObject().get("value").getAsString());
+                userMonument.save();
+            }
+
+
+        }
+
+
+        return gson.toJson(response);
     }
 
 

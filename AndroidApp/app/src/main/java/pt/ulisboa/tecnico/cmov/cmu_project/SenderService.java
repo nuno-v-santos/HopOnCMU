@@ -69,12 +69,6 @@ public class SenderService extends Service {
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
-    private SimWifiP2pManager mManager = null;
-    private SimWifiP2pManager.Channel mChannel = null;
-    private Messenger mService = null;
-    private SimWifiP2pSocketServer mSrvSocket = null;
-    private SimWifiP2pSocket mCliSocket = null;
-
 
     // Handler that receives messages from the thread
     public final class ServiceHandler extends Handler {
@@ -122,13 +116,14 @@ public class SenderService extends Service {
                         String[] s = token.split("\\|");
                         int id = (Integer.parseInt(s[1]));
 
-
+                        Gson gson = new Gson();
                         try {
                             JSONObject jsonObject2 = new JSONObject();
-                            jsonObject2.accumulate("answers", new JSONArray(answers));
-                            jsonObject2.accumulate("events", new JSONArray(events));
-                            jsonObject.put("data", jsonObject2);
+                            jsonObject2.accumulate("answers", new JSONArray(gson.toJson(answers)));
+                            jsonObject2.accumulate("events", new JSONArray(gson.toJson(events)));
+                            jsonObject.accumulate("data", jsonObject2);
                             jsonObject.put("type", "server");
+                            jsonObject.put("sender", MainActivity.wifiDirect.getMyIp());
                             jsonObject.put("id", id);
 
 
@@ -281,9 +276,6 @@ public class SenderService extends Service {
         // Get the HandlerThread's Looper and use it for our Handler
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
-
-        SimWifiP2pSocketManager.Init(getApplicationContext());
-
     }
 
     @Override

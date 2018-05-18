@@ -21,5 +21,6 @@ public class URLS {
     public static final String URL_SYNC = ROOT_URL + "android/sync/";
     public static final String URL_POST_EVENTS_POOL = ROOT_URL + "android/sync/events/";
     public static final String URL_POST_ANSWERS_POOL = ROOT_URL + "android/sync/answers/";
+    public static final String URL_POST_SERVER_POOL = ROOT_URL + "android/sync/server/";
 
 }

@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="17820dd6-286c-4406-975b-ebbb606b1757" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/servercmu/src/EndPoints/AndroidEndPoints.java" afterPath="$PROJECT_DIR$/servercmu/src/EndPoints/AndroidEndPoints.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AndroidApp/app/src/main/java/pt/ulisboa/tecnico/cmov/cmu_project/MainActivity.java" afterPath="$PROJECT_DIR$/AndroidApp/app/src/main/java/pt/ulisboa/tecnico/cmov/cmu_project/MainActivity.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AndroidApp/app/src/main/java/pt/ulisboa/tecnico/cmov/cmu_project/Monument/MonumentScreenActivity.java" afterPath="$PROJECT_DIR$/AndroidApp/app/src/main/java/pt/ulisboa/tecnico/cmov/cmu_project/Monument/MonumentScreenActivity.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AndroidApp/app/src/main/java/pt/ulisboa/tecnico/cmov/cmu_project/SenderService.java" afterPath="$PROJECT_DIR$/AndroidApp/app/src/main/java/pt/ulisboa/tecnico/cmov/cmu_project/SenderService.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AndroidApp/app/src/main/java/pt/ulisboa/tecnico/cmov/cmu_project/SimWifiP2pBroadcastReceiver.java" afterPath="$PROJECT_DIR$/AndroidApp/app/src/main/java/pt/ulisboa/tecnico/cmov/cmu_project/SimWifiP2pBroadcastReceiver.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AndroidApp/app/src/main/java/pt/ulisboa/tecnico/cmov/cmu_project/WifiDirect.java" afterPath="$PROJECT_DIR$/AndroidApp/app/src/main/java/pt/ulisboa/tecnico/cmov/cmu_project/WifiDirect.java" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -42,9 +47,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="AndroidView" />
       <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane" />
       <pane id="PackagesPane" />
     </panes>
@@ -149,7 +154,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
+    <frame x="-8" y="-8" width="1382" height="744" extended-state="0" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
