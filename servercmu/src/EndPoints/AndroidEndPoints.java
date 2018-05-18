@@ -244,15 +244,17 @@ public class AndroidEndPoints {
                 StringBuilder stringBuilder = new StringBuilder();
                 List<Monument> monuments = user.getTicket().getTour().getMonuments();
                 List<QuizResponse> quizResponses = user.getQuizResponses();
+                List<UserMonument> userMonuments = user.getUserMonuments();
 
 
-                stringBuilder.append("{");
+                stringBuilder.append("[");
                 //monuments
-                stringBuilder.append("\"monuments\":[");
 
                 for (Monument monument : monuments) {
 
                     Quiz quiz = monument.getQuiz();
+                    List<UserMonument> ums = userMonuments.stream().filter(um -> um.getMon_id() == monument.getId()).collect(Collectors.toList());
+                    UserMonument userMonument = ums.size() > 0 ? ums.get(0) : null;
 
                     StringBuilder quizQuestions = new StringBuilder();
                     quizQuestions.append("[");
@@ -289,15 +291,15 @@ public class AndroidEndPoints {
 
                     stringBuilder.append("{" +
                             "\"monument\" : " + gson.toJson(monument) + "," +
-                            "\"activeQuiz\" : " + (thisMonumentQuizResponses.size() != monument.getQuiz().getQuestions().size()) + "," +
+                            "\"status\" : " + gson.toJson((userMonument != null ? userMonument.getStatus() : "Not Visited")) + "," +
+                            "\"quizStatus\" : " + gson.toJson((userMonument != null ? userMonument.getQuizStatus() : "INITIAL")) + "," +
                             "\"responses\" : " + gson.toJson(thisMonumentQuizResponses) + "," +
-                            "\"questions\" : " + quizQuestions.toString() +
+                            "\"questions\" : " + (userMonument != null && !userMonument.getQuizStatus().equals("INITIAL") ? quizQuestions.toString() : "[]") +
                             "}");
 
                 }
                 stringBuilder.append("]");
                 //end monuments
-                stringBuilder.append("}");
                 return stringBuilder.toString();
 
             } catch (Exception e) {
@@ -344,7 +346,50 @@ public class AndroidEndPoints {
         post("/android/sync/events/", (req, res) -> {
 
             System.out.println(req.body());
-            return false;
+
+            String token = req.headers("token");
+            User user = validateUser(token);
+
+            if (user == null)
+                return "{" +
+                        "\"error\" : " + "invalid user" +
+                        "}";
+
+            System.out.println(req.body());
+            JsonElement body = new JsonParser().parse(req.body());
+            JsonArray answers = body.getAsJsonArray();
+            ArrayList<String> response = new ArrayList<>();
+            Gson gson = new Gson();
+
+            for (JsonElement a : answers) {
+                response.add(a.getAsJsonObject().get("id").getAsString());
+
+                List<UserMonument> userMonuments = UserMonument.where("user_id=" + user.getId() + " and mon_id=" + a.getAsJsonObject().get("munId").getAsString());
+
+                if (userMonuments.size() == 0) {
+                    UserMonument userMonument = new UserMonument();
+                    userMonument.setUser_id(user.getId());
+                    userMonument.setMon_id(a.getAsJsonObject().get("munId").getAsInt());
+                    if (a.getAsJsonObject().get("type").getAsString().equals("status"))
+                        userMonument.setStatus(a.getAsJsonObject().get("value").getAsString());
+                    else
+                        userMonument.setQuizStatus(a.getAsJsonObject().get("value").getAsString());
+                    userMonument.save();
+                } else {
+                    UserMonument userMonument = userMonuments.get(0);
+                    if (a.getAsJsonObject().get("type").getAsString().equals("status"))
+                        userMonument.setStatus(a.getAsJsonObject().get("value").getAsString());
+                    else
+                        userMonument.setQuizStatus(a.getAsJsonObject().get("value").getAsString());
+                    userMonument.save();
+                }
+
+
+            }
+
+
+            return gson.toJson(response);
+
 
         });
 

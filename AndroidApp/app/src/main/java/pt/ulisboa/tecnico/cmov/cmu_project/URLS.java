@@ -19,5 +19,7 @@ public class URLS {
     public static final String URL_POST_USER_ANSWERS = ROOT_URL + "android/userAnswers/";
     public static final String URL_CHECK_VERSION = ROOT_URL + "android/version/";
     public static final String URL_SYNC = ROOT_URL + "android/sync/";
+    public static final String URL_POST_EVENTS_POOL = ROOT_URL + "android/sync/events/";
+    public static final String URL_POST_ANSWERS_POOL = ROOT_URL + "android/sync/answers/";
 
 }

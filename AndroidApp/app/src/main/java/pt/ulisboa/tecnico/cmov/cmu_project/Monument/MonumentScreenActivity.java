@@ -51,7 +51,7 @@ import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
 import pt.ulisboa.tecnico.cmov.cmu_project.VolleySingleton;
 
 
-public class MonumentScreenActivity extends AppCompatActivity implements PeerListListener{
+public class MonumentScreenActivity extends AppCompatActivity implements PeerListListener {
 
     private MonumentData monData;
     public static final String MONUMENT_DATA = "MONUMENT_DATA";
@@ -117,16 +117,15 @@ public class MonumentScreenActivity extends AppCompatActivity implements PeerLis
     };
 
 
-
     /**
-     peerScan activity returns the nearby peers
-     Here it checks if the monument is one of the nearby
-     If it is then it downloads the quiz
+     * peerScan activity returns the nearby peers
+     * Here it checks if the monument is one of the nearby
+     * If it is then it downloads the quiz
      */
     @Override
     public void onPeersAvailable(SimWifiP2pDeviceList peers) {
         for (SimWifiP2pDevice device : peers.getDeviceList()) {
-            if (device.deviceName.equals(this.monData.getMonumentName())){
+            if (device.deviceName.equals(this.monData.getMonumentName())) {
                 Toast.makeText(getBaseContext(), R.string.txt_down, Toast.LENGTH_SHORT).show();
                 this.downloadQuestions();
                 return;
@@ -169,7 +168,6 @@ public class MonumentScreenActivity extends AppCompatActivity implements PeerLis
 
 
         if (dbHelper.questionForMonumentDownload(monID)) {
-            DatabaseHelper.getInstance(getApplicationContext()).updateMonumentStatus(this.monData.getMonumentID(), Monument.QUIZ);
             startQuizActivity(monID);
 
         /*} else if (!dbHelper.questionForMonumentDownload(monID)) {
@@ -245,6 +243,8 @@ public class MonumentScreenActivity extends AppCompatActivity implements PeerLis
 
 
                     dbHelper.updateMonumentQuizStatus(monumentID, MonumentData.DOWNLOADED);
+                    dbHelper.updateMonumentStatus(monumentID, Monument.QUIZ);
+
                     Button btn = findViewById(R.id.btnDownloadQuiz);
                     btn.setText(R.string.play_quiz);
 

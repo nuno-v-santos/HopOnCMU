@@ -88,28 +88,27 @@ public class SenderService extends Service {
             }
         }
 
-        private void postEvents(List<QuizEvent> events) {
+        private void postEvents(List<QuizEvent> events) throws JSONException {
 
             SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, getApplicationContext().MODE_PRIVATE);
             final String token = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
-
-            JSONObject postParams = new JSONObject();
-
-
-            try {
-                Gson gson = new Gson();
-                postParams.put("events", new JSONArray(gson.toJson(events)));
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            Gson gson = new Gson();
 
             if (!token.equals("")) {
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, URLS.URL_POST_EVENTS_POOL, postParams, new Response.Listener<JSONObject>() {
+                JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.POST, URLS.URL_POST_EVENTS_POOL, new JSONArray(gson.toJson(events)), new Response.Listener<JSONArray>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onResponse(JSONArray response) {
                         System.out.println(response.toString());
+                        for (int i = 0; i < response.length(); i++) {
+                            try {
 
+                                int id = Integer.parseInt(response.getString(i));
+                                db.updateEventPoolAck(id);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
 
                     }
                 }, new Response.ErrorListener() {

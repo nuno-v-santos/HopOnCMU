@@ -244,6 +244,29 @@ public class User {
     }
 
 
+    public List<UserMonument> getUserMonuments() {
+        // select * from Person where manel_id = this.id;
+        String query = String.format("select * from UserMonument where user_id = " + this.id);
+        ResultSet result = con.executeQuery(query);
+        List<UserMonument> lista = new ArrayList<>();
+
+        try {
+
+            while (result.next()) {
+
+                UserMonument p = (UserMonument) UserMonument.getUserMonumentClass(result);
+                lista.add(p);
+
+            }
+
+            return lista;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     @Override
     public String toString() {
         return "User{" +

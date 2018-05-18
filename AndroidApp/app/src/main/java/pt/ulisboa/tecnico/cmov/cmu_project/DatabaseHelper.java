@@ -568,4 +568,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put(ANSWER_POOL_ACK, 1);
         db.update(TABLE_ANSWERS_POOL, cv, ANSWER_POOL_ID + "= ?", new String[]{"" + id});
     }
+
+    public void updateEventPoolAck(int id) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(EVENT_POOL_ACK, 1);
+        db.update(TABLE_EVENTS_POOL, cv, EVENT_POOL_ID + "= ?", new String[]{"" + id});
+    }
 }

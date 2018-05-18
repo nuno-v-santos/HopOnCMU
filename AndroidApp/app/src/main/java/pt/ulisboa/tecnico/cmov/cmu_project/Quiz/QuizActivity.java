@@ -104,7 +104,7 @@ public class QuizActivity extends AppCompatActivity {
 
                     DatabaseHelper.getInstance(getBaseContext()).updateQuestionAnswered(currentQuestion.getQuestionID());
 
-                    if (QuizActivity.this.questionNumber <= QuizActivity.this.quizQuestions.size()) {
+                    if (QuizActivity.this.questionNumber <= QuizActivity.this.quizQuestions.size() && !prev_screen && !questionsAnswered) {
 
                         //marcar se errou ou acertou
                         if (QuizActivity.this.selectedRightOption(listView.getItemAtPosition(position).toString()))
@@ -150,10 +150,23 @@ public class QuizActivity extends AppCompatActivity {
                 textTimer.setText("0:" + checkDigit(time));
                 elapsedSeconds++;
                 time--;
+
+
             }
 
             public void onFinish() {
                 textTimer.setText("timeup");
+
+                if (questionNumber + 1 == quizQuestions.size()) {
+                    // QuizActivity.this.timeCounter.interrupt();
+                    db.updateMonumentQuizStatus(monID, MonumentData.ANSWERED);
+                    Button button = findViewById(R.id.btnNextQuestion);
+                    button.setText(R.string.go_back);
+                    prev_screen = true;
+                    db.insertAnswersPool(quizAnswers);
+                } else {
+                    questionsAnswered = true;
+                }
             }
 
         }.start();
@@ -231,7 +244,8 @@ public class QuizActivity extends AppCompatActivity {
     public void onDestroy() {
         // DatabaseHelper.getInstance(getBaseContext()).updateQuestionAnswered(currentQuestion.getQuestionID());
         // enviar para o servidor todas as respostas erradas talvez e tempos absurdos ???
-        db.updateMonumentQuizStatus(monID, MonumentData.INTERRUPTED);
+        if (!prev_screen)
+            db.updateMonumentQuizStatus(monID, MonumentData.INTERRUPTED);
         super.onDestroy();
 
     }

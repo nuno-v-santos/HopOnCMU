@@ -28,6 +28,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,6 +45,7 @@ import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.Ranking.RankingFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 
 import pt.inesc.termite.wifidirect.*;
+import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentScreenActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Termite.SimWifiP2pBroadcastReceiver;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -178,14 +180,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * @throws JSONException
      */
     private void addMonumentToDB(JSONObject jObject, DatabaseHelper databaseHelper) throws JSONException {
-        String imURL = jObject.getString("imageURL");
-        String name = jObject.getString("name");
-        String wifiId = jObject.getString("wifiId");
-        int id = jObject.getInt("id");
+        String imURL = jObject.getJSONObject("monument").getString("imageURL");
+        String name = jObject.getJSONObject("monument").getString("name");
+        String wifiId = jObject.getJSONObject("monument").getString("wifiId");
+        String status = jObject.getString("status");
+        String quizStatus = jObject.getString("quizStatus");
+        int id = jObject.getJSONObject("monument").getInt("id");
         String sampleDesc = getResources().getString(R.string.sample_desc);
-        databaseHelper.insertMonument(id, MonumentData.NOT_VISITED, MonumentData.INITIAL, imURL, name, sampleDesc, wifiId);
+        databaseHelper.insertMonument(id, status, quizStatus, imURL, name, sampleDesc, wifiId);
+
+        JSONArray questions = jObject.getJSONArray("questions");
+
+        for (int i = 0; i < questions.length(); i++) {
+            try {
+                JSONObject tmpObj = questions.getJSONObject(i);
+                insertQuestionInDb(tmpObj, id, databaseHelper);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
+
+    private void insertQuestionInDb(JSONObject questionObj, int monumentID, DatabaseHelper databaseHelper) throws JSONException {
+
+        String question = questionObj.getString("question");
+        int questionID = questionObj.getInt("id");
+        JSONArray answers = questionObj.getJSONArray("answers");
+        databaseHelper.insertQuestion(questionID, monumentID, question, 0);
+
+        for (int j = 0; j < answers.length(); j++) {
+            JSONObject tmp = answers.getJSONObject(j);
+            String answer = tmp.getString("answer");
+            int answerID = tmp.getInt("id");
+            int correct = tmp.getInt("correct");
+            databaseHelper.insertAnswer(answerID, questionID, answer, correct);
+        }
+    }
 
     /**
      * Method that asks the server for the monuments
@@ -197,10 +229,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
         Toast.makeText(this, sessionToken, Toast.LENGTH_SHORT).show();
         final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getBaseContext());
-        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, URLS.URL_GET_MONUMENTS, null, new Response.Listener<JSONArray>() {
+        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, URLS.URL_SYNC, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                Log.d("response",response.toString());
+                Log.d("response", response.toString());
                 for (int i = 0; i < response.length(); i++) {
                     try {
                         addMonumentToDB(response.getJSONObject(i), databaseHelper);
