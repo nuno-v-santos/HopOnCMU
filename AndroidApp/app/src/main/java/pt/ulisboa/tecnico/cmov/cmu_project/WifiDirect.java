@@ -88,6 +88,7 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
                         pool.notify();
                     }
                 }
+
                 while (true) {
                     if (Thread.currentThread().isInterrupted()) {
                         synchronized (this) {
@@ -126,6 +127,9 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
 
         //receiver.start();
 
+        Intent intent = new Intent(getContext(), SimWifiP2pService.class);
+        getContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
 
     }
 
@@ -152,6 +156,7 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
             mChannel = mManager.initialize(getContext(), getContext().getMainLooper(), null);
             mBound = true;
             mManager.requestGroupInfo(mChannel, WifiDirect.this);
+            mManager.requestPeers(mChannel, WifiDirect.this);
         }
 
         @Override
@@ -243,28 +248,21 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
 
 
     public void wifiOn() {
-        Intent intent = new Intent(getContext(), SimWifiP2pService.class);
-        getContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         mBound = true;
 
-        if (receiver.getState() == Thread.State.NEW)
+       /* if (receiver.getState() == Thread.State.NEW)
             receiver.start();
         else {
             synchronized (receiver) {
                 receiver.notify();
             }
-        }
+        }*/
+        getContext().unbindService(mConnection);
 
-
-      /*  // spawn the chat server background task
-        new IncommingCommTask().executeOnExecutor(
-                AsyncTask.THREAD_POOL_EXECUTOR);
-                */
     }
 
     public void wifiOff() {
         if (mBound) {
-            getContext().unbindService(mConnection);
             mBound = false;
             receiver.interrupt();
         }
