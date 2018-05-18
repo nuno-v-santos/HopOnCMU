@@ -92,6 +92,7 @@ public class SenderService extends Service implements SimWifiP2pManager.GroupInf
             db.setCurrentPool(this);
             NetworkStateReceiver.setCurrentPool(this);
 
+
             try {
 
                 while (true) {

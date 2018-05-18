@@ -40,6 +40,7 @@ import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 import pt.ulisboa.tecnico.cmov.cmu_project.DatabaseHelper;
 import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.MonumentList.Monument;
 import pt.ulisboa.tecnico.cmov.cmu_project.LoginActivity;
+import pt.ulisboa.tecnico.cmov.cmu_project.MainActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizQuestion;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
@@ -47,15 +48,13 @@ import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
 import pt.ulisboa.tecnico.cmov.cmu_project.VolleySingleton;
 
 
-public class MonumentScreenActivity extends AppCompatActivity implements PeerListListener {
+public class MonumentScreenActivity extends AppCompatActivity {
 
     private MonumentData monData;
     public static final String MONUMENT_DATA = "MONUMENT_DATA";
     private ArrayList<QuizQuestion> quizQuestions = new ArrayList<>();
     private DatabaseHelper dbHelper;
 
-    private SimWifiP2pManager mManager = null;
-    private SimWifiP2pManager.Channel mChannel = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +62,6 @@ public class MonumentScreenActivity extends AppCompatActivity implements PeerLis
         getSupportActionBar().hide();
         setContentView(R.layout.activity_monument_screen);
 
-        Intent i = new Intent(getApplicationContext(), SimWifiP2pService.class);
-        bindService(i, mConnection, Context.BIND_AUTO_CREATE);
 
         Intent intent = getIntent();
         dbHelper = DatabaseHelper.getInstance(getApplicationContext());
@@ -77,41 +74,6 @@ public class MonumentScreenActivity extends AppCompatActivity implements PeerLis
             button.setText(R.string.play_quiz);
         }
 
-    }
-
-
-    private ServiceConnection mConnection = new ServiceConnection() {
-        // callbacks for service binding, passed to bindService()
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            mManager = new SimWifiP2pManager(new Messenger(service));
-            mChannel = mManager.initialize(getApplication(), getMainLooper(), null);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mManager = null;
-            mChannel = null;
-        }
-    };
-
-
-    /**
-     * peerScan activity returns the nearby peers
-     * Here it checks if the monument is one of the nearby
-     * If it is then it downloads the quiz
-     */
-    @Override
-    public void onPeersAvailable(SimWifiP2pDeviceList peers) {
-        for (SimWifiP2pDevice device : peers.getDeviceList()) {
-            if (device.deviceName.equals(this.monData.getWifiId())) {
-                Toast.makeText(getBaseContext(), R.string.txt_down, Toast.LENGTH_SHORT).show();
-                this.downloadQuestions();
-                return;
-            }
-        }
-        Toast.makeText(getBaseContext(), "Not in the monument", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -156,7 +118,14 @@ public class MonumentScreenActivity extends AppCompatActivity implements PeerLis
 
         } else if (!dbHelper.questionForMonumentDownload(monID)) {
             //scans nearby peers to check if near the monument
-            mManager.requestPeers(mChannel, MonumentScreenActivity.this);
+            for (SimWifiP2pDevice device : MainActivity.wifiDirect.getDevicesList()) {
+                if (device.deviceName.equals(this.monData.getWifiId())) {
+                    Toast.makeText(getBaseContext(), R.string.txt_down, Toast.LENGTH_SHORT).show();
+                    this.downloadQuestions();
+                    return;
+                }
+            }
+            Toast.makeText(getBaseContext(), "Not in the monument", Toast.LENGTH_SHORT).show();
         }
     }
 

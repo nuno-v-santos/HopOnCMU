@@ -50,12 +50,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private String userName;
     public static final String TAG = "peerscanner";
+    public static WifiDirect wifiDirect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        this.wifiDirect = WifiDirect.getInstance(getApplicationContext());
 
         Intent intent = getIntent();
         this.userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
@@ -86,11 +88,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //navigation configurations
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        /*if (userName != null) {
-            TextView usernameText = findViewById(R.id.username);
-            usernameText.setText(userName);
-        }*/
 
         if (DatabaseHelper.getInstance(getBaseContext()).tableIsEmpty(DatabaseHelper.TABLE_MONUMENTS))
             getMonuments();
@@ -199,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, URLS.URL_GET_MONUMENTS, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                Log.d("response",response.toString());
+                Log.d("response", response.toString());
                 for (int i = 0; i < response.length(); i++) {
                     try {
                         addMonumentToDB(response.getJSONObject(i), databaseHelper);
