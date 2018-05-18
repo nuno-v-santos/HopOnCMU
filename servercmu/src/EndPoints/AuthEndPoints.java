@@ -107,10 +107,13 @@ public class AuthEndPoints {
                     }
 
                     if (user.getTicket().getNumber() != Integer.parseInt(ticket)) {
-                        return "{" +
+                        String result = "{" +
                                 "\"token\" : \"" + "\"," +
                                 "\"error\" : \"" + "Bus ticket and Username does not match" + "\"" +
                                 "}";
+                        response.header("INTEGRIDATE", Crypto.calculateHMAC(result));
+                        return result;
+
                     }
 
                     String token = UUID.randomUUID().toString().toUpperCase()
@@ -129,17 +132,21 @@ public class AuthEndPoints {
                     session.save();
 
                     user.setSession(session);
-                    return "{" +
+                    String result = "{" +
                             "\"token\" : \"" + token + "\"," +
                             "\"error\" : \"" + "\"" +
                             "}";
+                    response.header("INTEGRIDATE", Crypto.calculateHMAC(result));
+                    return result;
 
                 } else {
-
-                    return "{" +
+                    String result = "{" +
                             "\"token\" : \"" + "\"," +
                             "\"error\" : \"" + "User does not exist" + "\"" +
                             "}";
+                    response.header("INTEGRIDATE", Crypto.calculateHMAC(result));
+                    return result;
+
                 }
 
             } catch (Exception e) {

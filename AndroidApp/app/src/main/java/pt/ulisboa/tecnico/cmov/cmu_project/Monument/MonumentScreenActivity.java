@@ -45,6 +45,7 @@ import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizActivity;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizQuestion;
 import pt.ulisboa.tecnico.cmov.cmu_project.R;
 import pt.ulisboa.tecnico.cmov.cmu_project.URLS;
+import pt.ulisboa.tecnico.cmov.cmu_project.VolleyRequests.JsonArrayRequestV;
 import pt.ulisboa.tecnico.cmov.cmu_project.VolleySingleton;
 
 
@@ -179,9 +180,17 @@ public class MonumentScreenActivity extends AppCompatActivity {
         final String token = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
 
         if (!token.equals("")) {
-            JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, URLS.URL_GET_QUESTIONS, null, new Response.Listener<JSONArray>() {
+            JsonArrayRequestV jsonObjectRequest = new JsonArrayRequestV(Request.Method.GET, URLS.URL_GET_QUESTIONS, null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
+
+
+                    if (response == null) {
+                        Toast.makeText(getApplicationContext(), "INTEGRITY FAIL", Toast.LENGTH_LONG);
+                        return;
+
+                    }
+
                     System.out.println(response.toString());
                     for (int i = 0; i < response.length(); i++) {
                         try {

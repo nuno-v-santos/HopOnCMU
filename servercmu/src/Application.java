@@ -16,6 +16,8 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
+import javax.xml.bind.DatatypeConverter;
+
 import static spark.Spark.*;
 
 public class Application {
@@ -67,6 +69,12 @@ public class Application {
         AuthEndPoints.mount();
         AndroidEndPoints.mount();
 
+
+        try {
+            System.out.println(Crypto.decrypt(DatatypeConverter.parseHexBinary("0c7e1eb614ef817c4d6b3331d3b64984072d5806370a748f2295dd570b6fd8cf84d24d140c5660c8b7887c4da3e4c14b"),"E09E1145-1863-4402-B063-55EE72B4"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 }

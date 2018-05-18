@@ -50,6 +50,7 @@ import pt.ulisboa.tecnico.cmov.cmu_project.Fragments.Ranking.RankingFragment;
 import pt.ulisboa.tecnico.cmov.cmu_project.Monument.MonumentData;
 
 import pt.inesc.termite.wifidirect.*;
+import pt.ulisboa.tecnico.cmov.cmu_project.VolleyRequests.JsonArrayRequestV;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -237,9 +238,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final String sessionToken = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
         Toast.makeText(this, sessionToken, Toast.LENGTH_SHORT).show();
         final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getBaseContext());
-        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, URLS.URL_SYNC, null, new Response.Listener<JSONArray>() {
+        JsonArrayRequestV jsonObjectRequest = new JsonArrayRequestV(Request.Method.GET, URLS.URL_SYNC, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
+                if (response == null) {
+                    Toast.makeText(getApplicationContext(), "INTEGRITY FAIL", Toast.LENGTH_LONG);
+                    return;
+
+                }
+
                 Log.d("response", response.toString());
                 for (int i = 0; i < response.length(); i++) {
                     try {

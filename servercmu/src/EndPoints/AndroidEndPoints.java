@@ -60,7 +60,6 @@ public class AndroidEndPoints {
 
         }));
 
-
         get("/android/userInfo/", ((request, response) -> {
 
             try {
@@ -81,17 +80,19 @@ public class AndroidEndPoints {
                 String tour = gson.toJson(user.getTicket().getTour());
                 JsonObject responsePrams = new JsonObject();
 
-                return "" + '{' +
+                String result = "" + '{' +
                         '"' + "ticket" + '"' + ':' + ticket + ',' +
                         '"' + "tour" + '"' + ':' + tour +
                         '}';
+
+                response.header("INTEGRIDATE", Crypto.calculateHMAC(result));
+                return result;
 
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
         }));
-
 
         get("/android/monumentQuestions/", ((request, response) -> {
 
@@ -135,14 +136,15 @@ public class AndroidEndPoints {
 
                 quizQuestions.append("]");
 
-                return quizQuestions.toString();
+                String result = quizQuestions.toString();
+                response.header("INTEGRIDATE", Crypto.calculateHMAC(result));
+                return result;
 
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
         }));
-
 
         get("/android/ranking/", (req, res) -> {
 
@@ -178,7 +180,6 @@ public class AndroidEndPoints {
             return gson.toJson(score);
 
         });
-
 
         post("/android/userAnswers/", (req, response) -> {
 
@@ -224,7 +225,6 @@ public class AndroidEndPoints {
                     "}";
 
         });
-
 
         get("/android/version/", (req, res) -> {
             return VERSION;
@@ -300,7 +300,9 @@ public class AndroidEndPoints {
                 }
                 stringBuilder.append("]");
                 //end monuments
-                return stringBuilder.toString();
+                String result = stringBuilder.toString();
+                res.header("INTEGRIDATE", Crypto.calculateHMAC(result));
+                return result;
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -339,7 +341,9 @@ public class AndroidEndPoints {
             }
 
 
-            return gson.toJson(response);
+            String result = gson.toJson(response);
+            res.header("INTEGRIDATE", Crypto.calculateHMAC(result));
+            return result;
 
         });
 
@@ -388,26 +392,52 @@ public class AndroidEndPoints {
             }
 
 
-            return gson.toJson(response);
+            String result = gson.toJson(response);
+            res.header("INTEGRIDATE", Crypto.calculateHMAC(result));
+            return result;
 
 
         });
 
         post("/android/sync/server/", (req, res) -> {
 
-            System.out.println(req.body());
-            JsonObject body = new JsonParser().parse(req.body()).getAsJsonObject();
+            try {
+                System.out.println(req.body());
 
-            return "{" +
-                    "\"type\" : " + "\"serverResponse\"," +
-                    "\"data\" : " + "{" +
-                    "\"answers\" : " + processAnswers(body.get("data").getAsJsonObject().get("answers").getAsJsonArray(), body.get("id").getAsInt()) + "," +
-                    "\"events\" : " + processEvents(body.get("data").getAsJsonObject().get("events").getAsJsonArray(), body.get("id").getAsInt()) +
-                    "}" +
-                    "}";
+                JsonObject body = new JsonParser().parse(req.body()).getAsJsonObject();
+                User user = User.get(body.get("id").getAsInt());
+
+                if (user != null) {
+
+                    String decrypt = Crypto.decrypt(Crypto.hexStringToByteArray(body.get("data").getAsString()), user.getSession().getToken().substring(0, 32));
+                    if (!Crypto.calculateHMAC(decrypt).equals(body.get("INTEGRIDADE").getAsString())) {
+                        return false;
+                    }
+                    System.out.println("DECRYPT");
+                    System.out.println(decrypt);
+
+                    JsonObject jsonObject = new JsonParser().parse(decrypt).getAsJsonObject();
+
+                    String message = "{" +
+                            "\"answers\" : " + processAnswers(jsonObject.get("answers").getAsJsonArray(), body.get("id").getAsInt()) + "," +
+                            "\"events\" : " + processEvents(jsonObject.get("events").getAsJsonArray(), body.get("id").getAsInt()) +
+                            "}";
+
+                    return "{" +
+                            "\"type\" : " + "\"serverResponse\"," +
+                            "\"INTEGRIDADE\" : " + "\"" + Crypto.calculateHMAC(message) + "\"," +
+                            "\"test\" : " + "\"" + user.getSession().getToken().substring(0, 32) + "\"," +
+                            "\"data\" : " + "\"" + Crypto.encrypt(message, user.getSession().getToken().substring(0, 32)) + "\"" +
+                            "}";
+
+                } else {
+                    return null;
+                }
+            } catch (Exception e) {
+                return null;
+            }
 
         });
-
 
     }
 

@@ -33,6 +33,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import pt.ulisboa.tecnico.cmov.cmu_project.VolleyRequests.JsonObjectRequestV;
+
 public class LoginActivity extends AppCompatActivity {
 
     private Random rand = new Random();
@@ -142,17 +144,22 @@ public class LoginActivity extends AppCompatActivity {
 
         JSONObject postParams = new JSONObject();
         postParams.put(LoginActivity.USERNAME, userName);
-        try{
+        try {
             postParams.put(LoginActivity.TICKET, Integer.parseInt(ticketNumber));
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             e.printStackTrace();
         }
         postParams.put(LoginActivity.RANDOM, randInt);
 
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST, URLS.URL_LOGIN, postParams, new Response.Listener<JSONObject>() {
+        JsonObjectRequestV jsonObjReq = new JsonObjectRequestV(Request.Method.POST, URLS.URL_LOGIN, postParams, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
+
+                    if (response == null) {
+                        Toast.makeText(getApplicationContext(), "INTEGRITY FAIL", Toast.LENGTH_LONG);
+                        return;
+                    }
 
                     if (response.getString("error").equals("")) {
                         String token = response.getString(LoginActivity.SESSION_TOKEN);

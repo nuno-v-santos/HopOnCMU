@@ -63,6 +63,7 @@ import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
 
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizAnswer;
 import pt.ulisboa.tecnico.cmov.cmu_project.Quiz.QuizEvent;
+import pt.ulisboa.tecnico.cmov.cmu_project.VolleyRequests.JsonArrayRequestV;
 
 
 public class SenderService extends Service {
@@ -121,13 +122,17 @@ public class SenderService extends Service {
                             JSONObject jsonObject2 = new JSONObject();
                             jsonObject2.accumulate("answers", new JSONArray(gson.toJson(answers)));
                             jsonObject2.accumulate("events", new JSONArray(gson.toJson(events)));
-                            jsonObject.accumulate("data", jsonObject2);
+                            jsonObject.put("data", Crypto.encrypt(jsonObject2.toString(), token.substring(0, 32)));
                             jsonObject.put("type", "server");
                             jsonObject.put("sender", MainActivity.wifiDirect.getMyIp());
                             jsonObject.put("id", id);
+                            jsonObject.put("Test", token);
+                            jsonObject.put("INTEGRIDADE", Crypto.calculateHMAC(jsonObject2.toString()));
 
 
                         } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
 
@@ -159,9 +164,16 @@ public class SenderService extends Service {
             Gson gson = new Gson();
 
             if (!token.equals("")) {
-                JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.POST, URLS.URL_POST_EVENTS_POOL, new JSONArray(gson.toJson(events)), new Response.Listener<JSONArray>() {
+                JsonArrayRequestV jsonObjectRequest = new JsonArrayRequestV(Request.Method.POST, URLS.URL_POST_EVENTS_POOL, new JSONArray(gson.toJson(events)), new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
+
+                        if (response == null) {
+                            Toast.makeText(getApplicationContext(), "INTEGRITY FAIL", Toast.LENGTH_LONG);
+                            return;
+
+                        }
+
                         System.out.println(response.toString());
                         for (int i = 0; i < response.length(); i++) {
                             try {
@@ -206,11 +218,18 @@ public class SenderService extends Service {
 
 
             if (!token.equals("")) {
-                JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.POST, URLS.URL_POST_ANSWERS_POOL, new JSONArray(gson.toJson(answers)),
+                JsonArrayRequestV jsonObjectRequest = new JsonArrayRequestV(Request.Method.POST, URLS.URL_POST_ANSWERS_POOL, new JSONArray(gson.toJson(answers)),
                         new Response.Listener<JSONArray>() {
 
                             @Override
                             public void onResponse(JSONArray response) {
+
+                                if (response == null) {
+                                    Toast.makeText(getApplicationContext(), "INTEGRITY FAIL", Toast.LENGTH_LONG);
+                                    return;
+
+                                }
+
                                 System.out.println(response.toString());
 
                                 for (int i = 0; i < response.length(); i++) {

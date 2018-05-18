@@ -332,13 +332,40 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
         }
     }
 
-    private void receiveServerResponse(JSONObject jsonObject) {
-        System.out.println(jsonObject);
+    private void receiveServerResponse(JSONObject jsonObject1) {
+        System.out.println(jsonObject1);
+        String data = null;
+
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, context.getApplicationContext().MODE_PRIVATE);
+        final String token = sharedPreferences.getString(LoginActivity.SESSION_TOKEN, "");
+
+
+        try {
+            data = jsonObject1.getString("data");
+        } catch (JSONException e) {
+            return;
+        }
+
+        JSONObject jsonObject = null;
+        try {
+            System.out.println(Crypto.decrypt(Crypto.hexStringToByteArray(data), token.substring(0, 32)));
+            String decrypted = new String(Crypto.decrypt(Crypto.hexStringToByteArray(data), token.substring(0, 32)));
+
+            if (!Crypto.calculateHMAC(decrypted).equals(jsonObject1.get("INTEGRIDADE"))) {
+                throw new Exception("NOT INTEGRITY");
+            }
+
+            jsonObject = new JSONObject(decrypted);
+        } catch (Exception e) {
+            Log.d("INTEGRIDADE", "FAIL");
+            return;
+        }
 
 
         JSONArray response = null;
         try {
-            response = jsonObject.getJSONObject("data").getJSONArray("answers");
+            response = jsonObject.getJSONArray("answers");
 
             for (int i = 0; i < response.length(); i++) {
                 try {
@@ -356,7 +383,7 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
         }
 
         try {
-            response = jsonObject.getJSONObject("data").getJSONArray("events");
+            response = jsonObject.getJSONArray("events");
 
             for (int i = 0; i < response.length(); i++) {
                 try {

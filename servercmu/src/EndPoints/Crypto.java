@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmu_project;
+package EndPoints;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -30,14 +30,13 @@ public class Crypto {
         return toHexString(cipher.doFinal(message_bytes));
     }
 
-
-    public static byte[] decrypt(byte[] message, String sessionID) throws Exception {
+    public static String decrypt(byte[] message, String sessionID) throws Exception {
         Key key = getKeyFromSessionID(sessionID);
         Cipher cipher;
 
         cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, key);
-        return cipher.doFinal(message);
+        return new String(cipher.doFinal(message));
     }
 
     private static Key getKeyFromSessionID(String sessionID) {
@@ -45,13 +44,8 @@ public class Crypto {
         return secret;
     }
 
-    public static String calculateHMAC(String data) {
-        MessageDigest messageDigest = null;
-        try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
+    public static String calculateHMAC(String data) throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
         messageDigest.update(data.getBytes());
         return toHexString(messageDigest.digest());
     }
