@@ -253,13 +253,13 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
     public void wifiOn() {
         mBound = true;
 
-       /* if (receiver.getState() == Thread.State.NEW)
+        if (receiver.getState() == Thread.State.NEW)
             receiver.start();
         else {
             synchronized (receiver) {
                 receiver.notify();
             }
-        }*/
+        }
         getContext().unbindService(mConnection);
 
     }
