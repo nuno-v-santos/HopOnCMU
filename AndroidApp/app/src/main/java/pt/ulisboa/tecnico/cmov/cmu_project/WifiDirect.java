@@ -193,6 +193,7 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
         }
 
         myDevice = devices.getByName(groupInfo.getDeviceName());
+
         System.out.println(peersStr);
         if (this.isGO) {
             this.pingOwner();
@@ -206,6 +207,8 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
+
+                if (myDevice == null) return;
 
                 JSONObject jsonObject = new JSONObject();
                 try {
