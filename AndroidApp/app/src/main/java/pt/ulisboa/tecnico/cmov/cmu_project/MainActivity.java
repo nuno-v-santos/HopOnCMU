@@ -21,6 +21,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -33,6 +35,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,8 +65,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         this.wifiDirect = WifiDirect.getInstance(getApplicationContext());
 
-        Intent intent = getIntent();
-        this.userName = intent.getStringExtra(LoginActivity.SEND_USERNAME);
+        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.SHARED_PREF_TOKEN, MODE_PRIVATE);
+        this.userName = sharedPreferences.getString(LoginActivity.USERNAME, "");
+
+
+        NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
+        View headerView = navView.getHeaderView(0);
+        TextView navUsername = (TextView) headerView.findViewById(R.id.username);
+        navUsername.setText(userName);
 
 
         Intent serviceInt = new Intent(this, SenderService.class);

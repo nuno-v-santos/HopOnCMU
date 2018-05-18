@@ -1,7 +1,9 @@
 package pt.ulisboa.tecnico.cmov.cmu_project;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.SignatureException;
@@ -18,48 +20,37 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class Crypto {
 
-    public byte[] encrypt(String message, String sessionID) throws Exception {
+    public static byte[] encrypt(String message, String sessionID) throws Exception {
         byte[] message_bytes = message.getBytes();
         Key key = getKeyFromSessionID(sessionID);
         Cipher cipher;
 
-        cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+        cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, key);
         return cipher.doFinal(message_bytes);
     }
 
-    public byte[] decrypt(String message, String sessionID) throws Exception {
-        byte[] message_bytes = message.getBytes();
+    public static byte[] decrypt(byte[] message, String sessionID) throws Exception {
         Key key = getKeyFromSessionID(sessionID);
         Cipher cipher;
 
-        cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+        cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, key);
-        return cipher.doFinal(message_bytes);
+        return cipher.doFinal(message);
     }
 
-    private Key getKeyFromSessionID(String sessionID){
-        byte[] keyStart = sessionID.getBytes();
-        KeyGenerator kgen = null;
-        try {
-            kgen = KeyGenerator.getInstance("AES");
-            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-            sr.setSeed(keyStart);
-            kgen.init(128, sr);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return kgen.generateKey();
+    private static Key getKeyFromSessionID(String sessionID){
+        Key secret = new SecretKeySpec(sessionID.getBytes(), "AES");
+        return secret;
     }
 
-    public String calculateHMAC(String data, String key) throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
-        SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), "HmacSHA1");
-        Mac mac = Mac.getInstance("HmacSHA1");
-        mac.init(signingKey);
-        return toHexString(mac.doFinal(data.getBytes()));
+    public static String calculateHMAC(String data, String key) throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        messageDigest.update(data.getBytes());
+        return toHexString(messageDigest.digest());
     }
 
-    private String toHexString(byte[] bytes) {
+    private static String toHexString(byte[] bytes) {
         Formatter formatter = new Formatter();
         for (byte b : bytes) {
             formatter.format("%02x", b);
