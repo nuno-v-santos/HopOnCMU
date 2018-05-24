@@ -277,6 +277,10 @@ public class WifiDirect implements SimWifiP2pManager.PeerListListener, SimWifiP2
             }
         }
 
+        synchronized (pool) {
+            pool.notify();
+        }
+
     }
 
     public void wifiOff() {

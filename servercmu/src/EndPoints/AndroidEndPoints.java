@@ -149,10 +149,6 @@ public class AndroidEndPoints {
         get("/android/ranking/", (req, res) -> {
 
             //obter o token
-            String token = req.headers("token");
-            User user = validateUser(token);
-            if (user == null)
-                return false;
 
             List<QuizResponse> quizResponses = QuizResponse.all();
 
@@ -249,8 +245,9 @@ public class AndroidEndPoints {
 
                 stringBuilder.append("[");
                 //monuments
-
+                int i = 0;
                 for (Monument monument : monuments) {
+
 
                     Quiz quiz = monument.getQuiz();
                     List<UserMonument> ums = userMonuments.stream().filter(um -> um.getMon_id() == monument.getId()).collect(Collectors.toList());
@@ -296,6 +293,12 @@ public class AndroidEndPoints {
                             "\"responses\" : " + gson.toJson(thisMonumentQuizResponses) + "," +
                             "\"questions\" : " + (userMonument != null && !userMonument.getQuizStatus().equals("INITIAL") ? quizQuestions.toString() : "[]") +
                             "}");
+
+                    if (monuments.size() != 1 && i < monuments.size() - 1) {
+                        stringBuilder.append(",");
+                    }
+
+                    i++;
 
                 }
                 stringBuilder.append("]");
